@@ -18,7 +18,8 @@ function func_val = simu_acc_weak(spotV, num_maturity, dt_maturity,...
     for i = 1:num_steps_mc
         f_mc_current = max(V_mat_mc(:,i), eps);
         delta_u = -lambda*V_mat_mc(:,i)*dt + nu*sqrt(f_mc_current).*noise_mat_3d_mc(:,i,1);
-        u_current_mc = (u_current_mc + delta_u) ./ (1 + xs*dt);
+        % u_current_mc = (u_current_mc + delta_u) ./ (1 + xs*dt);
+        u_current_mc = (u_current_mc + delta_u) .* exp(-xs*dt);
         V_mat_mc(:,i+1) = V_mat_mc(:,i+1) + sum(cs .* u_current_mc,2); 
     end
     t1=toc;

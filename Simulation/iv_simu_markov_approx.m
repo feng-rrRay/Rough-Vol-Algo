@@ -20,7 +20,8 @@ function [iv_mat, tau_vec, moneyness_mat] = iv_simu_markov_approx(spotV, num_mat
     for i = 1:num_steps_mc
         f_mc_current = max(V_mat_mc(:,i), eps);
         delta_u = -lambda*V_mat_mc(:,i)*dt + nu*sqrt(f_mc_current).*noise_mat_3d_mc(:,i,1);
-        u_current_mc = (u_current_mc + delta_u) ./ (1 + xs*dt);
+        % u_current_mc = (u_current_mc + delta_u) ./ (1 + xs*dt);
+        u_current_mc = (u_current_mc + delta_u) .* exp(-xs*dt);
         V_mat_mc(:,i+1) = V_mat_mc(:,i+1) + sum(cs .* u_current_mc,2); % DOUBLE CHECKED here
         logS_mc_current = logS_mc_current + (r - f_mc_current/2) * dt + ...
             sqrt(f_mc_current) .* (rho*noise_mat_3d_mc(:,i,1) + sqrt(1-rho^2)*noise_mat_3d_mc(:,i,2));
