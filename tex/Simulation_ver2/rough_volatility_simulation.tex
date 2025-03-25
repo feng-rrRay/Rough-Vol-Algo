@@ -1,0 +1,843 @@
+%\usepackage{multirow}
+%\usepackage{floatrow}
+
+\documentclass[11pt]{article}%
+\usepackage{amsfonts}
+\usepackage{amsmath,amssymb,amsthm,enumerate,epsfig,graphicx,natbib}
+\usepackage{ifthen,latexsym,syntonly}
+\usepackage{natbib}
+\usepackage{rotating}
+\usepackage{lscape}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage[bottom]{footmisc}
+\usepackage{algorithm}%
+\usepackage{algorithmic}
+\usepackage{booktabs}
+\usepackage{subcaption} % For subfigures
+\usepackage{hyperref}
+\setcounter{MaxMatrixCols}{30} 
+%TCIDATA{OutputFilter=latex2.dll}
+%TCIDATA{Version=5.50.0.2960}
+%TCIDATA{CSTFile=LaTeX Report (perso).cst}
+%TCIDATA{LastRevised=Monday, February 10, 2025 18:20:43}
+%TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
+%TCIDATA{<META NAME="SaveForMode" CONTENT="1">}
+%TCIDATA{BibliographyScheme=BibTeX}
+%TCIDATA{Language=American English}
+%BeginMSIPreambleData
+\providecommand{\U}[1]{\protect\rule{.1in}{.1in}}
+%EndMSIPreambleData
+\textwidth=6.6in
+\textheight=8.9in
+\headheight=0.0in
+\oddsidemargin=0.0in
+\headsep=0.0in
+\topmargin=0.0in
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{case}{Case}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{assumption}{Assumption}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
+\def\baselinestretch{1.3}
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\DeclareMathOperator*{\adjugate}{adj}
+\DeclareMathOperator*{\sign}{sgn}
+\allowdisplaybreaks
+\begin{document}
+
+\title{Turbocharging Hybrid Scheme for Rough Volatility Model Simulation}
+\author{Ruirong Feng\thanks{Address: Guanghua School of Management, Peking University,
+Beijing, 100871, P.R.China. E-mail address: \texttt{feng\_rr@stu.pku.edu.cn}.}\\{\footnotesize Guanghua School of Management}\\{\footnotesize Peking University}}
+\date{\today }
+\maketitle
+
+\begin{abstract}
+We explore the fast and accurate Monte Carlo simulation of the stochastic Volterra equations, with the goal to accelerate option pricing and implied volatility calibration in rough volatility models. Leveraging the Markovian approximation process briefed in \cite{abijaber2018} as the precomputation step, we present the Accelerated Hybrid Scheme, a novel simulation algorithm that uses the fast Fourier transform to accelerate the classical hybrid scheme of \cite{bennedsen_2017_FS}. Under globally Lipschitz coefficients with linear growth, this algorithm achieves a strong convergence result and a time complexity of \(\mathcal{O}(n\cdot(n_f +\log n))\) for \(n\) time steps and \(n_f\) factors that approximates the Laplace transform of the kernel. We validate our algorithm through numerical experiments on the rough Heston model, demonstrating its effectiveness even with non-Lipschitz coefficients. In contrast with existing simulation methods, the Accelerated Hybrid Scheme provides a fast solution for rough volatility models with more numerical stability.
+
+\noindent\textbf{Keywords}: rough volatility models, stochastic Volterra equations, Monte Carlo simulation, option pricing, implied volatility.
+
+\end{abstract}
+
+\section{Introduction}
+
+Stochastic volatility models have dominated the research and practice in financial methematics for decades, providing a general framework for option pricing, hedging, and volatility forecasting. The majority of these models feature a price process \(S_t\) in a filtered probability space \((\Omega, \mathcal{F}, (\mathcal{F}_t)_{t\ge 0},\mathbb{P})\) of the form
+\[
+    dS_t = \mu S_t\,dt + \sigma_t S_t\,dW_t,
+\]
+where \(\mu\) is a drift term, \(\sigma_t\) is the volatility process, and \(W_t\) is a standard Brownian motion. The volatility process \(\sigma_t\) is typically modeled as a Brownian semimartingle, such as the Heston model \cite{heston93}, the SABR model \cite{SABR_Hagan_etc_2002}, and the 3/2 model. These models have been widely used due to their tractability and ability to capture the volatility skew, but their volatility trajectories with regularity close to that of Brownian motion deviate from some empirical properties such as long memory properties or roughness, as described in \cite{Gatheral2018}.
+
+Due to the smoothness of volatility being questioned by empirical evidence, rough volatility models have emerged to better characterize the behavior observed in realized volatility time series. However, these models deviate from classical assumptions such as the Brownian semimartingale and Markov properties, which complicates the derivation of closed-form solutions and impedes efficient numerical simulation.
+
+Since the seminal work on rough volatility models, the literature has broadly classified these models into two primary categories: those driven by fractional Brownian motion (fBM) and those given by stochastic Volterra equations. In this paper, we focus on the simulation of the latter class, which is generally of the form
+\begin{equation}
+X_t = X_0 + \int_0^t K(t-s)b(X_s)\,ds + \int_0^t K(t-s)\sigma(X_s)\, dW_s,\label{eq:volterra_1}
+\end{equation}
+where \(W\) is a multi-dimensional Brownian motion, and the kernel \(K\) and coefficients \(b\) and \(\sigma\) are functions of certain regularity and integrability. The solutions of such models are typically adapted processes defined on some probability space \((\Omega,\mathcal{F},(\mathcal{F}_t)_{t\ge 0},\mathbb{P})\) satisfying the usual conditions, see \cite{abijaber2018}. In particular, we consider the simulation of one-dimensional stochastic Volterra equations, which are a special case of (\ref{eq:volterra_1}) with \(b\) and \(\sigma\) being scalar functions, and \(W\) being a one-dimensional standard Brownian motion. Then, we extend our algorithm to the rough Heston model, whose coefficients are given by \(\sigma(x) = \nu\sqrt{x}\) and \(b(x) = \lambda(\theta - x)\) in \eqref{eq:volterra_1}. 
+
+% In this paper, we consider a special case of rough volatility model, namely the rough Heston model introduced by \cite{ElEuch2019}. The rough Heston model is a generalization of the standard Heston model, given by
+% \begin{align}
+%     dS_t &= \sqrt{V_t}S_t\,dB_t,\\
+%     dV_t &= \lambda(\theta - V_t)\,dt + \nu\sqrt{V_t}\,dW_t,
+% \end{align}
+% whose tractability has gained unceasing popularity among practitioners. Its rough counterpart replaces the volatility process by a fractional square-root process, i.e.
+% \begin{equation}
+%     V_t = V_0 + \frac{1}{\Gamma(H+1/2)} \int_{0}^{t} (t-s)^{H-1/2} \left(\lambda(\theta - V_s)\,ds + \nu \sqrt{V_s}\,dW_s\right),
+% \end{equation}
+% where \(H\in(0,1/2]\) is the Hurst index, and \(B,W\) are two correlated processes on the same probability space \((\Omega,\mathcal{F},(\mathcal{F}_t)_{t\ge 0},\mathbb{P})\) satisfying \(d\langle B, W \rangle = \rho dt\). Despite the numerical challenges, the rough Heston model inherits part of the tractability of the standard Heston model, as its closed-form solution admits a fractional Riccati equation. On the other hand, simulating the rough Heston model is not straightforward---the non-Markovian nature of the fractional Brownian motion makes the update of the volatility process \(V_t\) dependent on all of its history, adding a layer of complexity to the simulation.
+
+\paragraph{Contributions.} While various simulation algorithms have been proposed for stochastic Volterra equations, the existing methods are either computationally expensive or lack theoretical convergence guarantees. In this paper, we propose an efficient and accurate simulation algorithm for the stochastic Volterra equations based on the hybrid scheme introduced in \cite{bennedsen_2017_FS}. The idea of our algorithm is to precompute the Markovian approximation process and use the fast Fourier transform to accelerate the hybrid scheme simulation, which achieves a great balance between accuracy and efficiency. We establish the convergence of our algorithm under the global Lipschitz assumptions on coefficients, and validate it through numerical experiments on the rough Heston model that demonstrate its effectiveness with Lipschitz conditions relaxed. 
+
+In general, our simulation algorithm exhibits three main advantages. First, it is computationally efficient with a time complexity of \(\mathcal{O}(n\cdot(n_f +\log n))\) for \(n\) time steps and \(n_f\) factors that approximate the Laplace transform of the kernel. Second, it achieves a strong convergence result under globally Lipschitz coefficients with linear growth. Such theoretical properties are hard to achieve under the existing hybrid scheme, where the update of the stochastic Volterra equation is dependent on all of its history. Third, it is broadly applicable to most rough volatility models, including the generalized Heston-type models in the form of
+\begin{align}
+    dS_t &= (r-d)S_t\,dt + \sqrt{V_t}S_t\,dW_{1t}\\
+    V_t &= V_0 + \varphi_0(t) + \int_{0}^{t} \lambda(\theta-V_s)\,ds 
+    + \bar{\gamma}_1 \int_{0}^{t} (t-s)^{H_1 - 1/2}\sqrt{V_s}\,ds + \bar{\gamma}_2 \int_{0}^{t} (t-s)^{H_2 - 1/2}\sqrt{V_s}\,ds \nonumber\\
+    &\quad {} + \gamma_1 \int_{0}^{t} (t-s)^{H_1 - 1/2}\sqrt{V_s}\,dW_{1s} 
+    + \gamma_2 \int_{0}^{t} (t-s)^{H_2 - 1/2}\sqrt{V_s}\,dW_{2s},\label{eq:generalized_heston}
+\end{align}
+where \(\varphi_0\) is a deterministic function, \(W_1,W_2\) are two independent standard Brownian motions, and \(H_1,H_2\in (0,1/2)\). These models are widely used in option pricing and volatility forecasting in the financial market.
+
+The rest of this paper is organized as follows. Section \ref{sec:problem_setting} and \ref{sec:related_work_simulation} introduce the simulation problem we focus on and review the popular simulation techniques for Volterra integral equations and stochastic volatility models, along with their theoretical foundations. Based on the limitations of existing methods, we propose our accelerated simulation algorithm in Section \ref{sec:our_method} and present the theoretical properties supporting its implementation. Section \ref{sec:numerical_results} provides numerical results demonstrating the efficiency and accuracy of our simulation technique, with comparisons to various references and benchmarks. Finally, Section \ref{sec:conclusion} concludes the paper.
+
+\section{Problem setting}\label{sec:problem_setting}
+
+In following sections, we focus on the Monte Carlo simulation of the one-dimensional stochastic Volterra equation given by 
+\begin{equation}
+    X_t = X_0 + \int_{0}^{t} K(t-s) b(X_s)\,ds + \int_{0}^{t} K(t-s)\sigma(X_s)\,dW_s\label{eq:target_process}
+\end{equation}
+defined on a filtered probability space \((\Omega,\mathcal{F},(\mathcal{F}_t)_{t\ge 0},\mathbb{P})\), where \(W\) is a standard Brownian motion, \(X_0\) is a given constant, \(K: \mathbb{R}_+ \to \mathbb{R}_+\) is a possibly singular kernel, and \(b: \mathbb{R}\to\mathbb{R},\ \sigma:\mathbb{R}\to\mathbb{R}\) are globally Lipschitz continuous functions with linear growth. 
+
+In what follows, we adopt the assumptions on the kernel \(K\) as given in \cite{bennedsen_2017_FS} (see Assumption~\ref{assumption:kernel}). The conditions imposed on the coefficients \(b\) and \(\sigma\) are stated in detail in Assumption~\ref{assumption:coefficients}.
+
+\begin{assumption}\label{assumption:kernel}
+The kernel function \(K\) in (\ref{eq:target_process}) is continuously differentiable on \((0,\infty)\), and satisfies the following properties:
+\begin{enumerate}[(i)]
+    \item there exist constants \(\alpha\in(-\tfrac{1}{2},\tfrac{1}{2}) \setminus\{0\}\) and \(L_K: (0,1] \to \mathbb{R}_+\) such that \[K(x)=x^\alpha L_K(x),\quad x\in (0,1],\]
+    where \(L_K\) is a slowly varying function at 0 and bounded away from 0. Moreover, 
+    \[\exists C>0, \ \forall x \in (0,1],\ |L_K'(x)|\le C(1+x^{-1}).\]
+    \item the derivative \(K'\) is ultimately monotonic with  \(\int_1^\infty K'(x)^2 dx < \infty\). 
+    \item For some \(\beta \in (-\infty,-\tfrac{1}{2})\), \(K(u) = \mathcal{O}(u^\beta)\) as \(u\to \infty\).
+\end{enumerate}
+\end{assumption}
+
+Under Assumption~\ref{assumption:kernel}, we are particularly interested in the case where the kernel \(K\) is a power-law function, i.e., \(K(u) = \tfrac{u^{H-1/2}}{\Gamma(H+1/2)}\) with \(H\in(0,\tfrac{1}{2})\). This choice of kernel leads to rough sample paths and is commonly used in rough volatility models.
+
+\begin{assumption}\label{assumption:coefficients}
+The coefficients \(b\) and \(\sigma\) in (\ref{eq:target_process}) are measurable functions that satisfy
+\begin{enumerate}[(i)]
+    \item global Lipschitz continuity, i.e., there exist constant \(L>0\) such that \[|b(x) - b(y)| + |\sigma(x) - \sigma(y)| \le L |x-y|,\quad \forall x,y\in\mathbb{R}.\]
+    \item the linear growth condition,  i.e., there exist constant \(C>0\) such that
+    \[
+    |b(x)| + |\sigma(x)| \le C(1+|x|),\quad \forall x\in\mathbb{R}.
+    \]
+\end{enumerate}
+\end{assumption}
+
+Following Assumption~\ref{assumption:coefficients}, along with the integrability condition 
+\begin{equation}
+    \int_{0}^{T} \left(|K(s)| + |K(s)|^2\right)\,ds < \infty\label{eq:integrability_condition}
+\end{equation}
+for any \(T>0\), which is implied by Assumption~\ref{assumption:kernel}, \(X_t\) in (\ref{eq:target_process}) admits a unique continuous strong solution up to time \(T\) (see Theorem~3.1, \cite{XinchengZhang2010}). 
+
+In addition to Assumption~\ref{assumption:kernel}, if we further assume that the kernel function satisfies Assumption~\ref{assumption:K_additional}, we can establish the weak existence of the solution to the stochastic Volterra equation (\ref{eq:target_process}) without the global Lipschitz condition on the coefficients \(b\) and \(\sigma\).
+
+\begin{assumption}\label{assumption:K_additional}
+    There exists \(\gamma > 0\) and \(C > 0\) such that for any \(t,h\ge 0\) with \(t+h\le T\), \[
+    \int_{0}^{h} |K(s)|^2\,ds + \int_{0}^{T-h} |K(h+s) - K(s)|^2\,ds \le C h^{2\gamma}.
+    \]
+\end{assumption}
+
+Under the conditions specified in Assumptions~\ref{assumption:kernel}, \ref{assumption:coefficients}(ii), and \ref{assumption:K_additional}, the stochastic Volterra equation~\eqref{eq:target_process} admits a weak continuous solution. This result follows from standard arguments in the theory of stochastic Volterra equations (see \cite{abijaber2018} for a detailed discussion).
+
+\paragraph{}In the rest of this paper, we will first propose a simulation algorithm for the process (\ref{eq:target_process}) and establish its convergence. After that, we will extend the algorithm to the rough Heston model and analyze its performance numerically.
+
+The rough Heston model is given by
+\begin{align}
+    dS_t &= \sqrt{V_t}S_t\,dB_t \label{eq:price-process} \\
+    V_t &= V_0 + \frac{1}{\Gamma(H+1/2)} \int_{0}^{t} (t-s)^{H-1/2} \left(\lambda(\theta - V_s)\,ds + \nu \sqrt{V_s}\,dW_s\right), \label{eq:variance-process}
+\end{align}
+where the variance process \eqref{eq:variance-process} is a special case of the stochastic Volterra equation \eqref{eq:target_process} in which \(b(x)=\lambda(\theta-x)\), \(\sigma(x)=\nu\sqrt{x}\). \(B_t\) and \(W_t\) are standard Brownian motions defined on a filtered probability space \((\Omega,\mathcal{F},(\mathcal{F}_t)_{t\ge 0},\mathbb{Q})\) with a prescribed correlation coefficient \(\rho \in [-1,1]\). The initial variance is given by \(V_0\) and the Hurst index satisfies \(H\in (0,\tfrac{1}{2})\). Moreover, in defining the asset price process (\ref{eq:price-process}) under the risk-neutral measure \(\mathbb{Q}\), it is assumed, without loss of generality, that the risk-free interest rate \(r\) equals the dividend yield \(d\).
+
+\paragraph{Notations.} Throughout the paper we adopt the notational conventions as follows. Following \cite{Glasserman}, we say that a discretization \(\widehat{X}\) has a strong order of convergence \(\beta > 0\) if \[\mathbb{E}[|\widehat{X}_{n\Delta t} - X_T|] \le C (\Delta t)^{\beta}\] for some constant \(C > 0\) and all sufficiently small \(\Delta t\). \(\beta\) can also be acquired through the rooted mean square error (RMSE) of the discretization via the Lyapunov inequality \[\mathbb{E}[|\widehat{X}_{n\Delta t} - X_T|]  \le \left(\mathbb{E}[|\widehat{X}_{n\Delta t} - X_T|^2] \right)^{\frac{1}{2}}.\]
+We also use the big O notation to denote the order of a function, i.e., \(f(x) = \mathcal{O}(g(x))\) as \(x\to x_0\) if there exists a constant \(C > 0\) such that \(|f(x)| \le C|g(x)|\) for all \(x\) in a neighborhood of \(x_0\). When \(x\to x_0\) is omitted in the notation, it is understood that the limit is taken as \(x\to \infty\).
+
+
+% MOVE TO INTRODUCTION >>>>>>>>>>>>>>>>>>>>>>>>>>>
+% Under classical conditioning arguments, the no-arbitrage price of a European call option with strike \(K\) and maturity \(T\) is given by
+% \[
+% \mathbb{E}\left[
+%     C_{BS} \left( S_0 \exp\left(\rho \int_0^T \sqrt{V_t} dW_t - \frac{\rho^2}{2}\int_0^T V_t dt\right), K, (1-\rho^2) \int_0^T V_t dt \right)
+% \right]
+% \]
+% in the rough Heston model (\ref{eq:price-process})-(\ref{eq:variance-process}), where \(C_{BS} = C_{BS}(S_0,K,\sigma^2 T)\) is the usual Black-Scholes call option pricing formula (\cite{romanotouzi97}). Hence, in option pricing, the key challenge lies in approximating the expectation of \(g\left(\int_0^T \sqrt{V_t}dW_t\right)\) for a given function \(g\).
+
+% While the approximation method for the outer stochastic integral 
+% \(\int_0^T \sqrt{V_t}\,dW_t\) is well established and computationally efficient, as demonstrated by 
+% \[
+%     \int_0^T \sqrt{V_t}\,dW_t \approx \sum_{i=0}^{N-1} \sqrt{V_{t_i}}(W_{t_{i+1}} - W_{t_i}),
+% \]
+% where \(0 = t_0 < t_1 < \cdots < t_N = T\) is a partition of \([0,T]\), the variance process \(V_t\) is more challenging to approximate. The difficulty arises from the non-Markovian nature of the fractional kernel \(K(t-s) = \frac{(t-s)^{H-1/2}}{\Gamma(H+1/2)}\), which requires the entire history of the variance process \(V_t\) to update the variance at one time step. In the next two sections, we will focus on the simulation of the variance process \(V_t\), and analyze the associated time complexity and mean square error.
+
+% For simplicity, we will begin with a simplified variance process
+% % \begin{equation}
+% %     X_t = X_0 + \varphi_0(t) + \int_{0}^{t} K(t-s) \sigma(X_s)\,dW_s,\label{eq:target_process}
+% % \end{equation}
+% where \(\varphi_0\) is a deterministic function, and \(\sigma: \mathbb{R}\to \mathbb{R}\) is a globally Lipschitz function. After simulating \(X_t\) and establishing its convergence, it becomes straightforward to derive estimates on the mean square error for \(V_t\) in (\ref{eq:variance-process}). 
+
+% \paragraph{Notations.} big O, \((\cdot)_+\), etc.
+
+
+\section{Related simulation methods}\label{sec:related_work_simulation}
+
+There is a rich literature on the simulation of stochastic Volterra equations (\ref{eq:volterra_1}), (\ref{eq:target_process}), and (\ref{eq:variance-process}), which can be roughly classified into two categories: discretization methods and Markovian approximation methods.
+
+\subsection{Discretization methods}
+
+These methods approximate the stochastic integral by discretizing the time interval \([0,T]\) into small steps \(\Delta t\). The most straightforward discretization method is the Euler-type scheme as mentioned in \cite{richard2021} and \cite{richard2023roughsimu}. On the discrete-time grid \(0 = t_0 < t_1 < \cdots < t_n = T\), the Euler-type scheme simulates the process (\ref{eq:target_process}) as
+\[
+    \widehat{X}_{t_{k}} = X_{0} + \sum_{j=0}^{k-1} K(t_{k}-t_j)b(\widehat{X}_{t_j})\Delta t_{j+1} + \sum_{j=0}^{k-1} K(t_{k}-t_j)\sigma(\widehat{X}_{t_j})\Delta W_{t_{j+1}},\label{eq:euler_scheme_target}
+\]
+and the variance process (\ref{eq:variance-process}) as
+\[
+    \widehat{V}_{t_k} = V_0 + \frac{1}{\Gamma(H+1/2)} \sum_{j=0}^{k-1} (t_{k}-t_j)^{H-1/2}\left(\lambda(\theta - (\widehat{V}_{t_j})_+)\Delta t_{j+1} + \nu\sqrt{(\widehat{V}_{t_j})_+}\Delta W_{t_{j+1}}\right),
+\]
+where \((V_t)_+ := \max(V_t,0)\), \(\Delta t_{j+1} = t_{j+1} - t_j,\ \Delta W_{t_{j+1}} = W_{t_{j+1}} - W_{t_j} \sim \mathcal{N}(0,\Delta t_{j+1})\). 
+
+The Euler-type scheme is straightforward to implement and demonstrates strong convergence provided that Assumption~\ref{assumption:coefficients} holds for the coefficients \(b\) and \(\sigma\). The following proposition presents the strong convergence result associated with the Euler scheme.
+
+\begin{proposition}[Theorem~2.2, \cite{richard2021}]\label{prop:euler_convergence}
+    Let Assumption~\ref{assumption:coefficients} holds true for the process \eqref{eq:target_process}, and let \(\alpha := \alpha_1 \wedge \alpha_2 > 0\) such that for all \(0\le t\le t'\le T\) and time steps \(n \ge 1\), \[
+        \int_{t}^{t'} \left(\|K(t'-s)\| + \|K(t'-\eta_n(s))\|\right)ds \le C (t'-t)^{\alpha_1 \wedge 1}
+    \]
+    and \[
+        \int_{t}^{t'} \left(\|K(t'-s)\|^2 + \|K(t'-\eta_n(s))\|^2\right)ds \le C (t'-t)^{2(\alpha_2 \wedge 1)},
+    \]
+    where \(C>0\) is a constant, \(\eta_n(s) := t_k\) for \(s \in [t_k,t_{k+1})\), \(k\ge 0\). Then, there exists a constant \(C_p \in (0,\infty)\) depending on \(T,p,C\) such that for all \(t\in [0,T]\) and \(n \ge 1\), 
+    \[
+    \mathbb{E}[|\widehat{X}_t - X_t|^p] \le C_p (1 + \mathbb{E}[|X_0|^p]) \delta_n^{p(\alpha \wedge 1)}, 
+    \]
+    where \(\delta_n := \max_{0\le k \le n-1} (t_{k+1} - t_k)\). 
+\end{proposition}
+
+For kernel \(K(u) = \tfrac{u^{H-1/2}}{\Gamma(H+1/2)}\) and a equal partition of \([0,T]\) with \(t_k = k\Delta t\), Proposition~\ref{prop:euler_convergence} implies a strong convergence result of \(\mathbb{E}[|\widehat{X}_t - X_t|^p] = \mathcal{O}(n^{-pH})\). 
+
+While the Euler scheme admits a strong convergence result under Lipschitz coefficients \(b,\sigma\), this convergence property is not applicable to the rough Heston model (\ref{eq:price-process})-(\ref{eq:variance-process}) as \(\sigma(x) = \nu\sqrt{x}\) fails to satisfy the global Lipschitz condition. In this case, the Euler scheme only admits a weak convergence result (see Theorem~2.2, \cite{richard2023roughsimu}). Moreover, the Euler scheme is limited by the necessity to sum \(k\) terms at each time step, which results in an overall computational complexity of \(\mathcal{O}(n^2)\) for \(n\) time steps.
+
+The hybrid scheme improves the Euler approach by treating the singular part of the kernel with a dedicated quadrature method while using the Euler discretization for the remainder, as given by \cite{bennedsen_2017_FS}. The original hybrid scheme is designed for the generalized Brownian semistationary process
+\[
+Y_t = \int_{-\infty}^{t} K(t-s)\sigma_s\,dW_s,
+\]
+where \(\sigma_s\) is a covariance-stationary process satisfying \(\mathbb{E}[\sigma_s]=\mathbb{E}[\sigma_t],\ \text{Cov}(\sigma_s,\sigma_t)=\text{Cov}(\sigma_0,\sigma_{|s-t|})\) for \(s,t\in\mathbb{R}\), and the kernel $K(\cdot)$ exhibits a power-law behavior near zero, i.e.,
+\[
+K(u)=u^\alpha L_g(u),\quad u\to 0^+,
+\]
+with $\alpha\in(-\tfrac{1}{2},\tfrac{1}{2})\setminus\{0\}$ and $L_g$ a slowly varying function. In the case of rough Heston, \(\alpha = H - 1/2,\ L_g(u) = \tfrac{1}{\Gamma(H+1/2)}\). This singularity leads to rough sample paths and renders the Euler-type discretization inaccurate, as it fails to capture the steep behavior of $K(u)$ for small $u$. 
+
+For a discretization grid \(\{t, t-\Delta t, t - 2\Delta t, \cdots\}\) with time step $\Delta t = 1/n$, the approximation of $Y_t$ is split into two parts:
+\begin{itemize}
+    \item \textbf{Singular part:} For the $\kappa$ most recent intervals (where the kernel is most singular), the kernel is approximated by its power-law form and integrated analytically. For example, on the interval $[t-k\Delta t, t-(k-1)\Delta t]$, one approximates
+    \[
+    K(t-s) \approx L_g(k\Delta t)(t-s)^\alpha,\quad k=1,\dots,\kappa.
+    \]
+    \item \textbf{Regular part:} For larger lags ($k>\kappa$), the kernel is approximated by a constant on each interval using an evaluation point $b_k\in[k-1,k]$, so that
+    \[
+    K(t-s) \approx K\Bigl(b_k \Delta t\Bigr).
+    \]
+\end{itemize}
+The resulting discretized process is expressed as
+\begin{equation}\label{eq:hybrid_scheme}
+Y^n_t = \underbrace{\sum_{k=1}^{\kappa} L_g(k/n)\,\sigma_{t-k/n}\int_{t-k/n}^{t-(k-1)/n}(t-s)^\alpha dW_s}_{\text{Singular part}} + \underbrace{\sum_{k=\kappa+1}^{N_n} K(b_k/n)\,\sigma_{t-k/n}\Bigl(W_{t-(k-1)/n}-W_{t-k/n}\Bigr)}_{\text{Regular part}},
+\end{equation}
+where $N_n$ is chosen to ensure the tail of the integral is negligible.
+
+The main theoretical result regarding the mean square error of the hybrid scheme is given by the following proposition.
+
+\begin{proposition}[Theorem~2.5, \cite{bennedsen_2017_FS}]\label{prop:mse_orignial_hybrid}
+Suppose that the kernel $K$ satisfies Assumption~\ref{assumption:kernel}, $\sigma_t$ satisfies covariance--stationarity
+\[
+    \mathbb{E}|\sigma_s-\sigma_0|^2=\mathcal{O}(s^{2\alpha+1+\delta}) \quad \text{as } s\downarrow 0,
+\]
+for some $\delta>0$, and the truncation index $N_n$ satisfies $N_n\sim n^{\gamma+1}$ with
+\[
+\gamma > \frac{-2\alpha+1}{2\beta+1},
+\]
+then for all $t\in\mathbb{R}$,
+\[
+\mathbb{E}|Y_t - Y^n_t|^2 \sim J(\alpha,\kappa,\mathbf{b})\,\mathbb{E}[\sigma_0^2]\,n^{-(2\alpha+1)}\{L_K(1/n)\}^2,\quad n\to\infty,
+\]
+where the constant
+\[
+J(\alpha,\kappa,\mathbf{b}) := \sum_{k=\kappa+1}^{\infty}\int_{k-1}^{k}\Bigl(y^\alpha - b_k^\alpha\Bigr)^2dy < \infty,
+\]
+and $\mathbf{b}=(b_k)_{k=\kappa+1}^\infty$ is the chosen sequence of evaluation points with $b_k\in[k-1,k]\setminus\{0\}$.
+\end{theorem}
+
+For kernel function \(K(t) = \tfrac{t^{H-1/2}}{\Gamma(H+1/2)}\), the above result yields a strong order of $H$. If the volatility process \(\sigma_t\) is known, the time complexity of the original hybrid scheme can be reduced to \(\mathcal{O}(N_n\log N_n)\) using the fast Fourier transform.
+However, these properties are not directly applicable to our models of interest, since the volatility process $\sigma_t$ is endogenously determined by \(\{Y_{u}: u \le t\}\), pushing the time complexity back to \(\mathcal{O}(N_n^2)\); and the process (\ref{eq:target_process}) and (\ref{eq:variance-process}) are not necessarily covariance-stationary, which baffles the mean square error analysis in Proposition~\ref{prop:mse_orignial_hybrid}.
+
+\subsection{Markovian approximation methods}
+
+The Markovian approximation method, as discussed in \cite{abijaberLifting2019}, \cite{ABIJABERandELEUCH2019}, \cite{AlfonsiKeabier2023}, and \cite{Bayer_Breneis_2023}, seeks to transform the non-Markovian structure of rough volatility models into a higher-dimensional Markovian framework. The key idea is to use a Fourier--Laplace transform to represent the fractional kernel $K(\cdot)$, which is typically of the form
+\begin{equation}
+K(t) = \int_{0}^{\infty} e^{-x t} \mu(dx) \approx \sum_{j=1}^{n_f}  w_j e^{-x_j t},\label{eq:fourier_laplace_kernel}
+\end{equation}
+where \(\mu(dx) \approx \sum_{j=1}^{n_f} w_j\,\delta_{x_{j}}(dx)\). For \(K(t) = \tfrac{t^{H-1/2}}{\Gamma(H+1/2)}\), \(\mu(dx) = \tfrac{x^{-H-1/2}}{\Gamma(1/2-H)\Gamma(1/2+H)}dx\). Replacing the kernel in process (\ref{eq:variance-process}) with (\ref{eq:fourier_laplace_kernel}), and applying the stochastic Fubini theorem, one obtains a Markovian approximation of the form
+\begin{align}
+    X_t = X_0 + \int_{0}^{t} \int_{0}^{\infty} e^{-x(t-s)} \mu(dx) \left(b(X_s)\,ds +\sigma(X_s)\,dW_s\right) \approx X_0 + \sum_{j=1}^{n_f} w_j Z_t^j,\label{eq:markovian_approximation_X_1}
+\end{align}
+where \[
+    Z_t^j = \int_{0}^{t} e^{-x_j(t-s)} \left(b(X_s)\,ds + \sigma(X_s)\,dW_s\right).
+\]
+It is obvious that \(Z_t^j\) satisfies the following SDE
+\begin{equation}
+    dZ_t^j = (-x_j Z_t^j + b(X_t))\,dt + \sigma(X_t)\,dW_t,\quad Z_0^j = 0,\label{eq:markovian_approximation_Z_1}
+\end{equation}
+which is a Markovian process. The stochastic Volterra equation (\ref{eq:target_process}) can thus be approximated by a Markovian process of the form
+\begin{align}
+    X_t^{n_f} &= X_0 + \sum_{j=1}^{n_f} w_j Z_t^j,\label{eq:markovian_approximation_X}\\
+    dZ_t^j &= (-x_j Z_t^j + b(X_t^{n_f}))\,dt + \sigma(X_t^{n_f})\,dW_t,\quad Z_0^j = 0,\quad j=1,...,n_f,\label{eq:markovian_approximation_Z}
+\end{align}
+where \(n_f\) is the number of factors used to approximate the Fourier--Laplace transform (\ref{eq:fourier_laplace_kernel}).
+
+Likewise, the rough Heston model (\ref{eq:price-process})-(\ref{eq:variance-process}) can be transformed into a similar higher-dimensional Markovian process (or lifted Heston model), given by
+\begin{align}
+    dS_t^{n_f} &= \sqrt{V_t^{{n_f}}}S_t^{n_f}\,dB_t,\label{eq:lift_heston_1}\\
+    V_t^{n_f} &= g_0(t) + \sum_{j=1}^{n_f} w_j U_t^j,\quad g_0(t) = V_0 + \frac{\lambda \theta}{\Gamma(H+1/2)}\int_0^t (t-s)^{H-1/2} ds \label{eq:lift_heston_2}\\
+    dU_t^j &= (-x_j U_t^j - \lambda V_t^{n_f})\,dt + \nu \sqrt{V_t^{n_f}}\,dW_t,\quad U_0^j = 0,\quad j=1,...,n_f,\label{eq:lift_heston_3}
+\end{align}
+where \(B,W\) are defined in the same way as before. Though the characteristic function of \((\log S_T^{n_f},V_T^{n_f})\) is tractable, the computational efforts required to obtain the exact solution are still substantial (see Appendix B, \cite{abijaberLifting2019}). Instead, it is recommended to simulate the lifted Heston model (\ref{eq:lift_heston_1})-(\ref{eq:lift_heston_3}) using the Euler-type scheme, e.g., 
+\begin{align}
+    \widehat{V}_{t_k}^{n_f} &= g_0(t_k) + \sum_{j=1}^{n_f} w_j\, \widehat{U}_{t_k}^{j},\label{eq:markov_V_update}\\
+    \widehat{U}_{t_{k+1}}^{j} &= \frac{1}{1+x_j\,\Delta t} \left(
+    \widehat{U}_{t_k}^{j} - \lambda\, \widehat{V}_{t_k}^{n_f}\,\Delta t + \nu \sqrt{(\widehat{V}_{t_k}^{n_f})_+}\,W_k^n
+    \right),\quad j=1,\ldots,n_f, \quad \widehat{U}_{0}^{j}=0,\label{eq:markov_U_update}
+\end{align} 
+on the discrete-time grid \(\{t_k = k\Delta t: k=0,1,\ldots,n\}\), where \(\Delta t = T/n\), and \(W_k^n \sim \mathcal{N}(0,\Delta t)\). The associated time complexity is \(\mathcal{O}(n_f\cdot n)\), which is more efficient than the Euler-type scheme for the original rough Heston model.
+
+\paragraph{Convergence result.} The convergence result for the Markovian approximation method critically depends on the choice of the parameters \(\{(w_j,x_j)\}_{j=1}^{n_f}\), as suggested by following propositions.
+\begin{proposition}[Theorem~3.1, \cite{AlfonsiKeabier2023}]\label{prop:markov_approx_convergence}
+    Let \(X_t\) be the multidimensional stochastic Volterra equation of the form (\ref{eq:volterra_1}) where \(X_0 \in \mathbb{R}^d,\ b: \mathbb{R}^d \to \mathbb{R}^d \text{ and } \sigma: \mathbb{R}^d \to \mathcal{M}_d(\mathbb{R})\) are globally Lipschitz continuous functions, \(W\) is a standard Brownian motion in \(\mathbb{R}^d\), and \(K\) is a kernel satisfying assumptions in Proposition~\ref{prop:mse_orignial_hybrid}. Let \(X_t^{n_f}\) be the Markovian approximation of \(X_t\) by replacing kernel \(K\) with \(\widehat{K}(t) = \sum_{j=1}^{n_f} w_j e^{-x_j t}\). Then, there exists a constant \(C>0\) (depending on \(|X_0|,b,\sigma,K\)) such that
+    \begin{equation}
+        \mathbb{E}\left|X_t - X_t^{n_f}\right|^2 \le C \left( \int_{0}^{t} |K(s) - \widehat{K}(s)|^2 ds\right),\quad \forall t\in[0,T].
+    \end{equation}
+\end{proposition}
+
+Even if the coefficients \(b\) and \(\sigma\) do not satisfy the Lipschitz continuity (Assumption~\ref{assumption:coefficients}(i)), the Markovian approximation \(X_t^{n_f}\) still converges to the true process \(X_t\) as \(n_f\to\infty\), provided that the kernel approximation \(\widehat{K}\) satisfies the Assumption~\ref{assumption:K_additional}. The convergence property without the Lipschitz continuity assumption is established in the following proposition.
+
+\begin{proposition}[Theorem~7.8, \cite{abijaber2018}]\label{prop:markov_approx_convergence_2}
+   Let \(X=(X_t)_{t\ge 0}\) be the stochastic Volterra equation of the form \eqref{eq:volterra_1} with coefficients \(b\) and \(\sigma\) satisfying the linear growth condition (Assumption~\ref{assumption:coefficients}(ii)), and the sequence \(X^{n_f}=(X_t^{n_f})_{t\ge 0}\) be the continuous weak solutions to (\ref{eq:volterra_1}) with the kernel \(\widehat{K}\) satisfying Assumptions~\ref{assumption:kernel} and \ref{assumption:K_additional}. Further assume that 
+   \[
+   \int_{0}^{T} |K(s) - \widehat{K}(s)|^2\,ds \to \infty,\quad n_f\to\infty,
+   \]
+   for any given \(T > 0\). Then, any point limit of \(X^{n_f}\) as \(n_f\to \infty\) is a solution of the stochastic Volterra equation \eqref{eq:volterra_1} with kernel \(K\).
+
+\end{proposition}
+
+Based on Propositions \ref{prop:markov_approx_convergence} and \ref{prop:markov_approx_convergence_2}, the basic strategy is to select the parameters \(\{(w_j, x_j)\}_{j=1}^{n_f}\) such that 
+\[
+\|K - \widehat{K}\|_{2,T} \to 0 \quad \text{as} \quad n_f \to \infty.
+\]
+In accordance with this requirement, various choices for \(\{(w_j, x_j)\}_{j=1}^{n_f}\) have been proposed in the literature, each offering distinct convergence properties. We summarize some classical examples below.
+
+\paragraph{Lifted Heston model (\cite{abijaber2018}).} In this case,\(\{(w_j,x_j)\}_{j=1}^{n_f}\) are chosen such that
+    \begin{equation}
+        w_j = \frac{(r_{n_f}^{1-\alpha} - 1) r_{n_f}^{(\alpha - 1)(1 + n_f/2)}}{\Gamma(\alpha) \Gamma(2 - \alpha)} r_{n_f}^{(1-\alpha)j}, \quad x_j = \frac{(1 - \alpha)( r_{n_f}^{2-\alpha} - 1)}{(2 - \alpha) (r_{n_f}^{1-\alpha} - 1)} r_{n_f}^{j - 1 - n_f/2}, \ j = 1, \dots, n_f \label{eq:parameter_choice_1}
+    \end{equation}
+    with $r_{n_f} = 1 + 10\,n_f^{-0.9}$ for $n_f \ge 1$, and $\alpha = H + 1/2$ for \(H\in (0,1/2)\).
+    
+    For kernel \(K(t) = \tfrac{t^{H-1/2}}{\Gamma(H+1/2)}\), this choice of parameters leads to 
+    \begin{align}
+        \|K - \widehat{K}\|_{2,T} &\le C\frac{T^{5/2}}{\sqrt{5}} r_{n_f}^{1/2} (r_{n_f}-1)^2 \int_0^\infty (1\wedge x^{-1/2})\mu(dx) \nonumber\\
+        &\qquad+ \frac{r_{n_f}^{-(1-\alpha)n_f/2}}{\Gamma(\alpha)\Gamma(2-\alpha)} + \frac{r_{n_f}^{(1/2-\alpha)n_f/2}}{\Gamma(\alpha)\Gamma(1-\alpha)(1/2-\alpha)} \to 0,\quad n_f \to \infty,\label{eq:parameter_choice_1_convergence}
+    \end{align}
+    where \(C\) is a constant, and \(\mu(dx) = \tfrac{x^{-H-1/2}}{\Gamma(1/2-H)\Gamma(1/2+H)}dx\) (Lemma~8.5, \cite{abijaber2018}). The time complexity of generating this parameter set is \(\mathcal{O}(n_f)\).
+
+    \paragraph{Gaussian quadrature rule (\cite{Bayer_Breneis_2023}).} This approach partitions the domain of integration $[0,\infty)$ in (\ref{eq:fourier_laplace_kernel}) into $n$ disjoint subintervals $[\xi_{j-1},\xi_j]$ for $j=1,\ldots,n$, where $mn=n_f$. These subintervals are determined by a set of parameters \((\alpha,\beta,a,b)\) together with \(A := (\tfrac{1}{H}+\tfrac{1}{3/2-H})^{1/2}\), such that 
+    \[
+    m \approx \frac{\beta}{A}\sqrt{n_f},\quad n \approx \frac{A}{\beta}\sqrt{n_f}, 
+    \]
+    \[
+    \xi_0 = a\exp\left(-\frac{\alpha}{(3/2-H)A}\sqrt{n_f}\right),\quad \xi_n = b\exp\left(\frac{\alpha}{HA}\sqrt{n_f}\right),\quad \xi_i = \xi_0\left(\frac{\xi_n}{\xi_0}\right)^{i/n},\quad i=1,\ldots,n,
+    \]
+    
+    On each subinterval $[\xi_{j-1},\xi_j]$, $\{(w_i,x_i)\}_{i=(j-1)m+1}^{jm}$ are determined by the Gaussian quadrature rule, which ensures that \(\sum_{i=(j-1)m+1}^{jm} w_i e^{-x_i t}\) is a good approximation of $\int_{\xi_{j-1}}^{\xi_j}e^{-xt}\mu(dx)$. This is done by recurrently finding the orthogonal polynomial \(p_m\) of degree \(m\) by 
+    \[
+    p_{r+1}(x) = \left(x - \frac{\langle xp_r,p_r\rangle}{\langle p_r,p_r\rangle}\right)p_r(x) - \sum_{j=0}^{r-1} \frac{\langle xp_r,p_j\rangle}{\langle p_j,p_j\rangle} p_j(x)
+    \]
+    starting from \(p_0(x)=1\), where \(\langle f,g\rangle = \int_{\xi_{j-1}}^{\xi_j} f(x)g(x)\mu(dx)\). The parameters \(x_i\) are then determined by the roots of \(p_m\), i.e., \(p_m(x_i) = 0\), and the weights \(w_i\) are given by
+    \[
+    w_i = \frac{\langle p_{m-1},p_{m-1}\rangle}{p_m'(x_i) p_{m-1}(x_i)}.
+    \]
+    In addition, this method sets \(x_0=0\) and \(w_0=\int_0^{\xi_0} \mu(dx) = \frac{c_H}{1/2-H}\xi_0^{1/2-H}\), where \(c_H = \tfrac{1}{\Gamma(1/2-H)\Gamma(1/2+H)}\). The kernel \(K(t) = \tfrac{t^{H-1/2}}{\Gamma(H+1/2)}\) is then approximated by \(\sum_{i=0}^{mn} w_i e^{-x_i t}\).
+
+    Generally, the time complexity of generating \((w_i,x_i)\) for one subinterval is \(\mathcal{O}(m^2)\), and the overall time complexity of generating the full parameter set is \(\mathcal{O}(nm^2)\). The convergence rate of this choice of parameters is superpolynomial with respect to \(n_f\), as shown in Theorem~2.1, \cite{Bayer_Breneis_2023}: given \(\alpha=1.06418,\ \beta=0.4275,\ a=b=1\), 
+    \[
+    \mathbb{E}\left|X_T - X_T^{n_f}\right| \le Cc_H^2 \left( \frac{T^3}{(3/2 - H)^2} + \frac{3}{2H^2} + \frac{5\pi^3}{48} \left(e^{\alpha \beta} - 1 \right)^2 \frac{A^{2-2H} T^{2H}}{\beta^{2-2H} H} N^{1-H} \right) \exp \left( - \frac{2\alpha}{A} \sqrt{N} \right),
+    \]
+    where \(C, X_T, X_T^{n_f}\) are defined as in Proposition~\ref{prop:markov_approx_convergence}.
+
+
+\paragraph{}The Markovian approximation method is not without limitations. The analytic tractability of the characteristic function hinges on solving an $n_f$-dimensional system of Riccati ordinary differential equations, which still remains computationally intensive. While the fast simulation of the Markovian approximation can be achieved with a complexity of $\mathcal{O}(n_f\cdot n)$ (with $n$ denoting the number of time steps), the accuracy of the method is also dependent on the discretization scheme used. A direct Euler-type approximation applied to the lifted system may suffer from numerical instability.
+
+
+\section{Our method: Accelerated Hybrid Scheme}\label{sec:our_method}
+
+Based on the limitations of existing discretization methods and Markovian approximations, we develop an Accelerated Hybrid Scheme for rough volatility models. While the hybrid scheme in \cite{bennedsen_2017_FS} offers accurate approximations for singular kernels, its computational complexity becomes prohibitive when applied to models of the type (\ref{eq:target_process}) where the process \(X_t\) depends on its entire history. Similarly, simulations based on Markovian approximation have their own challenges including slow convergence with respect to the increasing number of factors and potential numerical instability. 
+
+Our Accelerated Hybrid Scheme addresses these limitations by introducing a precomputation step that enables the fast Fourier transform to approximate the variance process in the hybrid scheme, which reduces the \(\mathcal{O}(n^2)\) time complexity down to \(\mathcal{O}(n\log n)\) (\(n\) is the number of simulation steps). 
+
+The choice of precomputation technique is crucial. To balance the trade-off between computational complexity and accuracy, we expect the precomputation to finish within time linear in \(n\). A feasible choice is to leverage the simulation of Markovian approximation (\ref{eq:lift_heston_2})-(\ref{eq:lift_heston_3}), as it is computationally efficient with a time complexity of \(\mathcal{O}(n_f\cdot n)\). Compared to a direct simulation of the approximated process, following it with a fast Fourier hybrid scheme increases the precision and numerical stability.
+
+\paragraph{Notations.} In this section, we denote by \(S_t\), \(V_t\), and \(X_t\) the processes defined in (\ref{eq:price-process}), (\ref{eq:variance-process}), and (\ref{eq:target_process}), respectively, and by \(U_t^j\) the \(j\)-th auxiliary process in the lifted Heston model (\ref{eq:lift_heston_3}). Moreover, \(S_t^{n_f}\), \(V_t^{n_f}\), and \(X_t^{n_f}\) represent the Markovian approximations for a rough process with kernel \(K\) approximated by \(n_f\) factors; \(\widehat{S}_t^{n_f}\), \(\widehat{V}_t^{n_f}\), \(\widehat{X}_t^{n_f}\), and \(\widehat{U}_t^{j}\) denote the Euler-discretized Markovian approximation processes (e.g., as in (\ref{eq:lift_heston_1})-(\ref{eq:lift_heston_3})); and \(\widetilde{S}_t\), \(\widetilde{V}_t\), \(\widetilde{X}_t\) indicate the corresponding simulated processes in the Accelerated Hybrid Scheme. \(n\) typically refers to the number of time steps employed in the simulation.
+
+\subsection{Algorithm details}
+In this subsection, we first investigate the simulation of the general stochastic Volterra equation 
+\[
+X_t = X_0 + \int_{0}^{t} K(t-s) b(X_s)\,ds + \int_{0}^{t} K(t-s) \sigma(X_s)\,dW_s,
+\]
+as presented in (\ref{eq:target_process}) with kernel function \(K(u)=\tfrac{u^{H-1/2}}{\Gamma(H+1/2)},\ H\in(0,\tfrac{1}{2})\). Subsequently, we extend our method to the rough Heston model given by (\ref{eq:price-process})-(\ref{eq:variance-process}).
+
+\subsubsection{Simulation of \(X_t\)}\label{sec:simulation_X}
+
+The simulation algorithm starts from the Markovian approximation of \(X_t\), which is given by
+\begin{align}
+    X_t^{n_f} &= X_0 + \sum_{j=1}^{n_f} w_j Z_t^j,\label{eq:markovian_approximation_X}\\
+    dZ_t^j &= (-x_j Z_t^j + b(X_t^{n_f}))\,dt + \sigma(X_t^{n_f})\,dW_t,\quad Z_0^j = 0,\quad j=1,...,n_f.\label{eq:markovian_approximation_Z}
+\end{align}
+To balance between convergence rate and computational complexity, our algorithm chooses \(\{(w_j,x_j)\}_{j=1}^{n_f}\) according to (\ref{eq:parameter_choice_1}), which is originally given by \cite{abijaber2018}. The rest of the algorithm is outlined as follows.
+
+    \paragraph{Precomputation.} First, we simulate the Markovian approximation (\ref{eq:markovian_approximation_X})-(\ref{eq:markovian_approximation_Z}) with \(n_f\) factors on the discrete-time grid \(\pi_n = \{0,\tfrac{T}{n},\tfrac{2T}{n},...,T\}\) where \(t_i = \tfrac{iT}{n}\). The simulation is performed using the Euler-type scheme given by 
+    \begin{align}
+        \widehat{X}_{t_k}^{n_f} &= X_0 + \sum_{j=1}^{n_f} w_j \widehat{Z}_{t_k}^j,\label{eq:markovian_X_update}\\
+        % factor update
+        \widehat{Z}_{t_{k+1}}^j &= e^{-x_j \Delta t} \left(
+        \widehat{Z}_{t_k}^j + b(\widehat{X}_{t_k}^{n_f}) \Delta t + \sigma(\widehat{X}_{t_k}^{n_f})\Delta W_k
+        \right),\quad \widehat{Z}_{0}^{j}=0,\quad j=1,\ldots,n_f,\label{eq:markovian_Z_update}
+    \end{align}
+    where \(\Delta W_k \sim \mathcal{N}(0,\Delta t),\ k=1,2,...,n,\ \Delta t := T/n\). The time complexity of this step is \(\mathcal{O}(n_f\cdot n)\).
+
+    \paragraph{Hybrid approximation.} Building upon the precomputed values \(\{\widehat{X}_t^{n_f} : t \in \pi_n\}\), we define the accelerated hybrid approximation \(\widetilde{X}_{t_k}\) of \(X_{t_k}\) on the discrete-time grid \(\pi_n\) by
+    \begin{align}
+        \widetilde{X}_{t_k} &= X_0 + \sum_{i=1}^{k} b\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) \int_{(k-i)T/n}^{(k-i+1)T/n} K(t_k-s)\,ds \nonumber\\[1mm]
+        &\quad + \sum_{i=1}^{\kappa} \sigma\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr)
+        \int_{(k-i)T/n}^{(k-i+1)T/n} K(t_k-s)\,dW_s
+        + \sum_{i=\kappa+1}^{k} K\Bigl(\frac{b_{i}T}{n}\Bigr)\, \sigma\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) \Delta W_{k-i+1}, \label{eq:hybrid_X_update}
+    \end{align}
+    where \(\Delta W_k\) denotes the Brownian increment over the interval \([\,(k-1)T/n,\,kT/n]\) (i.e. \(\Delta W_k \sim \mathcal{N}(0,T/n)\)), and 
+    \[
+    W_{k,i} := \int_{(k-i)T/n}^{(k-i+1)T/n} (t_k-s)^{H-1/2} \,dW_s,\quad i=1,\ldots,\kappa,
+    \]
+    can be simulated exactly via a multivariate Gaussian distribution. The parameter sequence \(b_i \in [i-1,i]\) is selected to yield an adequate approximation for \(K(u)\) on \(u \in [(i-1)T/n,\,iT/n]\). Here, we choose 
+    \begin{equation}
+        b_i = \left(\frac{i^{H+1/2} - (i-1)^{H+1/2}}{H+1/2}\right)^{\frac{1}{H-1/2}}\label{eq:seq_b_choice}
+    \end{equation} 
+    so that the mean square error of the approximation is minimized (see Theorem~\ref{theorem:convergence_X}). 
+
+    For kernel \(K(t)=\frac{t^{H-1/2}}{\Gamma(H+1/2)}\), we have
+    \[
+    \int_{(k-i)T/n}^{(k-i+1)T/n} K(t_k-s)\,ds = \frac{i^{H+1/2} - (i-1)^{H+1/2}}{H+1/2}\left(\frac{T}{n}\right)^{H+1/2} = K\Bigl(\frac{b_iT}{n}\Bigr)\frac{T}{n}.
+    \]
+    Thus, the sequence \(\widetilde{X}_{t_1}, \widetilde{X}_{t_2}, \dots, \widetilde{X}_{t_n}\) can be computed efficiently as follows.
+    
+    In (\ref{eq:hybrid_X_update}), we let \(K(t) = \tfrac{t^{H-1/2}}{\Gamma(H+1/2)}\), and denote 
+    \begin{align}
+        \mathcal{I}_k &= \sum_{i=1}^{\kappa} b\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) K\left(\frac{b_i T}{n}\right)\frac{T}{n} + c_H \sum_{i=1}^{\kappa} \sigma\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) W_{k,i},\label{eq:I_k}\\
+        \mathcal{J}_k &= \sum_{i=\kappa+1}^{k} b\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) K\left(\frac{b_i T}{n}\right)\frac{T}{n} + \sum_{i=\kappa+1}^{k} K\Bigl(\frac{b_{i}T}{n}\Bigr)\, \sigma\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) \Delta W_{k-i+1},\quad k=1,...,n,\label{eq:J_k}
+    \end{align}
+    where \(c_H = \tfrac{1}{\Gamma(H+1/2)}\). 
+    
+    The computation of (\ref{eq:hybrid_X_update}) is then partitioned into two components. The first, namely the evaluation of \(\mathcal{I}_k\), involves summing only \(\kappa\) terms (\(\kappa \ll n\)) for each \(\widetilde{X}_{t_k}\) and is thus highly efficient. In contrast, the evaluation of \(\mathcal{J}_k\) entails a discrete convolution which, if computed by brute force, would require \(\mathcal{O}(n^2)\) operations. By employing the fast Fourier transform, this convolution can be computed in \(\mathcal{O}(n\log n)\) time. 
+    
+    We define the discrete convolution as follows:
+    \[
+    \varGamma_k = 
+    \begin{cases}
+    0, & k = 1, \dots, \kappa,\\[1mm]
+    K\Bigl(\frac{b_{k}T}{n}\Bigr), & k = \kappa+1, \dots, n,
+    \end{cases}
+    \]
+    and
+    \[
+    \varXi_k = b\bigl(\widehat{X}_{t_{k-1}}^{n_f}\bigr)\frac{T}{n} + \sigma\bigl(\widehat{X}_{t_{k-1}}^{n_f}\bigr) \Delta W_{k}, \quad k = 1, \dots, n.
+    \]
+    Accordingly, we express
+    \begin{equation}
+    \mathcal{J}_i = \sum_{k=1}^{i} \varGamma_k \varXi_{i+1-k}, \quad i = 1, \dots, n, \label{eq:fft_J}
+    \end{equation}
+    which enables computing the sequence \(\mathcal{J}_1, \dots, \mathcal{J}_n\) via FFT with complexity \(\mathcal{O}(n\log n)\).
+    
+
+The detailed algorithm for the simulation of \(X_t\) is summarized in Algorithm~\ref{alg:simulation_X}.
+
+
+
+\begin{algorithm}[htp]
+    \caption{Simulation of \(X_t\) in (\ref{eq:target_process}) using Accelerated Hybrid Scheme}
+    \label{alg:simulation_X}
+    \begin{algorithmic}[1]
+        \STATE \textbf{Input:} \(X_0\), \(b(\cdot)\), \(\sigma(\cdot)\), \(H\), \(n_f\), \(n\), \(T\), \(\kappa\)
+        \STATE \(t_i \gets \tfrac{iT}{n},\quad \widehat{X}_{t_i}^{n_f} \gets X_0,\quad i=0,1,\ldots,n,\quad \Delta t \gets T/n\)
+        \STATE \(\widehat{Z}_{t_0}^j \gets 0,\quad j=1,\ldots,n_f\) 
+        \STATE Generate \(\mathbf{W}_k = (\Delta W_k, W_{k,1},\ldots,W_{k,\kappa}),\ k=1,...,n\) according to \cite{bennedsen_2017_FS}
+        \STATE Compute \(\{(w_i,x_i)\}_{i=1}^{n_f}\) using (\ref{eq:parameter_choice_1})
+
+        \FOR{\(k=0,1,\ldots,n\)}
+            \STATE \(\widehat{X}_{t_k}^{n_f} \gets \widehat{X}_{t_k}^{n_f} + \sum_{j=1}^{n_f} w_j \widehat{Z}_{t_k}^j\)
+            \FOR{\(i = 1,\ldots,n_f\)}
+                \STATE \(\widehat{Z}_{t_{k+1}}^j = e^{-x_j \Delta t} \left(
+                    \widehat{Z}_{t_k}^j + b(\widehat{X}_{t_k}^{n_f}) \Delta t + \sigma(\widehat{X}_{t_k}^{n_f})\Delta W_k
+                    \right)
+                \)
+            \ENDFOR
+        \ENDFOR
+
+        \STATE Compute \(\mathcal{J}_1,\mathcal{J}_2,\ldots,\mathcal{J}_n\) using FFT as defined in (\ref{eq:fft_J})
+        \FOR{\(k=1,...,n\)}
+            \STATE \(\widetilde{X}_{t_k} \gets X_0 + \mathcal{J}_k\)
+            \FOR{\(j=1,...,\kappa\)}
+                \IF{\(k-j \ge 0\)}
+                    \STATE \(\widetilde{X}_{t_k} \gets \widetilde{X}_{t_k} + \tfrac{1}{\Gamma(H+1/2)} \left(b(\widehat{X}_{t_{k-j}}^{n_f})\left(\tfrac{b_j T}{n}\right)^{H-1/2} \tfrac{T}{n} + \sigma(\widehat{X}_{t_{k-j}}^{n_f}) W_{k,j}\right)\)
+                \ENDIF
+            \ENDFOR
+        \ENDFOR
+        \STATE \textbf{Output:} \(\{\widetilde{X}_{t_k}: k=1,...,n\}\)
+    \end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Simulation of the rough Heston model } 
+The Accelerated Hybrid Scheme for the rough Heston model (\ref{eq:price-process})–(\ref{eq:variance-process}) is derived as a specific instance of Algorithm~\ref{alg:simulation_X} by selecting 
+\[
+b(x) = \lambda\bigl(\theta - x\bigr) \quad\text{and}\quad \sigma(x) = \nu\sqrt{x}\,.
+\]
+In this context, the variance process \(V_t\) is approximated via the Markovian approximation (\ref{eq:markovian_approximation_V})–(\ref{eq:markovian_approximation_U}), and the Accelerated Hybrid Scheme is applied to \(V_t\) analogously to \(X_t\). In addition, the deterministic component 
+\[
+g_0(t)= V_0 + \frac{1}{\Gamma(H+1/2)}\int_{0}^{t}(t-s)^{H-1/2}\,\lambda\,\theta\,ds
+\]
+is evaluated exactly.
+
+In terms of the fast Fourier transform, we follow the same procedure as in Section~\ref{sec:simulation_X} and define the discrete convolution as follows:
+\begin{align}
+    \mathcal{I}_k &= \frac{1}{\Gamma(H+1/2)} \left(-\sum_{i=1}^{\kappa} \lambda \widehat{V}_{t_{k-i}}^{n_f} \left(\frac{b_i T}{n}\right)^{H-1/2} \frac{T}{n} + \sum_{i=1}^{\kappa} \sqrt{\bigl(\widehat{V}_{t_{k-i}}^{n_f}\bigr)_+} W_{k,i}\right),\label{eq:I_k_rough_heston}\\
+    \mathcal{J}_k &= \sum_{i=1}^{k} \varGamma_i \varXi_{k-i+1},\label{eq:fft_J_rough_heston}
+\end{align}
+where \[
+\varGamma_i = \begin{cases}
+0, & i=1,\ldots,\kappa,\\
+\frac{1}{\Gamma(H+1/2)}\left(\frac{b_{i}T}{n}\right)^{H-1/2}, & i=\kappa+1,\ldots,k,
+\end{cases}
+\]
+\[
+\varXi_i = -\frac{\lambda T}{n}\widehat{V}_{t_{i-1}}^{n_f} + \nu \sqrt{(\widehat{V}_{t_{i-1}}^{n_f})_+} \Delta W_{i},\quad i=1,\ldots,k,
+\]
+and \(b_i\) takes the form (\ref{eq:seq_b_choice}). The detailed algorithm for the simulation of the rough Heston model is given in Algorithm~\ref{alg:simulation_rough_heston}.
+
+\begin{algorithm}[h!]
+    \caption{Simulation of rough Heston model (\ref{eq:price-process})-(\ref{eq:variance-process}) using Accelerated Hybrid Scheme}
+    \label{alg:simulation_rough_heston}
+    \begin{algorithmic}[1]
+        \STATE \textbf{Input:} \(V_0\), \(S_0\) \(\lambda\), \(\nu\), \(\theta\), \(\rho\), \(H\), \(n_f\), \(n\), \(T\), \(\kappa\)
+        \STATE \(\Delta t \gets T/n\)
+        \FOR{$i=0,1,\ldots,n$}
+            \STATE \(t_i \gets \tfrac{iT}{n}\)
+            \STATE \(g_0(t_i) = V_0 + \frac{1}{\Gamma(H+1/2)} \int_{0}^{t_i} (t_i-s)^{H-1/2} \lambda \theta \, ds\)
+            \STATE \(\widehat{V}_{t_i}^{n_f} \gets g_0(t_i)\)
+        \ENDFOR
+        \STATE \(\widehat{U}_{t_0}^j \gets 0,\quad j=1,\ldots,n_f\) 
+        \STATE Generate \(\mathbf{W}_k = (\Delta W_k, W_{k,1},\ldots,W_{k,\kappa}),\ k=1,...,n\) according to \cite{bennedsen_2017_FS}
+        \STATE Generate \(\Delta W_k^\perp \sim \mathcal{N}(0,\tfrac{T}{n})\) for \(k=1,...,n\) independent of \(\mathbf{W}_k\)
+        \STATE Compute \(\{(w_i,x_i)\}_{i=1}^{n_f}\) using (\ref{eq:parameter_choice_1})
+
+        \FOR{\(k=0,1,\ldots,n\)}
+            \STATE \(\widehat{V}_{t_k}^{n_f} \gets \widehat{V}_{t_k}^{n_f} + \sum_{j=1}^{n_f} w_j \widehat{U}_{t_k}^j\)
+            \FOR{\(i = 1,\ldots,n_f\)}
+                \STATE \(\widehat{U}_{t_{k+1}}^i \gets e^{-x_i\Delta t} \left(
+                    \widehat{U}_{t_k}^{i} - \lambda\, \widehat{V}_{t_k}^{n_f}\,(t_{k+1}-t_k) + \nu \sqrt{(\widehat{V}_{t_k}^{n_f})_+}\,\Delta W_k
+                \right)
+                \)
+            \ENDFOR
+        \ENDFOR
+
+        \STATE Compute \(\mathcal{J}_1,\mathcal{J}_2,\ldots,\mathcal{J}_n\) using FFT as defined in (\ref{eq:fft_J_rough_heston})
+        \STATE \(\log \widetilde{S}_{t_0} \gets \log S_0\)
+        \FOR{\(k=1,...,n\)}
+            \STATE \( \log \widetilde{S}_{t_{k}} \gets \log \widetilde{S}_{t_{k-1}} -\frac{1}{2} (\widetilde{V}_{t_{k-1}})_{+} (t_k-t_{k-1}) + \sqrt{(\widetilde{V}_{t_{k-1}})_{+}}(\rho \,\Delta W_k + \sqrt{1-\rho^2}\,\Delta W_k^\perp) \)
+            \STATE \(\widetilde{V}_{t_k} \gets g_0(t_k) + \mathcal{J}_k\)
+            \FOR{\(j=1,...,\kappa\)}
+                \IF{\(k-j \ge 0\)}
+                    \STATE \(\widetilde{V}_{t_k} \gets \widetilde{V}_{t_k} - \tfrac{\lambda}{\Gamma(H+1/2)} \widehat{V}_{t_{k-j}}^{n_f} \left(\frac{b_j T}{n}\right)^{H-1/2} \frac{T}{n} + \tfrac{\nu}{\Gamma(H+1/2)} \sqrt{(\widehat{V}_{t_{k-j}}^{n_f})_+} W_{k,j}\)
+                \ENDIF
+            \ENDFOR
+        \ENDFOR
+        \STATE \textbf{Output:} \(\{(\widetilde{S}_{t_k}, \widetilde{V}_{t_k}): k=1,...,n\}\)
+    \end{algorithmic}
+\end{algorithm}
+
+\subsection{Convergence analysis}
+
+The convergence of the Accelerated Hybrid Scheme is guaranteed by the following theorem.
+
+\begin{theorem}\label{theorem:convergence_X}
+    Let \(\{X_t: t \ge 0\}\) be the process defined by the stochastic Volterra equation (\ref{eq:target_process}) on a filtered probability space \((\Omega,\mathcal{F}, \{\mathcal{F}_t\}_{t\ge 0}, \mathbb{P})\) with kernel \(K(t) = \tfrac{t^{H-1/2}}{\Gamma(H+1/2)}\) and coefficients \(b,\sigma\) satisfying Assumption~\ref{assumption:coefficients}. Let \(\{\widetilde{X}_{t_i}:i=0,1,\ldots,n,\ t_i = \frac{iT}{n}\}\) be the process generated by Algorithm~\ref{alg:simulation_X}. Then, for any \(T>0\), 
+    \[
+        \mathbb{E} |X_T - \widetilde{X}_T|^2 \to 0,\quad n_f\to \infty,\quad n \to \infty
+    \]
+\end{theorem}
+
+Before proving Theorem~\ref{theorem:convergence_X}, we introduce the following lemma that establishes the tightness of the Markovian approximation process.
+\begin{lemma}\label{lemma:tightness_markov_approx}
+Let \(\{X_t^{n_f}: 0 \le t \le T\}\) be the Markovian approximation of the process defined by (\ref{eq:target_process}) with the kernel approximate \(\widehat{K}(t) = \sum_{i=1}^{n_f}w_i e^{-x_i t}\) and \(\{(w_i,x_i)\}_{i=1}^{n_f}\) given by (\ref{eq:parameter_choice_1}). Then, for any \(t,h\ge 0\) and \(t + h \le T\), there exists a constant \(C>0\) such that
+\[
+\mathbb{E} |X_{t+h}^{n_f} - X_t^{n_f}|^2 \le C h^{2H}.
+\]
+\end{lemma}
+
+\begin{proof}
+    By definition of \(\{X_t^{n_f}: 0 \le t \le T\}\) and \((a+b)^2\le 2a^2+2b^2\), we have
+    \begin{align*}
+        \mathbb{E} |X_{t+h}^{n_f} - X_t^{n_f}|^2 &\le 2\mathbb{E} \left|\int_{0}^{t+h} \widehat{K}(t+h-s) b(X_s^{n_f})\,ds - \int_{0}^{t}\widehat{K}(t-s) b(X_s^{n_f})\,ds\right|^2\nonumber\\
+        &\quad + 2\mathbb{E} \left|\int_{0}^{t+h} \widehat{K}(t+h-s) \sigma(X_s^{n_f})\,dW_s - \int_{0}^{t}\widehat{K}(t-s) \sigma(X_s^{n_f})\,dW_s\right|^2=: 2I_1 + 2I_2.
+    \end{align*}
+    Using Jensen's inequality, Fubini theorem and linear growth condition, we have 
+    \begin{align*}
+        I_1 &\le 2\mathbb{E}\left|\int_{0}^{t} (\widehat{K}(t+h-s)-\widehat{K}(t-s))b(X_s^{n_f})\,ds\right|^2 + 2\mathbb{E}\left|\int_{t}^{t+h} \widehat{K}(t+h-s)b(X_s^{n_f})\,ds\right|^2\\
+        % line 2
+        &\le 2t \mathbb{E}\left[\int_{0}^{t} |\widehat{K}(t+h-s)-\widehat{K}(t-s)|^2 |b(X_s^{n_f})|^2\,ds\right] + 2h \mathbb{E}\left[\int_{t}^{t+h} |\widehat{K}(t+h-s)|^2 |b(X_s^{n_f})|^2\,ds\right]\\
+        % line 3
+        &\le 2t C_b \mathbb{E}\left[\int_{0}^{t} |\widehat{K}(t+h-s)-\widehat{K}(t-s)|^2 (1+|X_s^{n_f}|)^2\,ds\right] + 2h C_b \mathbb{E}\left[\int_{t}^{t+h} |\widehat{K}(t+h-s)|^2 (1+|X_s^{n_f}|)^2\,ds\right]\\
+        % line 4
+        &\le 2TC_b \left(\sup_{0\le s \le T}  \mathbb{E} [(1+|X_s^{n_f}|)^2] \right) \left(\int_{0}^{t} |\widehat{K}(t+h-s)-\widehat{K}(t-s)|^2\,ds + \int_{t}^{t+h} |\widehat{K}(t+h-s)|^2\,ds \right)\\
+        % line 5
+        &\le 2TC_b \left(\sup_{0\le s \le T}  \mathbb{E} [(1+|X_s^{n_f}|)^2] \right) \left(\int_{0}^{T-h} |\widehat{K}(h+s)-\widehat{K}(s)|^2\,ds + \int_{0}^{h} |\widehat{K}(s)|^2\,ds \right)\\
+        % line 6
+        &\le 2TC_1 \left(\int_{0}^{T-h} |\widehat{K}(h+s)-\widehat{K}(s)|^2\,ds + \int_{0}^{h} |\widehat{K}(s)|^2\,ds \right),
+    \end{align*}
+    where \(C_1>0\) is a constant, since \[
+    \sup_{0\le t \le T} \mathbb{E} [|X_t^{n_f}|^p] < \infty,\quad p\ge 1,
+    \]
+    for a given \(n_f\). Likewise, we can obtain a similar bound for \(I_2\) by It\^o isometry, which is given by 
+    \begin{align*}
+        I_2 &\le 2\mathbb{E}\left[\int_{0}^{t} |\widehat{K}(t+h-s)-\widehat{K}(t-s)|^2 |\sigma(X_s^{n_f})|^2\,ds\right] + 2\mathbb{E}\left[\int_{t}^{t+h} |\widehat{K}(t+h-s)|^2 |\sigma(X_s^{n_f})|^2\,ds\right]\\
+        &\le 2C_2 \left(\int_{0}^{T-h} |\widehat{K}(h+s)-\widehat{K}(s)|^2\,ds + \int_{0}^{h} |\widehat{K}(s)|^2\,ds \right).
+    \end{align*}
+    Combining results for \(I_1\) and \(I_2\),  we have for any given \(T>0, n_f \ge 1\) that 
+    \begin{align*}
+        \mathbb{E} |X_{t+h}^{n_f} - X_t^{n_f}|^2 \le 4(C_1 T + C_2) \left(\int_{0}^{T-h} |\widehat{K}(h+s)-\widehat{K}(s)|^2\,ds + \int_{0}^{h} |\widehat{K}(s)|^2\,ds \right),
+    \end{align*}
+    Then, from Section~8.6.1 and Lemma~7.13 in \cite{abijaber2018}, we have 
+    \[
+    \sup_{n_f\ge 1} \left(\int_{0}^{T-h} |\widehat{K}(h+s)-\widehat{K}(s)|^2\,ds + \int_{0}^{h} |\widehat{K}(s)|^2\,ds \right) \le C_K h^{2H},
+    \]
+    which gives that 
+    \[
+        \mathbb{E} |X_{t+h}^{n_f} - X_t^{n_f}|^2 \le C h^{2H},
+    \]
+    for some constant \(C>0\).
+
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{theorem:convergence_X}]
+    Let \(T\in \mathbb{R}_+\) be fixed. We can write the approximation \(\widetilde{X}_T\) as 
+    \begin{align*}
+        \widetilde{X}_T &= X_0 + \sum_{i=1}^{n} b\bigl(\widehat{X}_{t_{n-i}}^{n_f}\bigr) \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s)\,ds \nonumber\\[1mm]
+        &\quad + \sum_{i=1}^{\kappa} \sigma\bigl(\widehat{X}_{t_{n-i}}^{n_f}\bigr)
+        \int_{(k-i)T/n}^{(k-i+1)T/n} K(T-s)\,dW_s
+        + \sum_{i=\kappa+1}^{k} K\Bigl(\frac{b_{i}T}{n}\Bigr)\, \sigma\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) \Delta W_{k-i+1},
+    \end{align*}
+    and we introduce the auxillary processes 
+    \begin{align*}
+        \bar{X}_T = X_0 + \int_{0}^{T} K(T-s) b(X_s^{n_f})\,ds + \int_{0}^{T} K(T-s) \sigma(X_s^{n_f})\,dW_s,
+    \end{align*}
+    and 
+    \begin{align*}
+        \bar{X}_T^n &= X_0 + \sum_{i=1}^{n} b\bigl(X_{t_{n-i}}^{n_f}\bigr) \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s)\,ds \nonumber\\[1mm]
+        &\quad + \sum_{i=1}^{\kappa} \sigma\bigl(X_{t_{n-i}}^{n_f}\bigr)
+        \int_{(k-i)T/n}^{(k-i+1)T/n} K(T-s)\,dW_s
+        + \sum_{i=\kappa+1}^{k} K\Bigl(\frac{b_{i}T}{n}\Bigr)\, \sigma\bigl(X_{t_{k-i}}^{n_f}\bigr) \Delta W_{k-i+1}.
+    \end{align*}
+    By \((a+b+c)^2 \le 3a^2+3b^2+3c^2\), we have 
+    \[
+        \mathbb{E} |X_T - \widetilde{X}_T|^2 \le 3\mathbb{E} |X_T - \bar{X}_T|^2 + 3\mathbb{E} |\bar{X}_T - \bar{X}_T^n|^2 + 3\mathbb{E} |\bar{X}_T^n - \widetilde{X}_T|^2.
+    \]
+    In what follows, we show that each term on the right-hand side converges to $0$ as \(n_f\to \infty\) and \(n\to \infty\).
+
+    Let us analyze \(\mathbb{E} |X_T - \bar{X}_T|^2\) first:
+    \begin{align*}
+        \mathbb{E} |X_T - \bar{X}_T|^2 &= \mathbb{E} \left|\int_{0}^{T}K(T-s) \left(b(X_s) - b(X_s^{n_f})\right)ds + \int_{0}^{T}K(T-s) \left(\sigma(X_s) - \sigma(X_s^{n_f})\right)dW_s\right|^2\\
+        %line 2
+        &\le 2\mathbb{E} \left|\int_{0}^{T}K(T-s) \left(b(X_s) - b(X_s^{n_f})\right)ds\right|^2 + 2\mathbb{E} \left|\int_{0}^{T}K(T-s) \left(\sigma(X_s) - \sigma(X_s^{n_f})\right)dW_s\right|^2
+    \end{align*}
+    By applying Cauchy-Schwarz inequality to the first term, It\^o isometry to the second term, and using Fubini theorem, we have
+    \begin{align*}
+        \mathbb{E} |X_T - \bar{X}_T|^2 &\le 2T \mathbb{E} \left[\int_{0}^{T}K(T-s)^2  \left|b(X_s) - b(X_s^{n_f})\right|^2 ds \right] 
+        + 2\mathbb{E} \left[\int_{0}^{T}K(T-s)^2  \left|\sigma(X_s) - \sigma(X_s^{n_f})\right|^2 ds\right]\\
+        % line 2
+        &= 2T\int_{0}^{T} K(T-s)^2 \mathbb{E} \left|b(X_s) - b(X_s^{n_f})\right|^2 ds + 2\int_{0}^{T} K(T-s)^2 \mathbb{E} \left|\sigma(X_s) - \sigma(X_s^{n_f})\right|^2 ds.
+    \end{align*}
+    Under Assumption~\ref{assumption:coefficients}, there exists a constant \(L>0\) such that
+    \begin{align*}
+        \mathbb{E} \left|b(X_s) - b(X_s^{n_f})\right|^2 &\le L \cdot \mathbb{E} \left|X_s - X_s^{n_f}\right|^2,\\
+        \mathbb{E} \left|\sigma(X_s) - \sigma(X_s^{n_f})\right|^2 &\le L\cdot \mathbb{E} \left|X_s - X_s^{n_f}\right|^2.
+    \end{align*}
+    Hence, we have 
+    \begin{align*}
+        \mathbb{E} |X_T - \bar{X}_T|^2 &\le (2T+1)L \int_{0}^{T} K(T-s)^2 \mathbb{E} \left|X_s - X_s^{n_f}\right|^2 ds\\
+        &\le \left(\sup_{0\le t\le T} \mathbb{E} \left|X_s - X_s^{n_f}\right|^2 \right) \cdot (2T+1)L \int_{0}^{T} K(T-s)^2 ds
+    \end{align*}
+    By Proposition~\ref{prop:markov_approx_convergence}, we have 
+    \[
+    \sup_{0\le t\le T} \mathbb{E} \left|X_s - X_s^{n_f}\right|^2 \le C \sup_{0\le t\le T} \int_0^t |K(s) - \widehat{K}(s)|^2 ds = C \|K - \widehat{K}\|_{2,T}^2,
+    \]
+    where \(C>0\) is a constant, and \(\widehat{K}(u) = \sum_{i=1}^{n_f} w_i e^{-x_i u}\) is a kernel approximation following (\ref{eq:parameter_choice_1}). By (\ref{eq:parameter_choice_1_convergence}), we have \(\|K - \widehat{K}\|_{2,T} \to 0\) as \(n_f\to \infty\). Therefore, \(\mathbb{E} |X_T - \bar{X}_T|^2 \to 0\) as \(n_f\to \infty\).
+
+    \paragraph{} Next, we analyze \(\mathbb{E} |\bar{X}_T - \bar{X}_T^n|^2\). Likewise, we introduce an ancillary term 
+    \begin{equation*}
+        \check{X}_T^n = X_0 + \sum_{i=1}^{n} b\bigl(X_{t_{n-i}}^{n_f}\bigr) \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s)\,ds + \sum_{i=1}^{n} \sigma\bigl(X_{t_{n-i}}^{n_f}\bigr) \int_{(k-i)T/n}^{(k-i+1)T/n} K(T-s)\,dW_s,
+    \end{equation*}
+    and split the error term as
+    \begin{align*}
+        \mathbb{E} |\bar{X}_T - \bar{X}_T^n|^2 &\le 2\mathbb{E}|\bar{X}_T - \check{X}_T^n|^2 + 2\mathbb{E}|\check{X}_T^n - \bar{X}_T^n|^2.
+    \end{align*}
+    Using Jensen's inequality, It\^o isometry, Lipschitz continuity of \(b,\sigma\), and Lemma~\ref{lemma:tightness_markov_approx}, we have
+    \begin{align}
+        \mathbb{E}|\bar{X}_T - \check{X}_T^n|^2 &\le 2\mathbb{E} \left|\sum_{i=1}^n \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s) (b(X_s^{n_f}) - b(X_{t_{n-i}}^{n_f}))\,ds\right|^2\nonumber\\
+        &\qquad + 2\mathbb{E}\left| \sum_{i=1}^n \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s) (\sigma(X_s^{n_f}) - \sigma(X_{t_{n-i}}^{n_f}))\,dW_s\right|^2\nonumber\\
+        % line 2
+        &\le 2T \int_{0}^{T} K(T-s)^2 \mathbb{E} |b(X_s^{n_f}) - b(X_{\eta(s)}^{n_f})|^2\,ds + 2\int_{0}^{T} K(T-s)^2 \mathbb{E} |\sigma(X_s^{n_f}) - \sigma(X_{\eta(s)}^{n_f})|^2\,ds\nonumber\\ 
+        % line 3
+        &\le (2T+1)L \cdot \left(\sup_{0\le s\le T} \mathbb{E} |X_s^{n_f} - X_{\eta(s)}^{n_f}|^2\right) \int_{0}^{T} K(u)^2 \,du\nonumber\\
+        % line 4
+        &\le (2T+1)LC \left(\frac{T}{n}\right)^{2H} \int_{0}^{T} K(u)^2 \,du,\label{eq:barX_checkX}
+    \end{align}
+    where \(\eta(s) = \tfrac{(n-i)T}{n}\) for \(s \in [\tfrac{(n-i)T}{n},\tfrac{(n-i+1)T}{n}),\ i=1,2,\ldots n\), \(L>0\) is the Lipschitz constant, \(C>0\) is the constant from Lemma~\ref{lemma:tightness_markov_approx}. The last line above indicates that 
+    \[
+        \mathbb{E}|\bar{X}_T - \check{X}_T^n|^2,\quad n\to \infty
+    \]
+    Likewise, we can derive the upper bound of \(\mathbb{E}|\check{X}_T^n - \bar{X}_T^n|^2\) as follows.
+    \begin{align}
+        \mathbb{E}|\check{X}_T^n - \bar{X}_T^n|^2 &= \mathbb{E} \left|\sum_{i=\kappa+1}^{n} \int_{(n-i)T/n}^{(n-i+1)T/n} \left(K\left(\frac{b_i T}{n}\right) - K(T-s)\right) \sigma(X_{t_{n-i}}^{n_f}) \,dW_s\right|^2\nonumber\\ 
+        % line 2
+        &= \sum_{i=\kappa+1}^{n} \int_{(n-i)T/n}^{(n-i+1)T/n} \left(K\left(\frac{b_i T}{n}\right) - K(T-s)\right)^2 \mathbb{E} |\sigma(X_{t_{n-i}}^{n_f})|^2\,ds\nonumber\\
+        % line 3
+        &\le \frac{\widetilde{C}_\sigma \sup_{0\le s \le T} \mathbb{E} (1 + |X_s^{n_f}|)^2}{\Gamma(H+\frac{1}{2})^2} \left(\frac{T}{n}\right)^{2H}\sum_{i=\kappa+1}^{n}  \int_{i-1}^{i} (b_i^{H-\frac{1}{2}} - y^{H-\frac{1}{2}})^2\,dy\nonumber\\
+        % line 4
+        &\le C_{\sigma,H}\left(\frac{T}{n}\right)^{2H} \sum_{i=\kappa+1}^{n}  \int_{i-1}^{i} (b_i^{H-\frac{1}{2}} - y^{H-\frac{1}{2}})^2\,dy\label{eq:checkX_barXn}
+    \end{align}
+    where \(C_{\sigma,H}>0\) is a constant related to \(\sigma, H\) and the upper bound of \(\sup_{0\le s \le T} \mathbb{E}[|X_s^{n_f}|^p]\) for \(p>0\) (which is finite by Section~7.5.1, \cite{abijaber2018}). Minimizing \(\int_{i-1}^{i} (b_i^{H-\frac{1}{2}} - y^{H-\frac{1}{2}})^2 dy\) above with respect to \(b_i\), we have 
+    \begin{equation}
+        b_i = \left(\frac{i^{H+\frac{1}{2}} - (i-1)^{H+\frac{1}{2}}}{H+\frac{1}{2}}\right)^{\frac{1}{H-\frac{1}{2}}}.\label{eq:optimal_bi}
+    \end{equation}
+    By Theorem~2.5, \cite{bennedsen_2017_FS}, we have 
+    \[
+    \sum_{i=\kappa+1}^{\infty}  \int_{i-1}^{i} (b_i^{H-\frac{1}{2}} - y^{H-\frac{1}{2}})^2\,dy < \infty,
+    \]
+    which directly indicates that
+    \[
+        \mathbb{E}|\check{X}_T^n - \bar{X}_T^n|^2 \to 0,\quad n\to \infty.
+    \]
+
+    \paragraph{} Finally, we analyze \(\mathbb{E}|\bar{X}_T^n - \widetilde{X}_T|^2\), which is given by
+    \begin{align}
+        \mathbb{E}|\bar{X}_T^n - \widetilde{X}_T|^2 &= \mathbb{E} \left|\sum_{i=1}^{n} (b(X_{t_{n-i}}^{n_f}) - b(\widehat{X}_{t_{n-i}}^{n_f})) \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s)\,ds\right|^2\nonumber\\
+        % line 2
+        &\qquad + \mathbb{E} \left|\sum_{i=1}^{\kappa} (\sigma(X_{t_{n-i}}^{n_f}) - \sigma(\widehat{X}_{t_{n-i}}^{n_f}))\int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s)\,dW_s\right|^2\nonumber\\
+        % line 3
+        &\qquad + \mathbb{E} \left|\sum_{i=\kappa+1}^{n} K\left(\frac{b_i T}{n}\right) (\sigma(X_{t_{n-i}}^{n_f}) - \sigma(X_{t_{n-i}}^{n_f})) \int_{(n-i)T/n}^{(n-i+1)T/n} dW_s\right|^2\nonumber\\
+        % line 4
+        &=: J_1 + J_2 + J_3.
+    \end{align}
+    Likewise, by Jensen's inequality and Lipschitz continuity, 
+    \begin{align}
+        J_1 &= \mathbb{E}\left|\int_0^T K(T-s) (b(X_{\eta(s)}^{n_f}) - b(\widehat{X}_{\eta(s)}^{n_f}))\,ds\right|^2\nonumber\\
+        % line 2
+        &\le T \int_0^T K(T-s)^2 \mathbb{E} |b(X_{\eta(s)}^{n_f}) - b(\widehat{X}_{\eta(s)}^{n_f})|^2\,ds\nonumber\\
+        % line 3
+        &\le T L \cdot \left(\max_{i\in\{0,...,n-1\}} \mathbb{E} |X_{t_i}^{n_f} - \widehat{X}_{t_i}^{n_f}|^2\right) \int_0^T K(u)^2\,du\label{eq:barXn_tildeX_1}
+    \end{align}
+    where \(L>0\) is the Lipschitz constant, \(\eta(\cdot)\) is defined as above. Similarly, by It\^o isometry and Lipschitz continuity, we have
+    \begin{align}
+        J_2 + J_3 &= \sum_{i=1}^{\kappa} \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s)^2 \mathbb{E} |\sigma(X_{t_{n-i}}^{n_f}) - \sigma(\widehat{X}_{t_{n-i}}^{n_f})|^2\,ds \nonumber\\
+        &\qquad + \sum_{i=\kappa+1}^{n} K\left(\frac{b_i T}{n}\right)^2 \mathbb{E} |\sigma(X_{t_{n-i}}^{n_f}) - \sigma(\widehat{X}_{t_{n-i}}^{n_f})|^2 \left(\frac{T}{n}\right)\nonumber\\
+        % line 2
+        &\le L\cdot \left(\max_{i\in\{0,...,n-1\}} \mathbb{E} |X_{t_i}^{n_f} - \widehat{X}_{t_i}^{n_f}|^2\right) \left(\sum_{i=1}^{\kappa} \int_{(i-1)T/n}^{iT/n} K(u)^2 du + \frac{T}{n} \sum_{i=\kappa+1}^{n} K\left(\frac{b_i T}{n}\right)^2\right)\label{eq:barXn_tildeX_2}
+    \end{align}
+    It is easy to show that \(\frac{T}{n} \sum_{i=\kappa+1}^{n} K\left(\frac{b_i T}{n}\right)^2 < \infty\) as \(n\to \infty\) for any sequence \(b_i \in [i-1,i],\ i=1,\ldots n\). As the discretization scheme \eqref{eq:markovian_X_update}-\eqref{eq:markovian_Z_update} is inherently the same as the Euler scheme \eqref{eq:euler_scheme_target} (Theorem~4.2, \cite{AlfonsiKeabier2023}) with kernel \(\widehat{K}(u) = \sum_{i=1}^{n_f}w_i e^{-x_i u}\), by Proposition~\ref{prop:euler_convergence}, \[
+        \max_{i\in\{0,...,n-1\}} \mathbb{E} |X_{t_i}^{n_f} - \widehat{X}_{t_i}^{n_f}|^2 \to 0,\quad n\to \infty,
+    \] 
+    which leads to 
+    \[
+        \mathbb{E}|\bar{X}_T^n - \widetilde{X}_T|^2 = J_1 + J_2 + J_3 \to 0,\quad n\to \infty.
+    \]
+
+    Combining the convergence results of \(\mathbb{E} |X_T - \bar{X}_T|^2\), \(\mathbb{E} |\bar{X}_T - \bar{X}_T^n|^2\), and \(\mathbb{E} |\bar{X}_T^n - \widetilde{X}_T|^2\), we can therefore conclude that 
+    \[
+        \mathbb{E} |X_T - \widetilde{X}_T|^2 \to 0,\quad n_f\to \infty,\quad n\to \infty.
+    \]
+\end{proof}
+
+Following the proof of Theorem~\ref{theorem:convergence_X}, we can find that the mean square error of the Accelerated Hybrid Scheme is bounded by
+\[
+\mathbb{E} |X_T - \widetilde{X}_T|^2 \le C_1 \|K - \widehat{K}\|_{2,T}^2 + C_2 n^{-2H},\quad \text{as }n_f \to \infty,\ n\to \infty,
+\]
+for some constants \(C_1,C_2>0\), rendering a strong order of convergence \(H\) with respect to the discretization time steps \(n\). With a time complexity \(\mathcal{O}(n\cdot (n_f + \log n))\), the Accelerated Hybrid Scheme is a rather efficient and accurate method to simulate the process \(\{X_t: t\ge 0\}\). 
+
+While the Accelerated Hybrid Scheme can be readily applied to rough volatility processes \eqref{eq:generalized_heston} and (\ref{eq:variance-process}), the presence of non-Lipschitz coefficients in these models may cause deviations from the results stated in Theorem~\ref{theorem:convergence_X}. This is primarily due to the challenges in establishing strong convergence for the scheme \eqref{eq:markov_V_update}-\eqref{eq:markov_U_update}. A rigorous treatment of this issue is deferred to future research. In the following section, we empirically demonstrate the efficiency and accuracy of the Accelerated Hybrid Scheme in simulating rough volatility processes under relaxed Lipschitz conditions.
+
+% The time complexity of the Markovian approximation method is \(\mathcal{O}(n_f N_t)\), where \(N_t\) is the number of time steps. However, the Markovian approximation method is not without limitations:
+% 1. Markovian process
+% 2. parameter estimation
+% 3. convergence result
+% 4. exact solution versus simulation through discretization
+
+% MSE proof: theorem 2.2 in \cite{richard2023roughsimu} - be a lemma here?
+% pg 5 in abi jaber and 
+% Theorem 4.1, AK21
+
+\section{Numerical experiments}\label{sec:numerical_results}
+
+\section{Conclusions}\label{sec:conclusion}
+
+\newpage
+\bibliographystyle{elsevier}
+\bibliography{mainbib,mybib,newadded}
+
+
+\newpage
+%\doublespacing%
+%TCIMACRO{\TeXButton{reset numbering at 0}{\setcounter{section}{0}
+%\setcounter{subsection}{0}
+%\setcounter{equation}{0}} }%
+%BeginExpansion
+\setcounter{section}{0}
+\setcounter{subsection}{0}
+\setcounter{equation}{0}
+%EndExpansion
+%TCIMACRO{\TeXButton{section & eqn numbering in appendix}{\renewcommand
+%{\thesection}{Appendix \Alph{section}}
+%\renewcommand\thesubsection{\thesection.\arabic{subsection}}
+%\renewcommand{\theequation}{\Alph{section}.\arabic{equation}}}}%
+%BeginExpansion
+\renewcommand{\thesection}{Appendix \Alph{section}}
+\renewcommand\thesubsection{\thesection.\arabic{subsection}}
+\renewcommand{\theequation}{\Alph{section}.\arabic{equation}}%
+%EndExpansion
+
+
+% \section{Appendix:\ Mathematical derivations\label{Appendix}}
+
+% \subsection{\label{proof: sum}Proof of Theorem \ref{theorem: sum}}
+
+% \begin{proof}
+% The proof goes here.
+% \end{proof}
+
+
+\end{document}

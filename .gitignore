@@ -2,10 +2,6 @@
 /Simulation/fig
 /Simulation/bound_test/testData
 /Simulation/bound_test/testFig
-# exclude .fig .eps .pdf files
-**/*.fig
-**/*.eps
-**/*.pdf
 # exclude test and tmp files
 **/test.*
 **/tmp.*
