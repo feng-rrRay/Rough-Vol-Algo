@@ -9,3 +9,5 @@
 # exclude test and tmp files
 **/test.*
 **/tmp.*
+# exclude MacOS trash
+**/.DS_Store
