@@ -11,3 +11,4 @@
 **/tmp.*
 # exclude MacOS trash
 **/.DS_Store
+/.DS_Store
