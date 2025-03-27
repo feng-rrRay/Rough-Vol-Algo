@@ -1,8 +1,9 @@
-function func_val = simu_hyb_weak(spotV, num_maturity, dt_maturity,...
+function [logS_mc_final,t] = simu_hyb_weak(spotV, num_maturity, dt_maturity,...
     num_moneyness, num_path_mc, steps_per_maturity, forward_curve,...
     theta, rho, lambda, nu, H, noise_mat_3d_mc, J, r, eps)
 %IV_SIMU_HYBRID_SCHEME Hybrid scheme iv simulation under risk-neutral
 %measure (benchmark)
+    tic;
     num_steps_mc = num_maturity * steps_per_maturity;
     dt = dt_maturity / steps_per_maturity;
     V_mat_mc = spotV * ones(num_path_mc, num_steps_mc+1) + [0, forward_curve]; % initialize variance paths
@@ -13,7 +14,6 @@ function func_val = simu_hyb_weak(spotV, num_maturity, dt_maturity,...
         linspace(0,kernel_length-1,kernel_length).^(H+1/2)) / (H+1/2);
     gamma_val = gamma(H+1/2);
 
-    tic;
     for i = 1:num_steps_mc
         f_mc_current = sqrt(max(V_mat_mc(:,i), eps));
         logS_mc_current = logS_mc_current + (r - f_mc_current.^2/2) * dt...
@@ -36,6 +36,7 @@ function func_val = simu_hyb_weak(spotV, num_maturity, dt_maturity,...
     t = toc;
     fprintf("Classical hybrid scheme: %.5f\n", t);
 
-    func_val = phi_func(V_mat_mc(:,num_steps_mc+1),logS_mc_current,1);
+    % func_val = phi_func(V_mat_mc(:,num_steps_mc+1),logS_mc_current,1);
+    logS_mc_final = logS_mc_current;
 end
 

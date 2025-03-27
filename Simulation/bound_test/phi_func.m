@@ -1,7 +1,8 @@
-function func_val = phi_func(V_T_mc, log_S_T_mc, K)
-%PHI_FUNC a local Lipschitz continuous function
+function [meanVal, statError] = phi_func(log_S_T_mc, K)
+%PHI_FUNC Calculate payoff according to Monte Carlo results
+    num_sample = size(log_S_T_mc,1);
     val_mc = max(exp(log_S_T_mc) - K, 0);
-    func_val = mean(val_mc);
-    % func_val = mean(log_S_T_mc);
+    meanVal = mean(val_mc);
+    statError = std(val_mc,0) / sqrt(num_sample);
 end
 

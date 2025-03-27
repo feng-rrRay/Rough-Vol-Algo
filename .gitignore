@@ -5,6 +5,8 @@
 # exclude test and tmp files
 **/test.*
 **/tmp.*
+**/*.asv
+*.asv
 # exclude MacOS trash
 **/.DS_Store
 /.DS_Store

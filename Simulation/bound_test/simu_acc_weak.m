@@ -1,4 +1,4 @@
-function func_val = simu_acc_weak(spotV, num_maturity, dt_maturity,...
+function [logS_mc_markov,logS_mc_final,t_markov,t_acc] = simu_acc_weak(spotV, num_maturity, dt_maturity,...
     num_moneyness, num_path_mc, steps_per_maturity, u_current, forward_curve, cs, xs, ...,
     theta, rho, lambda, nu, H, noise_mat_3d_mc, J, r, eps)
     %IV_SIMU_PC Predictor-Corrector sampler
@@ -11,6 +11,7 @@ function func_val = simu_acc_weak(spotV, num_maturity, dt_maturity,...
     u_current_mc = ones(num_path_mc,1) * u_current;
     V_mat_mc = spotV * ones(num_path_mc, num_steps_mc+1) + [0, forward_curve]; % initialize variance paths
     logS_mc_current = zeros(num_path_mc,1); % current stock price = 1
+    logS_mc_markov = zeros(num_path_mc,1);
     gamma_val = gamma(H+1/2);
 
     % Markovian
@@ -21,10 +22,13 @@ function func_val = simu_acc_weak(spotV, num_maturity, dt_maturity,...
         % u_current_mc = (u_current_mc + delta_u) ./ (1 + xs*dt);
         u_current_mc = (u_current_mc + delta_u) .* exp(-xs*dt);
         V_mat_mc(:,i+1) = V_mat_mc(:,i+1) + sum(cs .* u_current_mc,2); 
+        % test Markovian approximation at the meantime
+        logS_mc_markov = logS_mc_markov + (r - f_mc_current/2) * dt + ...
+            sqrt(f_mc_current) .* (rho*noise_mat_3d_mc(:,i,1) + sqrt(1-rho^2)*noise_mat_3d_mc(:,i,2));
     end
     t1=toc;
 
-    % Hybrid-like
+    % Accelerated Hybrid
     tic;
     kernel_dt = ones(num_path_mc,1) * [0, linspace(1,num_steps_mc,num_steps_mc).^(H+1/2) - ...
         linspace(0,num_steps_mc-1,num_steps_mc).^(H+1/2)] / (H+1/2);
@@ -53,7 +57,10 @@ function func_val = simu_acc_weak(spotV, num_maturity, dt_maturity,...
         end
     end
     t2=toc;
-    func_val = phi_func(V_mat_mc(:,num_steps_mc+1), logS_mc_current, 1);
+    % func_val = phi_func(V_mat_mc(:,num_steps_mc+1), logS_mc_current, 1);
+    logS_mc_final = logS_mc_current;
     fprintf("Precomputing: %.5f\n", t1);
     fprintf("FFT Hybrid:   %.5f\n", t2);
+    t_markov = t1;
+    t_acc = t1 + t2;
 end
