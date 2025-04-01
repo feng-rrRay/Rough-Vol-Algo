@@ -5,17 +5,17 @@ rng(1);
 
 %% Parameters
 %  Rough Heston model:  (8.1.3)-(8.1.4) in (Jaber, 2018)
-H = 0.3;
-theta = 0.09;
-rho = 0;
-lambda = 0.05;
+H = 0.15;
+theta = 0.05;
+rho = -0.1;
+lambda = 0.1;
 nu = 0.3;
-r = 0;
+r = 0; d = 0;
 V0 = 0.05;
 eps = 0.0001;
 
 %  Lifted Heston model: (8.2.1)-(8.2.3) in (Jaber, 2018)
-nf = 200; % number of factors (50 would yield reasonable results for 1 day to maturity)
+nf = 100; % number of factors (50 would yield reasonable results for 1 day to maturity)
 alpha = H + 0.5;
 rn = 1 + 10 * nf^(-0.9);
 cs = ones(1,nf) .* ((rn^(1-alpha) - 1)*rn^((alpha-1)*(1+nf/2))) ./ (gamma(alpha) * gamma(2-alpha));
@@ -26,10 +26,10 @@ for i = 1:nf
 end
 
 % time grid definition
-dt_maturity = 1/252;  % gap between maturities in IV surface
-num_maturity = 20;    % number of maturities for IV surface
+dt_maturity = 1/12;  % gap between maturities in IV surface
+num_maturity = 1;    % number of maturities for IV surface
 num_moneyness = 41;
-step_maturity = 35;  % steps in-fill (100 for reasonable results for 1/10 day to maturity)
+step_maturity = 200;  % steps in-fill (100 for reasonable results for 1/10 day to maturity)
 num_steps_mc = num_maturity * step_maturity; % number of steps in total
 num_path_mc = 3e5;    % Monte Carlo paths
 dt = dt_maturity / step_maturity; 
@@ -78,15 +78,18 @@ tic;
 t2=toc;
 
 %% Inverse transform (benchmark)
-addpath('exact_v3');
-n = 400; M = 1000; N = 20000;
+addpath('Fourier_Transform_Inversion');
+n = 1000; N = 20000;
+left = 1e-12; right = 400;
 iv_mat_3 = zeros(size(iv_mat_2));
 tic;
-for k = 1:num_maturity
-    log_strikes = linspace(-2*sqrt(V0*dt_maturity*k),2*sqrt(V0*dt_maturity*k),num_moneyness);
-    iv_mat_3(k,:) = IVCurveArray(log_strikes, H, rho, nu, lambda, theta, V0, dt_maturity*k, r, 0, n, M, N);
-    disp(k);
-end
+log_strikes = linspace(-2*sqrt(V0*dt_maturity),2*sqrt(V0*dt_maturity),num_moneyness);
+iv_mat_3(1,:) = IVCurveArray(log_strikes, H, rho, nu, lambda, theta, V0, dt_maturity, r, d, n, left, right, N);
+% for k = 1:num_maturity
+%     log_strikes = linspace(-2*sqrt(V0*dt_maturity*k),2*sqrt(V0*dt_maturity*k),num_moneyness);
+%     iv_mat_3(k,:) = IVCurveArray(log_strikes, H, rho, nu, lambda, theta, V0, dt_maturity*k, r, 0, n, M, N);
+%     disp(k);
+% end
 t3=toc;
 
 %% Acceleration method
@@ -104,8 +107,8 @@ t4=toc;
 figure;
 % indices = [1,2,3,4];
 indices = 1:4;
-for i = 1:4
-    subplot(1, 4, i);  % Creates a 2x2 grid and selects the i-th subplot.
+for i = 1:1
+    % subplot(1, 4, i);  % Creates a 2x2 grid and selects the i-th subplot.
     hold on;
     plot(log(moneyness_mat_1(indices(i),:)), iv_mat_1(indices(i),:), "DisplayName", "Markovian approx");
     plot(log(moneyness_mat_2(indices(i),:)), iv_mat_2(indices(i),:), "DisplayName", "Hybrid scheme");
@@ -125,5 +128,3 @@ fprintf("Markov Approximation: cpu time: %5.2f, err-to-exact: %3.2E, err-to-hybr
 fprintf("       Hybrid Scheme: cpu time: %5.2f, err-to-exact: %3.2E, err-to-hybrid: %3.2E.\n", t2, err_exact_2, err_hyb_2);
 fprintf("             Inverse Transform: cpu time: %5.2f, err-to-exact: %3.2E, err-to-hybrid: %3.2E.\n", t3, err_exact_3, err_hyb_3);
 fprintf("        Acceleration: cpu time: %5.2f, err-to-exact: %3.2E, err-to-hybrid: %3.2E.\n", t4, err_exact_4, err_hyb_4);
-%% weak error
-res = iv_mat_4(20,21) - iv_mat_2(20,21);
