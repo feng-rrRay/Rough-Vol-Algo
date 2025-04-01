@@ -1,0 +1,70 @@
+\begin{thebibliography}{13}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+
+\bibitem[{Abi~Jaber(2018)}]{abijaber2018}
+Abi~Jaber, E., Oct. 2018. {Stochastic Invariance and Stochastic Volterra
+  Equations}. Theses, {Universit{\'e} Paris sciences et lettres}.
+
+\bibitem[{{Abi Jaber}(2019)}]{abijaberLifting2019}
+{Abi Jaber}, E., 2019. Lifting the heston model. Quantitative Finance 19~(12),
+  1995--2013.
+
+\bibitem[{{Abi Jaber} and {El Euch}(2019)}]{ABIJABERandELEUCH2019}
+{Abi Jaber}, E., {El Euch}, O., 2019. Markovian structure of the volterra
+  heston model. Statistics & Probability Letters 149, 63--72.
+\newline\urlprefix\url{https://www.sciencedirect.com/science/article/pii/S0167715219300306}
+
+\bibitem[{Alfonsi and Kebaier(2023)}]{AlfonsiKeabier2023}
+Alfonsi, A., Kebaier, A., Nov. 2023. {Approximation of Stochastic Volterra
+  Equations with kernels of completely monotone type}. {Mathematics of
+  Computation} 93~(346), 643--677.
+\newline\urlprefix\url{https://enpc.hal.science/hal-03526905}
+
+\bibitem[{Bayer and Breneis(2023)}]{Bayer_Breneis_2023}
+Bayer, C., Breneis, S., 2023. Markovian approximations of stochastic volterra
+  equations with the fractional kernel. Quantitative Finance 23~(1), 53--70.
+
+\bibitem[{Bennedsen et~al.(2017)Bennedsen, Lunde, and
+  Pakkanen}]{bennedsen_2017_FS}
+Bennedsen, M., Lunde, A., Pakkanen, M.~S., Jun. 2017. Hybrid scheme for
+  brownian semistationary processes. Finance and Stochastics 21~(4), 931--965.
+
+\bibitem[{Gatheral et~al.(2018)Gatheral, Jaisson, and and}]{Gatheral2018}
+Gatheral, J., Jaisson, T., and, M.~R., 2018. Volatility is rough. Quantitative
+  Finance 18~(6), 933--949.
+
+\bibitem[{Glasserman(2004)}]{Glasserman}
+Glasserman, P., 2004. Monte Carlo methods in Financial Engineering. Vol.~53 of
+  Applications of Mathematics (New York). Springer-Verlag, New York, stochastic
+  Modelling and Applied Probability.
+
+\bibitem[{Hagan et~al.(2002)Hagan, Kumar, Lesniewski, and
+  Woodward}]{SABR_Hagan_etc_2002}
+Hagan, P.~S., Kumar, D., Lesniewski, A.~S., Woodward, D.~E., September 2002.
+  Managing smile risk. Wilmott Magazine , 84--108.
+
+\bibitem[{Heston(1993)}]{heston93}
+Heston, S., 1993. A closed-form solution for options with stochastic volatility
+  with applications to bonds and currency options. Review of Financial Studies
+  6, 327--343.
+
+\bibitem[{Richard et~al.(2021)Richard, Tan, and Yang}]{richard2021}
+Richard, A., Tan, X., Yang, F., Jul. 2021. {Discrete-time Simulation of
+  Stochastic Volterra Equations}. {Stochastic Processes and their Applications}
+  .
+\newline\urlprefix\url{https://hal.science/hal-02528983}
+
+\bibitem[{Richard et~al.(2023)Richard, Tan, and Yang}]{richard2023roughsimu}
+Richard, A., Tan, X., Yang, F., 2023. On the discrete-time simulation of the
+  rough heston model. SIAM Journal on Financial Mathematics 14~(1), 223--249.
+
+\bibitem[{Zhang(2010)}]{XinchengZhang2010}
+Zhang, X., 2010. Stochastic volterra equations in banach spaces and stochastic
+  partial differential equation. Journal of Functional Analysis 258~(4),
+  1361--1425.
+\newline\urlprefix\url{https://www.sciencedirect.com/science/article/pii/S0022123609004650}
+
+\end{thebibliography}

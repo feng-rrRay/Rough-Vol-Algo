@@ -203,14 +203,14 @@ There is a rich literature on the simulation of stochastic Volterra equations (\
 \subsection{Discretization methods}
 
 These methods approximate the stochastic integral by discretizing the time interval \([0,T]\) into small steps \(\Delta t\). The most straightforward discretization method is the Euler-type scheme as mentioned in \cite{richard2021} and \cite{richard2023roughsimu}. On the discrete-time grid \(0 = t_0 < t_1 < \cdots < t_n = T\), the Euler-type scheme simulates the process (\ref{eq:target_process}) as
-\[
-    \widehat{X}_{t_{k}} = X_{0} + \sum_{j=0}^{k-1} K(t_{k}-t_j)b(\widehat{X}_{t_j})\Delta t_{j+1} + \sum_{j=0}^{k-1} K(t_{k}-t_j)\sigma(\widehat{X}_{t_j})\Delta W_{t_{j+1}},\label{eq:euler_scheme_target}
-\]
+\begin{equation}
+    \widehat{X}_{t_{k}} = X_{0} + \sum_{j=0}^{k-1} K(t_{k}-t_j)b(\widehat{X}_{t_j})\Delta t_{j+1} + \sum_{j=0}^{k-1} K(t_{k}-t_j)\sigma(\widehat{X}_{t_j})(W_{t_{j+1}} - W_{t_j}),\label{eq:euler_scheme_target}
+\end{equation}
 and the variance process (\ref{eq:variance-process}) as
-\[
-    \widehat{V}_{t_k} = V_0 + \frac{1}{\Gamma(H+1/2)} \sum_{j=0}^{k-1} (t_{k}-t_j)^{H-1/2}\left(\lambda(\theta - (\widehat{V}_{t_j})_+)\Delta t_{j+1} + \nu\sqrt{(\widehat{V}_{t_j})_+}\Delta W_{t_{j+1}}\right),
-\]
-where \((V_t)_+ := \max(V_t,0)\), \(\Delta t_{j+1} = t_{j+1} - t_j,\ \Delta W_{t_{j+1}} = W_{t_{j+1}} - W_{t_j} \sim \mathcal{N}(0,\Delta t_{j+1})\). 
+\begin{equation}
+    \widehat{V}_{t_k} = V_0 + \frac{1}{\Gamma(H+1/2)} \sum_{j=0}^{k-1} (t_{k}-t_j)^{H-1/2}\left(\lambda(\theta - (\widehat{V}_{t_j})_+)\Delta t_{j+1} + \nu\sqrt{(\widehat{V}_{t_j})_+}(W_{t_{j+1}} - W_{t_j})\right),\label{eq:euler_scheme_variance}
+\end{equation}
+where \((V_t)_+ := \max(V_t,0)\), \(\Delta t_{j+1} = t_{j+1} - t_j,\ W_{t_{j+1}} - W_{t_j} \sim \mathcal{N}(0,\Delta t_{j+1})\). 
 
 The Euler-type scheme is straightforward to implement and demonstrates strong convergence provided that Assumption~\ref{assumption:coefficients} holds for the coefficients \(b\) and \(\sigma\). The following proposition presents the strong convergence result associated with the Euler scheme.
 
@@ -238,15 +238,15 @@ Y_t = \int_{-\infty}^{t} K(t-s)\sigma_s\,dW_s,
 \]
 where \(\sigma_s\) is a covariance-stationary process satisfying \(\mathbb{E}[\sigma_s]=\mathbb{E}[\sigma_t],\ \text{Cov}(\sigma_s,\sigma_t)=\text{Cov}(\sigma_0,\sigma_{|s-t|})\) for \(s,t\in\mathbb{R}\), and the kernel $K(\cdot)$ exhibits a power-law behavior near zero, i.e.,
 \[
-K(u)=u^\alpha L_g(u),\quad u\to 0^+,
+K(u)=u^\alpha L_K(u),\quad u\to 0^+,
 \]
-with $\alpha\in(-\tfrac{1}{2},\tfrac{1}{2})\setminus\{0\}$ and $L_g$ a slowly varying function. In the case of rough Heston, \(\alpha = H - 1/2,\ L_g(u) = \tfrac{1}{\Gamma(H+1/2)}\). This singularity leads to rough sample paths and renders the Euler-type discretization inaccurate, as it fails to capture the steep behavior of $K(u)$ for small $u$. 
+with $\alpha\in(-\tfrac{1}{2},\tfrac{1}{2})\setminus\{0\}$ and $L_K$ a slowly varying function. In the case of rough Heston, \(\alpha = H - 1/2,\ L_K(u) = \tfrac{1}{\Gamma(H+1/2)}\). This singularity leads to rough sample paths and renders the Euler-type discretization inaccurate, as it fails to capture the steep behavior of $K(u)$ for small $u$. 
 
 For a discretization grid \(\{t, t-\Delta t, t - 2\Delta t, \cdots\}\) with time step $\Delta t = 1/n$, the approximation of $Y_t$ is split into two parts:
 \begin{itemize}
     \item \textbf{Singular part:} For the $\kappa$ most recent intervals (where the kernel is most singular), the kernel is approximated by its power-law form and integrated analytically. For example, on the interval $[t-k\Delta t, t-(k-1)\Delta t]$, one approximates
     \[
-    K(t-s) \approx L_g(k\Delta t)(t-s)^\alpha,\quad k=1,\dots,\kappa.
+    K(t-s) \approx L_K(k\Delta t)(t-s)^\alpha,\quad k=1,\dots,\kappa.
     \]
     \item \textbf{Regular part:} For larger lags ($k>\kappa$), the kernel is approximated by a constant on each interval using an evaluation point $b_k\in[k-1,k]$, so that
     \[
@@ -255,7 +255,7 @@ For a discretization grid \(\{t, t-\Delta t, t - 2\Delta t, \cdots\}\) with time
 \end{itemize}
 The resulting discretized process is expressed as
 \begin{equation}\label{eq:hybrid_scheme}
-Y^n_t = \underbrace{\sum_{k=1}^{\kappa} L_g(k/n)\,\sigma_{t-k/n}\int_{t-k/n}^{t-(k-1)/n}(t-s)^\alpha dW_s}_{\text{Singular part}} + \underbrace{\sum_{k=\kappa+1}^{N_n} K(b_k/n)\,\sigma_{t-k/n}\Bigl(W_{t-(k-1)/n}-W_{t-k/n}\Bigr)}_{\text{Regular part}},
+Y^n_t = \underbrace{\sum_{k=1}^{\kappa} L_K(k/n)\,\sigma_{t-k/n}\int_{t-k/n}^{t-(k-1)/n}(t-s)^\alpha dW_s}_{\text{Singular part}} + \underbrace{\sum_{k=\kappa+1}^{N_n} K(b_k/n)\,\sigma_{t-k/n}\Bigl(W_{t-(k-1)/n}-W_{t-k/n}\Bigr)}_{\text{Regular part}},
 \end{equation}
 where $N_n$ is chosen to ensure the tail of the integral is negligible.
 
@@ -423,18 +423,18 @@ To balance between convergence rate and computational complexity, our algorithm 
         \widehat{Z}_{t_k}^j + b(\widehat{X}_{t_k}^{n_f}) \Delta t + \sigma(\widehat{X}_{t_k}^{n_f})\Delta W_k
         \right),\quad \widehat{Z}_{0}^{j}=0,\quad j=1,\ldots,n_f,\label{eq:markovian_Z_update}
     \end{align}
-    where \(\Delta W_k \sim \mathcal{N}(0,\Delta t),\ k=1,2,...,n,\ \Delta t := T/n\). The time complexity of this step is \(\mathcal{O}(n_f\cdot n)\).
+    where \(\Delta W_k \sim \mathcal{N}(0,\Delta t),\ k=0,1,...,n-1,\ \Delta t := T/n\). The time complexity of this step is \(\mathcal{O}(n_f\cdot n)\).
 
     \paragraph{Hybrid approximation.} Building upon the precomputed values \(\{\widehat{X}_t^{n_f} : t \in \pi_n\}\), we define the accelerated hybrid approximation \(\widetilde{X}_{t_k}\) of \(X_{t_k}\) on the discrete-time grid \(\pi_n\) by
     \begin{align}
         \widetilde{X}_{t_k} &= X_0 + \sum_{i=1}^{k} b\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) \int_{(k-i)T/n}^{(k-i+1)T/n} K(t_k-s)\,ds \nonumber\\[1mm]
         &\quad + \sum_{i=1}^{\kappa} \sigma\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr)
         \int_{(k-i)T/n}^{(k-i+1)T/n} K(t_k-s)\,dW_s
-        + \sum_{i=\kappa+1}^{k} K\Bigl(\frac{b_{i}T}{n}\Bigr)\, \sigma\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) \Delta W_{k-i+1}, \label{eq:hybrid_X_update}
+        + \sum_{i=\kappa+1}^{k} K\Bigl(\frac{b_{i}T}{n}\Bigr)\, \sigma\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) \Delta W_{k-i}, \label{eq:hybrid_X_update}
     \end{align}
-    where \(\Delta W_k\) denotes the Brownian increment over the interval \([\,(k-1)T/n,\,kT/n]\) (i.e. \(\Delta W_k \sim \mathcal{N}(0,T/n)\)), and 
+    where \(\Delta W_k\) denotes the Brownian increment over the interval \([kT/n,(k+1)T/n]\) (i.e. \(\Delta W_k \sim \mathcal{N}(0,T/n)\)), and 
     \[
-    W_{k,i} := \int_{(k-i)T/n}^{(k-i+1)T/n} (t_k-s)^{H-1/2} \,dW_s,\quad i=1,\ldots,\kappa,
+    W_{k-i,i} := \int_{(k-i)T/n}^{(k-i+1)T/n} (t_k-s)^{H-1/2} \,dW_s,\quad i=1,\ldots,\kappa,
     \]
     can be simulated exactly via a multivariate Gaussian distribution. The parameter sequence \(b_i \in [i-1,i]\) is selected to yield an adequate approximation for \(K(u)\) on \(u \in [(i-1)T/n,\,iT/n]\). Here, we choose 
     \begin{equation}
@@ -450,8 +450,8 @@ To balance between convergence rate and computational complexity, our algorithm 
     
     In (\ref{eq:hybrid_X_update}), we let \(K(t) = \tfrac{t^{H-1/2}}{\Gamma(H+1/2)}\), and denote 
     \begin{align}
-        \mathcal{I}_k &= \sum_{i=1}^{\kappa} b\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) K\left(\frac{b_i T}{n}\right)\frac{T}{n} + c_H \sum_{i=1}^{\kappa} \sigma\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) W_{k,i},\label{eq:I_k}\\
-        \mathcal{J}_k &= \sum_{i=\kappa+1}^{k} b\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) K\left(\frac{b_i T}{n}\right)\frac{T}{n} + \sum_{i=\kappa+1}^{k} K\Bigl(\frac{b_{i}T}{n}\Bigr)\, \sigma\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) \Delta W_{k-i+1},\quad k=1,...,n,\label{eq:J_k}
+        \mathcal{I}_k &= \sum_{i=1}^{\kappa} b\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) K\left(\frac{b_i T}{n}\right)\frac{T}{n} + c_H \sum_{i=1}^{\kappa} \sigma\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) W_{k-i,i},\label{eq:I_k}\\
+        \mathcal{J}_k &= \sum_{i=\kappa+1}^{k} b\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) K\left(\frac{b_i T}{n}\right)\frac{T}{n} + \sum_{i=\kappa+1}^{k} K\Bigl(\frac{b_{i}T}{n}\Bigr)\, \sigma\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) \Delta W_{k-i},\quad k=1,...,n,\label{eq:J_k}
     \end{align}
     where \(c_H = \tfrac{1}{\Gamma(H+1/2)}\). 
     
@@ -467,7 +467,7 @@ To balance between convergence rate and computational complexity, our algorithm 
     \]
     and
     \[
-    \varXi_k = b\bigl(\widehat{X}_{t_{k-1}}^{n_f}\bigr)\frac{T}{n} + \sigma\bigl(\widehat{X}_{t_{k-1}}^{n_f}\bigr) \Delta W_{k}, \quad k = 1, \dots, n.
+    \varXi_k = b\bigl(\widehat{X}_{t_{k-1}}^{n_f}\bigr)\frac{T}{n} + \sigma\bigl(\widehat{X}_{t_{k-1}}^{n_f}\bigr) \Delta W_{k-1}, \quad k = 1, \dots, n.
     \]
     Accordingly, we express
     \begin{equation}
@@ -487,7 +487,7 @@ The detailed algorithm for the simulation of \(X_t\) is summarized in Algorithm~
         \STATE \textbf{Input:} \(X_0\), \(b(\cdot)\), \(\sigma(\cdot)\), \(H\), \(n_f\), \(n\), \(T\), \(\kappa\)
         \STATE \(t_i \gets \tfrac{iT}{n},\quad \widehat{X}_{t_i}^{n_f} \gets X_0,\quad i=0,1,\ldots,n,\quad \Delta t \gets T/n\)
         \STATE \(\widehat{Z}_{t_0}^j \gets 0,\quad j=1,\ldots,n_f\) 
-        \STATE Generate \(\mathbf{W}_k = (\Delta W_k, W_{k,1},\ldots,W_{k,\kappa}),\ k=1,...,n\) according to \cite{bennedsen_2017_FS}
+        \STATE Generate \(\mathbf{W}_k = (\Delta W_k, W_{k,1},\ldots,W_{k,\kappa}),\ k=0,1,...,n-1\) according to \cite{bennedsen_2017_FS}
         \STATE Compute \(\{(w_i,x_i)\}_{i=1}^{n_f}\) using (\ref{eq:parameter_choice_1})
 
         \FOR{\(k=0,1,\ldots,n\)}
@@ -505,7 +505,7 @@ The detailed algorithm for the simulation of \(X_t\) is summarized in Algorithm~
             \STATE \(\widetilde{X}_{t_k} \gets X_0 + \mathcal{J}_k\)
             \FOR{\(j=1,...,\kappa\)}
                 \IF{\(k-j \ge 0\)}
-                    \STATE \(\widetilde{X}_{t_k} \gets \widetilde{X}_{t_k} + \tfrac{1}{\Gamma(H+1/2)} \left(b(\widehat{X}_{t_{k-j}}^{n_f})\left(\tfrac{b_j T}{n}\right)^{H-1/2} \tfrac{T}{n} + \sigma(\widehat{X}_{t_{k-j}}^{n_f}) W_{k,j}\right)\)
+                    \STATE \(\widetilde{X}_{t_k} \gets \widetilde{X}_{t_k} + \tfrac{1}{\Gamma(H+1/2)} \left(b(\widehat{X}_{t_{k-j}}^{n_f})\left(\tfrac{b_j T}{n}\right)^{H-1/2} \tfrac{T}{n} + \sigma(\widehat{X}_{t_{k-j}}^{n_f}) W_{k-j,j}\right)\)
                 \ENDIF
             \ENDFOR
         \ENDFOR
@@ -518,7 +518,7 @@ The Accelerated Hybrid Scheme for the rough Heston model (\ref{eq:price-process}
 \[
 b(x) = \lambda\bigl(\theta - x\bigr) \quad\text{and}\quad \sigma(x) = \nu\sqrt{x}\,.
 \]
-In this context, the variance process \(V_t\) is approximated via the Markovian approximation (\ref{eq:markovian_approximation_V})–(\ref{eq:markovian_approximation_U}), and the Accelerated Hybrid Scheme is applied to \(V_t\) analogously to \(X_t\). In addition, the deterministic component 
+In this context, the variance process \(V_t\) is approximated via the Markovian approximation (\ref{eq:markov_V_update})-(\ref{eq:markov_U_update}), and the Accelerated Hybrid Scheme is applied to \(V_t\) analogously to \(X_t\). In addition, the deterministic component 
 \[
 g_0(t)= V_0 + \frac{1}{\Gamma(H+1/2)}\int_{0}^{t}(t-s)^{H-1/2}\,\lambda\,\theta\,ds
 \]
@@ -526,7 +526,7 @@ is evaluated exactly.
 
 In terms of the fast Fourier transform, we follow the same procedure as in Section~\ref{sec:simulation_X} and define the discrete convolution as follows:
 \begin{align}
-    \mathcal{I}_k &= \frac{1}{\Gamma(H+1/2)} \left(-\sum_{i=1}^{\kappa} \lambda \widehat{V}_{t_{k-i}}^{n_f} \left(\frac{b_i T}{n}\right)^{H-1/2} \frac{T}{n} + \sum_{i=1}^{\kappa} \sqrt{\bigl(\widehat{V}_{t_{k-i}}^{n_f}\bigr)_+} W_{k,i}\right),\label{eq:I_k_rough_heston}\\
+    \mathcal{I}_k &= \frac{1}{\Gamma(H+1/2)} \left(-\sum_{i=1}^{\kappa} \lambda \widehat{V}_{t_{k-i}}^{n_f} \left(\frac{b_i T}{n}\right)^{H-1/2} \frac{T}{n} + \sum_{i=1}^{\kappa} \sqrt{\bigl(\widehat{V}_{t_{k-i}}^{n_f}\bigr)_+} W_{k-i,i}\right),\label{eq:I_k_rough_heston}\\
     \mathcal{J}_k &= \sum_{i=1}^{k} \varGamma_i \varXi_{k-i+1},\label{eq:fft_J_rough_heston}
 \end{align}
 where \[
@@ -536,7 +536,7 @@ where \[
 \end{cases}
 \]
 \[
-\varXi_i = -\frac{\lambda T}{n}\widehat{V}_{t_{i-1}}^{n_f} + \nu \sqrt{(\widehat{V}_{t_{i-1}}^{n_f})_+} \Delta W_{i},\quad i=1,\ldots,k,
+\varXi_i = -\frac{\lambda T}{n}\widehat{V}_{t_{i-1}}^{n_f} + \nu \sqrt{(\widehat{V}_{t_{i-1}}^{n_f})_+} \Delta W_{i-1},\quad i=1,\ldots,k,
 \]
 and \(b_i\) takes the form (\ref{eq:seq_b_choice}). The detailed algorithm for the simulation of the rough Heston model is given in Algorithm~\ref{alg:simulation_rough_heston}.
 
@@ -552,8 +552,8 @@ and \(b_i\) takes the form (\ref{eq:seq_b_choice}). The detailed algorithm for t
             \STATE \(\widehat{V}_{t_i}^{n_f} \gets g_0(t_i)\)
         \ENDFOR
         \STATE \(\widehat{U}_{t_0}^j \gets 0,\quad j=1,\ldots,n_f\) 
-        \STATE Generate \(\mathbf{W}_k = (\Delta W_k, W_{k,1},\ldots,W_{k,\kappa}),\ k=1,...,n\) according to \cite{bennedsen_2017_FS}
-        \STATE Generate \(\Delta W_k^\perp \sim \mathcal{N}(0,\tfrac{T}{n})\) for \(k=1,...,n\) independent of \(\mathbf{W}_k\)
+        \STATE Generate \(\mathbf{W}_k = (\Delta W_k, W_{k,1},\ldots,W_{k,\kappa}),\ k=0,1,...,n-1\) according to \cite{bennedsen_2017_FS}
+        \STATE Generate \(\Delta W_k^\perp \sim \mathcal{N}(0,\tfrac{T}{n})\) for \(k=0,1,...,n-1\) independent of \(\mathbf{W}_k\)
         \STATE Compute \(\{(w_i,x_i)\}_{i=1}^{n_f}\) using (\ref{eq:parameter_choice_1})
 
         \FOR{\(k=0,1,\ldots,n\)}
@@ -569,15 +569,15 @@ and \(b_i\) takes the form (\ref{eq:seq_b_choice}). The detailed algorithm for t
         \STATE Compute \(\mathcal{J}_1,\mathcal{J}_2,\ldots,\mathcal{J}_n\) using FFT as defined in (\ref{eq:fft_J_rough_heston})
         \STATE \(\log \widetilde{S}_{t_0} \gets \log S_0\)
         \FOR{\(k=1,...,n\)}
-            \STATE \( \log \widetilde{S}_{t_{k}} \gets \log \widetilde{S}_{t_{k-1}} -\frac{1}{2} (\widetilde{V}_{t_{k-1}})_{+} (t_k-t_{k-1}) + \sqrt{(\widetilde{V}_{t_{k-1}})_{+}}(\rho \,\Delta W_k + \sqrt{1-\rho^2}\,\Delta W_k^\perp) \)
+            \STATE \( \log \widetilde{S}_{t_{k}} \gets \log \widetilde{S}_{t_{k-1}} -\frac{1}{2} (\widetilde{V}_{t_{k-1}})_{+} (t_k-t_{k-1}) + \sqrt{(\widetilde{V}_{t_{k-1}})_{+}}(\rho \,\Delta W_{k-1} + \sqrt{1-\rho^2}\,\Delta W_{k-1}^\perp) \)
             \STATE \(\widetilde{V}_{t_k} \gets g_0(t_k) + \mathcal{J}_k\)
             \FOR{\(j=1,...,\kappa\)}
                 \IF{\(k-j \ge 0\)}
-                    \STATE \(\widetilde{V}_{t_k} \gets \widetilde{V}_{t_k} - \tfrac{\lambda}{\Gamma(H+1/2)} \widehat{V}_{t_{k-j}}^{n_f} \left(\frac{b_j T}{n}\right)^{H-1/2} \frac{T}{n} + \tfrac{\nu}{\Gamma(H+1/2)} \sqrt{(\widehat{V}_{t_{k-j}}^{n_f})_+} W_{k,j}\)
+                    \STATE \(\widetilde{V}_{t_k} \gets \widetilde{V}_{t_k} - \tfrac{\lambda}{\Gamma(H+1/2)} \widehat{V}_{t_{k-j}}^{n_f} \left(\frac{b_j T}{n}\right)^{H-1/2} \frac{T}{n} + \tfrac{\nu}{\Gamma(H+1/2)} \sqrt{(\widehat{V}_{t_{k-j}}^{n_f})_+} W_{k-j,j}\)
                 \ENDIF
             \ENDFOR
         \ENDFOR
-        \STATE \textbf{Output:} \(\{(\widetilde{S}_{t_k}, \widetilde{V}_{t_k}): k=1,...,n\}\)
+        \STATE \textbf{Output:} \(\{(\log \widetilde{S}_{t_k}, \widetilde{V}_{t_k}): k=1,...,n\}\)
     \end{algorithmic}
 \end{algorithm}
 
@@ -650,7 +650,7 @@ Let \(\{X_t^{n_f}: 0 \le t \le T\}\) be the Markovian approximation of the proce
         \widetilde{X}_T &= X_0 + \sum_{i=1}^{n} b\bigl(\widehat{X}_{t_{n-i}}^{n_f}\bigr) \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s)\,ds \nonumber\\[1mm]
         &\quad + \sum_{i=1}^{\kappa} \sigma\bigl(\widehat{X}_{t_{n-i}}^{n_f}\bigr)
         \int_{(k-i)T/n}^{(k-i+1)T/n} K(T-s)\,dW_s
-        + \sum_{i=\kappa+1}^{k} K\Bigl(\frac{b_{i}T}{n}\Bigr)\, \sigma\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) \Delta W_{k-i+1},
+        + \sum_{i=\kappa+1}^{k} K\Bigl(\frac{b_{i}T}{n}\Bigr)\, \sigma\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) \Delta W_{k-i},
     \end{align*}
     and we introduce the auxillary processes 
     \begin{align*}
@@ -661,7 +661,7 @@ Let \(\{X_t^{n_f}: 0 \le t \le T\}\) be the Markovian approximation of the proce
         \bar{X}_T^n &= X_0 + \sum_{i=1}^{n} b\bigl(X_{t_{n-i}}^{n_f}\bigr) \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s)\,ds \nonumber\\[1mm]
         &\quad + \sum_{i=1}^{\kappa} \sigma\bigl(X_{t_{n-i}}^{n_f}\bigr)
         \int_{(k-i)T/n}^{(k-i+1)T/n} K(T-s)\,dW_s
-        + \sum_{i=\kappa+1}^{k} K\Bigl(\frac{b_{i}T}{n}\Bigr)\, \sigma\bigl(X_{t_{k-i}}^{n_f}\bigr) \Delta W_{k-i+1}.
+        + \sum_{i=\kappa+1}^{k} K\Bigl(\frac{b_{i}T}{n}\Bigr)\, \sigma\bigl(X_{t_{k-i}}^{n_f}\bigr) \Delta W_{k-i}.
     \end{align*}
     By \((a+b+c)^2 \le 3a^2+3b^2+3c^2\), we have 
     \[
@@ -717,9 +717,9 @@ Let \(\{X_t^{n_f}: 0 \le t \le T\}\) be the Markovian approximation of the proce
         % line 4
         &\le (2T+1)LC \left(\frac{T}{n}\right)^{2H} \int_{0}^{T} K(u)^2 \,du,\label{eq:barX_checkX}
     \end{align}
-    where \(\eta(s) = \tfrac{(n-i)T}{n}\) for \(s \in [\tfrac{(n-i)T}{n},\tfrac{(n-i+1)T}{n}),\ i=1,2,\ldots n\), \(L>0\) is the Lipschitz constant, \(C>0\) is the constant from Lemma~\ref{lemma:tightness_markov_approx}. The last line above indicates that 
+    where \(\eta(s) = \tfrac{(n-i)T}{n}\) for \(s \in [\tfrac{(n-i)T}{n},\tfrac{(n-i+1)T}{n}),\ i=1,2,\ldots n\), \(L>0\) is defined as above, \(C>0\) is the constant from Lemma~\ref{lemma:tightness_markov_approx}. \eqref{eq:barX_checkX} indicates that 
     \[
-        \mathbb{E}|\bar{X}_T - \check{X}_T^n|^2,\quad n\to \infty
+        \mathbb{E}|\bar{X}_T - \check{X}_T^n|^2 \to 0,\quad n\to \infty
     \]
     Likewise, we can derive the upper bound of \(\mathbb{E}|\check{X}_T^n - \bar{X}_T^n|^2\) as follows.
     \begin{align}
@@ -739,7 +739,7 @@ Let \(\{X_t^{n_f}: 0 \le t \le T\}\) be the Markovian approximation of the proce
     \[
     \sum_{i=\kappa+1}^{\infty}  \int_{i-1}^{i} (b_i^{H-\frac{1}{2}} - y^{H-\frac{1}{2}})^2\,dy < \infty,
     \]
-    which directly indicates that
+    which directly leads to
     \[
         \mathbb{E}|\check{X}_T^n - \bar{X}_T^n|^2 \to 0,\quad n\to \infty.
     \]
@@ -802,8 +802,120 @@ While the Accelerated Hybrid Scheme can be readily applied to rough volatility p
 % Theorem 4.1, AK21
 
 \section{Numerical experiments}\label{sec:numerical_results}
+In this section, we present numerical experiments to demonstrate the efficiency and accuracy of the Accelerated Hybrid Scheme in simulating rough Heston process \eqref{eq:price-process}-\eqref{eq:variance-process} with interest rate \(r = 0\). The experiments aim to estimate the option price and implied volatility based on the simulation results given by Algorithm~\ref{alg:simulation_rough_heston}. The objective of our estimation can be written as 
+\[\mathbb{E}[f(S,V)]\]
+where \(f\) is a payoff function, \(S = \{S_t: 0\le t\le T\}\), \(V = \{V_t: 0\le t\le T\}\). We use the discrete-time grid \(\pi_n = \{0=t_0<t_1< \cdots <t_n=T\}\) where \(t_k = \tfrac{kT}{n}\), and generate \(N\) paths of the rough Heston process \eqref{eq:price-process}-\eqref{eq:variance-process} using the Accelerated Hybrid Scheme. For European options, the price is estimated by
+\[
+\mathbb{E}[f(S,V)] \approx \frac{1}{N} \sum_{i=1}^{N} f(S_{t_n}^{(i)},V_{t_n}^{(i)}) =: \bar{Y},
+\]
+where \(S_{t_n}^{(i)}\) and \(V_{t_n}^{(i)}\) are the simulated price and variance at time \(t_n\), respectively. The implied volatility is then estimated based on the simulated price.
 
-\section{Conclusions}\label{sec:conclusion}
+Beside the mean values, we report the statistical error (standard error) and confidence interval of the Monte Carlo simulation, which are computed as
+\[
+\text{SE} = \frac{s}{\sqrt{N}},\quad CI = [\bar{Y} - 1.96\,\text{SE}, \bar{Y} + 1.96\,\text{SE}],
+\]
+where \(s\) is the empirical standard deviation of the simulated values given by 
+\[
+s = \sqrt{\frac{1}{N-1} \sum_{i=1}^{N} \left(f(S_{t_n}^{(i)},V_{t_n}^{(i)}) - \bar{Y} \right)^2}.
+\]
+The critical value \(1.96\) corresponds to a 95\% confidence interval.
+
+In what follows, we consider the numerical experiments on two tasks: (1) European call option pricing and (2) implied volatility estimation. The rough Heston model parameters are set as follows: \(S_0 = 1\), \(V_0 = 0.05\), \(\kappa = 2\), \(\lambda = 0.1\), \(\theta = 0.05\), \(\nu = 0.3\), \(\rho = -0.1\). The number of Monte Carlo paths is set as \(N=3\times 10^{5}\). We vary the number of time steps \(n\), the number of kernel approximation factors \(n_f\), the Hurst index \(H\) and the time to maturity \(T\) to investigate the convergence behavior of the Accelerated Hybrid Scheme.
+
+\subsection{European call option pricing}
+We first consider the Monte Carlo pricing of European call options with the payoff function
+\[
+f(S,V) = \max(S_T - K, 0),
+\]
+where the strike price is set to \(K = 1\). The payoff function of the European call allows us to obtain the reference value of the option, which is given by inversing the characteristic function of \(\log S_T\) presented in (8.2.9)-(8.2.10), \cite{abijaber2018}. 
+
+Moreover, we benchmark the numerical results of the Accelerated Hybrid Scheme not only against the reference value but also against those obtained using the Euler scheme \eqref{eq:euler_scheme_variance}, the Markovian approximation method \eqref{eq:markov_V_update}-\eqref{eq:markov_U_update}, and the classical hybrid scheme \eqref{eq:hybrid_scheme}. This analysis enables a detailed evaluation of the trade-offs in computational efficiency, convergence rate, and numerical stability among different approaches.
+
+The numerical results are presented in Figures~\ref{fig:price_n_T_1-252}, \ref{fig:price_n_T_1-12} and \ref{fig:price_nf}.  Figures~\ref{fig:price_n_T_1-252} and \ref{fig:price_n_T_1-12} show the convergence of the European call option price estimates as the number of discrete time steps \(n\) increases for two different maturities, \(T=1/252\) (one day) and \(T=1/12\) (one month). Both results involve two Hurst indices \(H=0.15\) and \(H=0.3\). Figure~\ref{fig:price_nf} demonstrates the convergence of the option price estimates as the number of kernel approximation factors \(n_f\) increases. Shaded areas in all these figures represent the 95\% confidence intervals of the Monte Carlo simulation.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{fig/converge_n_1D_H_15.png}
+        \caption{$T=1/252$, $H=0.15$, $n_f=100$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{fig/converge_n_1D_H_30.png}
+        \caption{$T=1/252$, $H=0.3$, $n_f=100$}
+    \end{subfigure}
+    \caption{European call option prices as the number of discrete time steps $n$ increases for one-day maturity ($T=1/252$) under two different Hurst indices.}
+    \label{fig:price_n_T_1-252}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{fig/convergence_n_1M_H_15.png}
+        \caption{$T=1/12$, $H=0.15$, $n_f=100$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{fig/convergence_n_1M_H_30.png}
+        \caption{$T=1/12$, $H=0.3$, $n_f=100$}
+    \end{subfigure}
+    \caption{European call option prices as the number of discrete time steps $n$ increases for one-month maturity ($T=1/12$) under two different Hurst indices.}
+    \label{fig:price_n_T_1-12}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{fig/converge_nf_1D_H_15.png}
+    \caption{Option prices as the number of kernel approximation factors $n_f$ increases, \(H = 0.15\), \(n = 100\).}
+    \label{fig:price_nf}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{fig/compute_time_H_15.png}
+    \caption{Time cost comparison of various simulation algorithms, $H=0.15$, $n_f = 100$. The results indicate that the Accelerated Hybrid Scheme achieves a greater balance between accuracy and computational efficiency relative to the Euler scheme, the classical hybrid scheme, and the Markovian approximation method.}
+    \label{fig:time_cost}
+\end{figure}
+
+% Explanation of the pricing figures
+From Figures~\ref{fig:price_n_T_1-252} and \ref{fig:price_n_T_1-12}, it is evident that, as the number of discrete time steps $n$ increases, the estimated option prices converge toward the reference value. This convergence is more obvious for longer maturities (e.g., $T=1/12$) and smaller Hurst indices. We may notice that the convergence does not take place in a perfectly smooth manner and appears somewhat zigzagged. This is possibly because different discrete-time grids correspond to different sets of Gaussian noise \(\{\mathbf{W}_i:i=0,1,\ldots,n-1\}\) in Algorithm~\ref{alg:simulation_rough_heston} as \(n\) varies, resulting in variations in the simulation outputs across grids.
+
+Furthermore, when the Hurst index $H$ is not excessively low, the Accelerated Hybrid Scheme consistently achieves better pricing accuracy than other methods. Meanwhile, it is worth noting that the convergence behavior of the Accelerated Hybrid Scheme exhibits a higher sensitivity to variations in the Hurst index than the other approaches.
+
+% Explanation of the nf figure
+Figure~\ref{fig:price_nf} shows that the convergence of the Accelerated Hybrid Scheme in terms of the number of kernel approximation factors \(n_f\) is more rapid compared to that of the Markovian approximation method. This implies that a smaller number of factors, $n_f$, may be sufficient for the Accelerated Hybrid Scheme to achieve a comparable level of accuracy, thus further reducing computational cost without sacrificing precision.
+
+% Explanation of the time cost figure
+Finally, Figure~\ref{fig:time_cost} illustrates the time cost comparison of various simulation algorithms. From results in Figures~\ref{fig:price_n_T_1-252} through \ref{fig:time_cost}, the Accelerated Hybrid Scheme is shown to achieve a greater balance between accuracy and computational efficiency than the Euler scheme, the classical hybrid scheme, and the Markovian approximation method. 
+
+
+\subsection{Implied volatility estimation}
+We further apply the Accelerated Hybrid Scheme to estimate the implied volatility of European call options. The implied volatility is calculated by inverting the Black-Scholes formula, which is implemented by \texttt{blsimpv} function in MATLAB. The estimated implied volatility is then compared with the reference value obtained from inversing the characteristic function of \(\log S_T\), as in the European call option pricing task.
+
+The numerical results are presented in Figures~\ref{fig:iv_n_T_1-252} and \ref{fig:iv_n_T_1-12}, all showing the convergence of the implied volatility estimates as the number of discrete time steps \(n\) increases with \(H=0.15\). These results are concrete evidence that the Accelerated Hybrid Scheme is a reliable and efficient method for option pricing and implied volatility estimation.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{fig/iv_converge_1D_H_15.png}
+    \caption{Implied volatility curves as the number of discrete time steps $n$ increases for one-day maturity ($T=1/252$) under \(n_f = 100\), \(H = 0.15\).}
+    \label{fig:iv_n_T_1-252}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{fig/iv_converge_1M_H_15.png}
+    \caption{Implied volatility curves as the number of discrete time steps $n$ increases for one-month maturity ($T=1/12$) under \(n_f = 100\), \(H = 0.15\).}
+    \label{fig:iv_n_T_1-12}
+\end{figure}
+
+\section{Conclusions and discussions}\label{sec:conclusion}
+
+In this paper, we have proposed the Accelerated Hybrid Scheme for simulating rough volatility processes, which combines the advantages of the classical hybrid scheme and the Markovian approximation method. This algorithm is designed to address the computational barrier in simulating stochastic Volterra equations, whose non-Markovian and non-semimartingale nature adds a great deal of redundant computations to classical simulation algorithms. By exploiting a precomputation step based on the Markovian approximation and fast Fourier transform techniques, our approach reduces the computational complexity and improves numerical stability. 
+
+The theoretical properties of the Accelerated Hybrid Scheme is well-established. In section~\ref{sec:our_method}, we have shown that the algorithm converges strongly to the exact solution of rough volatility processes with globally Lipschitz coefficients \(b\) and \(\sigma\). The strong order of convergence is \(H\) with respect to the discretization time steps, making it a rather efficient method for simulating rough volatility processes. In Section~\ref{sec:numerical_results}, the Accelerated Hybrid Scheme is also shown to be robust to non-Lipschitz coefficients. The numerical experiments on the rough Heston model demonstrate that the Accelerated Hybrid Scheme is promising for coefficient \(\sigma(x)=\nu\sqrt{x}\), which is non-Lipschitz at \(x=0\).
+
+As a result, the Accelerated Hybrid Scheme offers a significant improvement in simulation speed while preserving accuracy in pricing and implied volatility estimation tasks for rough volatility models. This work opens up new possibilities for the efficient simulation of rough volatility processes, which are essential in industrial applications. Future research directions include the theoretical extension of the Accelerated Hybrid Scheme to more general rough volatility models (e.g., with non-Lipschitz coefficients), the development of a more efficient precomputation step, and the application of the scheme to other financial instruments.
+
 
 \newpage
 \bibliographystyle{elsevier}
@@ -831,7 +943,7 @@ While the Accelerated Hybrid Scheme can be readily applied to rough volatility p
 %EndExpansion
 
 
-% \section{Appendix:\ Mathematical derivations\label{Appendix}}
+% \section{Tables of simulation results}\label{appendix:tables}
 
 % \subsection{\label{proof: sum}Proof of Theorem \ref{theorem: sum}}
 
