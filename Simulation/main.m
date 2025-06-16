@@ -26,10 +26,10 @@ for i = 1:nf
 end
 
 % time grid definition
-dt_maturity = 1/12;  % gap between maturities in IV surface
-num_maturity = 1;    % number of maturities for IV surface
+dt_maturity = 1/252;  % gap between maturities in IV surface
+num_maturity = 20;    % number of maturities for IV surface
 num_moneyness = 41;
-step_maturity = 200;  % steps in-fill (100 for reasonable results for 1/10 day to maturity)
+step_maturity = 10;  % steps in-fill (100 for reasonable results for 1/10 day to maturity)
 num_steps_mc = num_maturity * step_maturity; % number of steps in total
 num_path_mc = 3e5;    % Monte Carlo paths
 dt = dt_maturity / step_maturity; 
@@ -81,7 +81,7 @@ t2=toc;
 addpath('Fourier_Transform_Inversion');
 n = 1000; N = 20000;
 left = 1e-12; right = 400;
-iv_mat_3 = zeros(size(iv_mat_2));
+iv_mat_3 = zeros(num_maturity, num_moneyness);
 tic;
 log_strikes = linspace(-2*sqrt(V0*dt_maturity),2*sqrt(V0*dt_maturity),num_moneyness);
 iv_mat_3(1,:) = IVCurveArray(log_strikes, H, rho, nu, lambda, theta, V0, dt_maturity, r, d, n, left, right, N);
@@ -98,10 +98,16 @@ num_steps_mc = num_maturity * step_maturity;
 % forward_curve = lambda * theta * sum(cs./xs .* (1-exp(-(1:num_steps_mc)'*dt*xs)),2)'; % func g_0(t)
 forward_curve_hyb = lambda * theta * ((1:num_steps_mc)*dt).^(H+1/2) / (H+1/2) / gamma(H+1/2);
 tic;
-[iv_mat_4, tau_vec_4, moneyness_mat_4] = iv_simu_pc(V0, num_maturity, dt_maturity,...
+% [iv_mat_4, tau_vec_4, moneyness_mat_4] = iv_simu_pc(V0, num_maturity, dt_maturity,...
+%     num_moneyness, num_path_mc, step_maturity, u_current, forward_curve_hyb, cs, xs, ...,
+%     theta, rho, lambda, nu, H, noise_mat_3d_mc, J, r, eps);
+results_4 = accelerated_hybrid(V0, num_maturity, dt_maturity,...
     num_moneyness, num_path_mc, step_maturity, u_current, forward_curve_hyb, cs, xs, ...,
-    theta, rho, lambda, nu, H, noise_mat_3d_mc, J, r, eps);
+    theta, rho, lambda, nu, H, noise_mat_3d_mc, J, r, eps, 'iv');
 t4=toc;
+iv_mat_4 = results_4.iv_mat;
+moneyness_mat_4 = results_4.moneyness_mat;
+tau_vec_4 = results_4.tau_vec;
 
 %% Comparison
 figure;
