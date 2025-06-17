@@ -1,4 +1,5 @@
 # exclude data and figure directories
+/Simulation/archive/
 /Simulation/fig
 /Simulation/bound_test/testData
 /Simulation/bound_test/testFig
