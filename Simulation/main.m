@@ -64,9 +64,12 @@ u_current = zeros(1,nf);
 num_steps_mc = num_maturity * step_maturity;
 forward_curve = lambda * theta * sum(cs./xs .* (1-exp(-(1:num_steps_mc)'*dt*xs)),2)'; % func g_0(t)
 tic;
-[iv_mat_1, tau_vec_1, moneyness_mat_1] = iv_simu_markov_approx(V0, num_maturity, dt_maturity,...
+% [iv_mat_1, tau_vec_1, moneyness_mat_1] = iv_simu_markov_approx(V0, num_maturity, dt_maturity,...
+%     num_moneyness, num_path_mc, step_maturity, u_current, forward_curve, cs, xs, ...,
+%     theta, rho, lambda, nu, H, noise_mat_3d_mc, r, eps);
+results_1 = markov_approx(V0, num_maturity, dt_maturity,...
     num_moneyness, num_path_mc, step_maturity, u_current, forward_curve, cs, xs, ...,
-    theta, rho, lambda, nu, H, noise_mat_3d_mc, r, eps);
+    theta, rho, lambda, nu, H, noise_mat_3d_mc, r, eps, 'iv');
 t1 = toc;
 
 %% Hybrid scheme rough Heston
@@ -111,6 +114,10 @@ t4=toc;
 iv_mat_4 = results_4.iv_mat;
 moneyness_mat_4 = results_4.moneyness_mat;
 tau_vec_4 = results_4.tau_vec;
+
+%% Euler scheme
+results_5 = euler_scheme(V0, num_maturity, dt_maturity, num_moneyness, num_path_mc, step_maturity,...
+    theta, rho, lambda, nu, H, noise_mat_3d_mc, J, r, eps, 'iv');
 
 %% Comparison
 figure;
