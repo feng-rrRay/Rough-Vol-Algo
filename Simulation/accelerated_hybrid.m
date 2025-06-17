@@ -124,6 +124,6 @@ function results = accelerated_hybrid(spotV, num_maturity, dt_maturity,...
     fprintf("CPU time (precomputing): %.5f\n", t1);
     fprintf("CPU time (FFT Hybrid):   %.5f\n", t2);
     results.t_markov = t1;
-    results.t_acchyb = t1 + t2;
+    results.t = t1 + t2;
 end
 
