@@ -17,7 +17,7 @@ function flag = json_add(jsonFileName, structToAdd)
         if fp == -1
             error('Could not open file for writing.');
         end
-        fprintf(fp, '%s', jsonencode(newData));
+        fprintf(fp, '%s', jsonencode(newData, "PrettyPrint", true));
         fclose(fp);
         flag = 0;
         return;
@@ -50,7 +50,7 @@ function flag = json_add(jsonFileName, structToAdd)
     if fp == -1
         error('Could not open file for writing.');
     end
-    fprintf(fp, '%s', jsonencode(ex));
+    fprintf(fp, '%s', jsonencode(ex, "PrettyPrint", true));
     fclose(fp);
     flag = 0;
 end
