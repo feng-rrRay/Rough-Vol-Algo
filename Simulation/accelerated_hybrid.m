@@ -10,22 +10,22 @@ function results = accelerated_hybrid(spotV, num_maturity, dt_maturity,...
     %     num_path_mc       – number of Monte-Carlo paths
     %     steps_per_maturity– time‐steps per maturity
     %     u_current         – current factor state (vector length = # paths)
-    %     forward_curve     – forward variance increments (1×num_steps)
+    %     forward_curve     – forward variance curve (1×num_steps)
     %     cs                – factor loading matrix (# factors)
     %     xs                – multi-factor approximation (# factors)
-    %     theta             – r (scalar)
-    %     rho               – rough volatility model correlation (scalar)
-    %     lambda            – mean‐reversion rate
-    %     nu                – rough volatility model correlation (scalar)
+    %     theta             – rough Heston model parameter (scalar)
+    %     rho               – rough Heston model correlation (scalar)
+    %     lambda            – rough Heston model mean‐reversion rate
+    %     nu                – rough Heston model diffusion term multiplier (scalar)
     %     H                 – Hurst index
     %     noise_mat_3d_mc   – pre-generated noise: [paths × steps × (J+2)]
-    %     J                 – number of noises for hybrid scheme
+    %     J                 – number of additional noises for hybrid scheme, see Bennedsen et al. (2017)
     %     r                 – risk-free rate
     %     eps               – small floor for variance
     %     mode              – output mode, one of:
-    %                          'full'   : return Markovian + accelerated logs + timings
+    %                          'std'    : return logS_mc_final + logS_mc_markov + timings
     %                          'iv'     : return implied‐vol matrix + maturities + moneyness
-    %                          'path'   : return full V_mat paths
+    %                          'full'   : return full V_mat paths
     %
     %   OUTPUT:
     %     RESULTS – struct with these possible fields:
@@ -78,11 +78,12 @@ function results = accelerated_hybrid(spotV, num_maturity, dt_maturity,...
     var_path_diff = nu * dt^(-1/2) * f_mat_mc .* [noise_path_mc,zeros(num_path_mc,1)];
     var_path_drift = lambda * dt^(1/2) * V_mat_mc;
     tmp_N = 2^nextpow2(2*num_steps_mc-1);
+    % Fast Fourier Transform
     kernel_fft = fft(kernel_dt,tmp_N,2);
     var_fft = fft(var_path_diff - var_path_drift,tmp_N,2);
     res = ifft(kernel_fft.*var_fft,tmp_N,2) * dt^H / gamma_val;
     V_mat_mc = spotV * ones(num_path_mc, num_steps_mc+1) + [0, forward_curve] ...
-        + res(:,1:num_steps_mc+1);
+        + res(:,1:num_steps_mc+1); % variance path after FFT
     for i = 1:num_steps_mc
         f_mc_current = sqrt(max(V_mat_mc(:,i), eps));
         logS_mc_current = logS_mc_current + (r - f_mc_current.^2/2) * dt...
@@ -117,11 +118,11 @@ function results = accelerated_hybrid(spotV, num_maturity, dt_maturity,...
         end
     end
     results.logS_mc_final = logS_mc_current; % output logS estimate by default
-    if strcmp(mode, 'path')
+    if strcmp(mode, 'full')
         results.V_mat_mc = V_mat_mc; % output V_mat under `path` mode
     end
-    fprintf("Precomputing: %.5f\n", t1);
-    fprintf("FFT Hybrid:   %.5f\n", t2);
+    fprintf("CPU time (precomputing): %.5f\n", t1);
+    fprintf("CPU time (FFT Hybrid):   %.5f\n", t2);
     results.t_markov = t1;
     results.t_acchyb = t1 + t2;
 end

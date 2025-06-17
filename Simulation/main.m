@@ -36,6 +36,7 @@ dt = dt_maturity / step_maturity;
 J = 2; % hybrid scheme #(Gaussian noise)
 
 %% Kernel coefficients and random matrices
+% reference: Sec~3.1, Bennedsen et al. (2017)
 Sigma = zeros(J+2,J+2);
 j_vec = 2:J+1; k_vec = 2:J+1;
 Sigma(1,3:J+2) = ((j_vec-1).^(H+1/2) - (j_vec-2).^(H+1/2)) / (H+1/2) * dt^(H+1/2); % dt term absorbed in path generation in reference code
@@ -50,7 +51,6 @@ Sigma(logical(eye(J+2))) = [dt, dt, ((j_vec-1).^(2*H) - (j_vec-2).^(2*H)) / (2*H
 noise_mat_3d_mc = normrnd(0,1,[num_path_mc,num_steps_mc,J+2]);
 L = chol(Sigma)'; % lower triangular matrix; **numerical problem here if H=1/2**
 % L = cholcov(Sigma);
-% disp(L);
 
 for j = J+2:-1:1
     noise_mat_3d_mc(:,:,j) = L(j,j) * noise_mat_3d_mc(:,:,j);
@@ -72,9 +72,12 @@ t1 = toc;
 %% Hybrid scheme rough Heston
 forward_curve_hyb = lambda * theta * ((1:num_steps_mc)*dt).^(H+1/2) / (H+1/2) / gamma(H+1/2);
 tic;
-[iv_mat_2, tau_vec_2, moneyness_mat_2] = iv_simu_hybrid_scheme(V0, num_maturity, dt_maturity,...
+results_2 = standard_hybrid(V0, num_maturity, dt_maturity,...
     num_moneyness, num_path_mc, step_maturity, forward_curve_hyb,...
-    theta, rho, lambda, nu, H, noise_mat_3d_mc, J, r, eps);
+    theta, rho, lambda, nu, H, noise_mat_3d_mc, J, r, eps, 'iv');
+% [iv_mat_2, tau_vec_2, moneyness_mat_2] = iv_simu_hybrid_scheme(V0, num_maturity, dt_maturity,...
+%     num_moneyness, num_path_mc, step_maturity, forward_curve_hyb,...
+%     theta, rho, lambda, nu, H, noise_mat_3d_mc, J, r, eps);
 t2=toc;
 
 %% Inverse transform (benchmark)
@@ -84,12 +87,12 @@ left = 1e-12; right = 400;
 iv_mat_3 = zeros(num_maturity, num_moneyness);
 tic;
 log_strikes = linspace(-2*sqrt(V0*dt_maturity),2*sqrt(V0*dt_maturity),num_moneyness);
-iv_mat_3(1,:) = IVCurveArray(log_strikes, H, rho, nu, lambda, theta, V0, dt_maturity, r, d, n, left, right, N);
-% for k = 1:num_maturity
-%     log_strikes = linspace(-2*sqrt(V0*dt_maturity*k),2*sqrt(V0*dt_maturity*k),num_moneyness);
-%     iv_mat_3(k,:) = IVCurveArray(log_strikes, H, rho, nu, lambda, theta, V0, dt_maturity*k, r, 0, n, M, N);
-%     disp(k);
-% end
+% iv_mat_3(1,:) = IVCurveArray(log_strikes, H, rho, nu, lambda, theta, V0, dt_maturity, r, d, n, left, right, N);
+for k = 1:num_maturity
+    log_strikes = linspace(-2*sqrt(V0*dt_maturity*k),2*sqrt(V0*dt_maturity*k),num_moneyness);
+    iv_mat_3(k,:) = IVCurveArray(log_strikes, H, rho, nu, lambda, theta, V0, dt_maturity*k, r, 0, n, M, N);
+    disp(k);
+end
 t3=toc;
 
 %% Acceleration method
