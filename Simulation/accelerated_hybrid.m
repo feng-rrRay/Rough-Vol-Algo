@@ -58,13 +58,13 @@ function results = accelerated_hybrid(spotV, num_maturity, dt_maturity,...
     tic;
     for i = 1:num_steps_mc
         f_mc_current = max(V_mat_mc(:,i), eps);
-        delta_u = -lambda*V_mat_mc(:,i)*dt + nu*sqrt(f_mc_current).*noise_mat_3d_mc(:,i,1);
+        delta_u = -lambda*V_mat_mc(:,i)*dt + nu*sqrt(f_mc_current)*dt^(1/2).*noise_mat_3d_mc(:,i,1);
         % u_current_mc = (u_current_mc + delta_u) ./ (1 + xs*dt);
         u_current_mc = (u_current_mc + delta_u) .* exp(-xs*dt);
         V_mat_mc(:,i+1) = V_mat_mc(:,i+1) + sum(cs .* u_current_mc,2); 
         % test Markovian approximation at the meantime
         logS_mc_markov = logS_mc_markov + (r - f_mc_current/2) * dt + ...
-            sqrt(f_mc_current) .* (rho*noise_mat_3d_mc(:,i,1) + sqrt(1-rho^2)*noise_mat_3d_mc(:,i,2));
+            sqrt(f_mc_current)*dt^(1/2) .* (rho*noise_mat_3d_mc(:,i,1) + sqrt(1-rho^2)*noise_mat_3d_mc(:,i,2));
     end
     t1=toc;
     results.logS_mc_markov = logS_mc_markov; % output results by Markovian approximation by default
@@ -75,7 +75,7 @@ function results = accelerated_hybrid(spotV, num_maturity, dt_maturity,...
         linspace(0,num_steps_mc-1,num_steps_mc).^(H+1/2)] / (H+1/2);
     f_mat_mc = sqrt(max(V_mat_mc, eps));
     noise_path_mc = squeeze(noise_mat_3d_mc(:,:,1));
-    var_path_diff = nu * dt^(-1/2) * f_mat_mc .* [noise_path_mc,zeros(num_path_mc,1)];
+    var_path_diff = nu * f_mat_mc .* [noise_path_mc,zeros(num_path_mc,1)];
     var_path_drift = lambda * dt^(1/2) * V_mat_mc;
     tmp_N = 2^nextpow2(2*num_steps_mc-1);
     % Fast Fourier Transform
@@ -87,13 +87,13 @@ function results = accelerated_hybrid(spotV, num_maturity, dt_maturity,...
     for i = 1:num_steps_mc
         f_mc_current = sqrt(max(V_mat_mc(:,i), eps));
         logS_mc_current = logS_mc_current + (r - f_mc_current.^2/2) * dt...
-            + f_mc_current .* (rho * noise_mat_3d_mc(:,i,1) + sqrt(1-rho^2) * noise_mat_3d_mc(:,i,2));
+            + dt^(1/2) * f_mc_current .* (rho * noise_mat_3d_mc(:,i,1) + sqrt(1-rho^2) * noise_mat_3d_mc(:,i,2));
         adj_J = min(J, num_steps_mc+1-i);
         for j = 1 : adj_J
             % notice `f_mc_current` and `f_mat_mc` here, `f_mat_mc` are
             % previous values to deduct
-            V_mat_mc(:,i+j) = V_mat_mc(:,i+j) + (nu * f_mat_mc(:,i) .* noise_mat_3d_mc(:,i,j+2) - ...
-                dt^(H-1/2) * nu * f_mat_mc(:,i) .* kernel_dt(:,j+1) .* noise_mat_3d_mc(:,i,1)) / gamma_val;
+            V_mat_mc(:,i+j) = V_mat_mc(:,i+j) + (nu * dt^H * f_mat_mc(:,i) .* noise_mat_3d_mc(:,i,j+2) - ...
+                dt^H * nu * f_mat_mc(:,i) .* kernel_dt(:,j+1) .* noise_mat_3d_mc(:,i,1)) / gamma_val;
             % V_mat_mc(:,i+j) = V_mat_mc(:,i+j) + (nu * f_mc_current .* noise_mat_3d_mc(:,i,j+2) - ...
             %     dt^(H-1/2) * nu * f_mat_mc(:,i) .* kernel_dt(:,j+1) .* noise_mat_3d_mc(:,i,1)) / gamma_val;
         end

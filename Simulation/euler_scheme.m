@@ -1,6 +1,6 @@
 function results = euler_scheme(spotV, num_maturity, dt_maturity,...
     num_moneyness, num_path_mc, steps_per_maturity, ...,
-    theta, rho, lambda, nu, H, noise_mat_3d_mc, J, r, eps, mode)
+    theta, rho, lambda, nu, H, noise_mat_3d_mc, r, eps, mode)
     %EULER_SCHEME Euler scheme simulation of rough Heston model
     % INPUT and OUTPUT align with those in `standard_hybrid.m`
 
@@ -19,10 +19,10 @@ function results = euler_scheme(spotV, num_maturity, dt_maturity,...
     for i = 1:num_steps_mc
         f_mc_current = sqrt(max(V_mat_mc(:,i),eps));
         logS_mc_current = logS_mc_current + (r - f_mc_current.^2/2) * dt + ...
-            f_mc_current .* (rho*noise_mat_3d_mc(:,i,1) + sqrt(1-rho^2)*noise_mat_3d_mc(:,i,2));
+            dt^(1/2) * f_mc_current .* (rho*noise_mat_3d_mc(:,i,1) + sqrt(1-rho^2)*noise_mat_3d_mc(:,i,2));
         for j = 1:i
             f_mc_j = sqrt(max(V_mat_mc(:,j),eps));
-            inner = lambda * (theta - f_mc_j.^2) * dt + nu * f_mc_j .* noise_mat_3d_mc(:,j,1);
+            inner = lambda * (theta - f_mc_j.^2) * dt + dt^(1/2) * nu * f_mc_j .* noise_mat_3d_mc(:,j,1);
             V_mat_mc(:,i+1) = V_mat_mc(:,i+1) + ((i-j+1)*dt)^(H-1/2) * inner / gamma_val;
         end
         if mod(i, steps_per_maturity) == 0

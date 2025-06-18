@@ -256,7 +256,7 @@ function result_struct = testConvergenceN(nList, H, T, nf, J)
 
         % Running Euler scheme
         results_3 = euler_scheme(V0, num_maturity, dt_maturity, num_moneyness, num_path_mc, step_maturity,...
-            theta, rho, lambda, nu, H, noise_mat_3d_mc, J, r, eps, 'std');
+            theta, rho, lambda, nu, H, noise_mat_3d_mc, r, eps, 'std');
         result_struct(k).t_euler = results_3.t;
         result_struct(k).rmse_euler_itm = sqrt(mean((max(exp(results_3.logS_mc_final) - KList(1), 0) - refList(1)).^2));
         result_struct(k).rmse_euler_atm = sqrt(mean((max(exp(results_3.logS_mc_final) - KList(2), 0) - refList(2)).^2));
