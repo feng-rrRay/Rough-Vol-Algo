@@ -802,27 +802,27 @@ While the Accelerated Hybrid Scheme can be readily applied to rough volatility p
 % Theorem 4.1, AK21
 
 \section{Numerical experiments}\label{sec:numerical_results}
-In this section, we present numerical experiments to demonstrate the efficiency and accuracy of the Accelerated Hybrid Scheme in simulating rough Heston process \eqref{eq:price-process}-\eqref{eq:variance-process} with interest rate \(r = 0\). The experiments aim to estimate the option price and implied volatility based on the simulation results given by Algorithm~\ref{alg:simulation_rough_heston}. The objective of our estimation can be written as 
-\[\mathbb{E}[f(S,V)]\]
-where \(f\) is a payoff function, \(S = \{S_t: 0\le t\le T\}\), \(V = \{V_t: 0\le t\le T\}\). We use the discrete-time grid \(\pi_n = \{0=t_0<t_1< \cdots <t_n=T\}\) where \(t_k = \tfrac{kT}{n}\), and generate \(N\) paths of the rough Heston process \eqref{eq:price-process}-\eqref{eq:variance-process} using the Accelerated Hybrid Scheme. For European options, the price is estimated by
-\[
-\mathbb{E}[f(S,V)] \approx \frac{1}{N} \sum_{i=1}^{N} f(S_{t_n}^{(i)},V_{t_n}^{(i)}) =: \bar{Y},
-\]
-where \(S_{t_n}^{(i)}\) and \(V_{t_n}^{(i)}\) are the simulated price and variance at time \(t_n\), respectively. The implied volatility is then estimated based on the simulated price.
+In this section, we present numerical experiments that test the computational performance of our Accelerated Hybrid Scheme. The experiments are conducted in the context of European call option pricing based on the simulation results given by Algorithm~\ref{alg:simulation_rough_heston}. According to the non-arbitrage pricing methods, the initial arbitrage-free price of a European call option with maturity \(T\) and strike price \(K\) is given by the form \(\mathbb E [e^{-rT} (S_T - K)^+]\), where the expectation \(\mathbb E\) is taken under the risk-neutral measure. For Monte Carlo simulations of the rough Heston process \eqref{eq:price-process}-\eqref{eq:variance-process}, we adopt the discrete-time grid \(\pi_n = \{0=t_0<t_1< \cdots <t_n=T\}\) where \(t_k = \tfrac{kT}{n}\), and generate \(N\) paths of the process on the grid. Without loss of generality, we set risk-free interest rate \(r = 0\) so that the dynamics \eqref{eq:price-process}-\eqref{eq:variance-process} correspond with the risk-neutral measure. On top of the European call option pricing, implied volatility curves are calculated to further validate the performance of our Accelerated Hybrid Scheme in industrial applications.
 
-Beside the mean values, we report the statistical error (standard error) and confidence interval of the Monte Carlo simulation, which are computed as
-\[
-\text{SE} = \frac{s}{\sqrt{N}},\quad CI = [\bar{Y} - 1.96\,\text{SE}, \bar{Y} + 1.96\,\text{SE}],
-\]
-where \(s\) is the empirical standard deviation of the simulated values given by 
-\[
-s = \sqrt{\frac{1}{N-1} \sum_{i=1}^{N} \left(f(S_{t_n}^{(i)},V_{t_n}^{(i)}) - \bar{Y} \right)^2}.
-\]
-The critical value \(1.96\) corresponds to a 95\% confidence interval.
+% Beside the mean values, we report the statistical error (standard error) and confidence interval of the Monte Carlo simulation, which are computed as
+% \[
+% \text{SE} = \frac{s}{\sqrt{N}},\quad CI = [\bar{Y} - 1.96\,\text{SE}, \bar{Y} + 1.96\,\text{SE}],
+% \]
+% where \(s\) is the empirical standard deviation of the simulated values given by 
+% \[
+% s = \sqrt{\frac{1}{N-1} \sum_{i=1}^{N} \left(f(S_{t_n}^{(i)},V_{t_n}^{(i)}) - \bar{Y} \right)^2}.
+% \]
+% The critical value \(1.96\) corresponds to a 95\% confidence interval.
 
-In what follows, we consider the numerical experiments on two tasks: (1) European call option pricing and (2) implied volatility calculation. The rough Heston model parameters are set as follows: \(S_0 = 1\), \(V_0 = 0.05\), \(\kappa = 2\), \(\lambda = 0.1\), \(\theta = 0.05\), \(\nu = 0.3\), \(\rho = -0.1\). The number of Monte Carlo paths is set as \(N=3\times 10^{5}\). We vary the number of time steps \(n\), the number of kernel approximation factors \(n_f\), the Hurst index \(H\) and the time to maturity \(T\) to investigate the convergence behavior of the Accelerated Hybrid Scheme.
+In the following, we first investigate the impact of varying the number of Markovian approximation factors (\(n_f\)) and the number of time discretization steps (\(n\)) on the accuracy of the scheme. Then, we analyze the behavior of implied volatility surfaces computed using our method. In all experiments, we benchmark our Accelerated Hybrid Scheme against the Fourier transform inversion based pricing method mentioned by \cite{abijaber2018}. For the convergence tests, we additionally compare our method with other simulation algorithms including the Euler scheme \eqref{eq:euler_scheme_variance}, the implicit-explicit scheme of Markovian approximation method \eqref{eq:markov_V_update}-\eqref{eq:markov_U_update}, and the classical hybrid scheme \eqref{eq:hybrid_scheme}. All the numerical experiments are conducted in MATLAB R2024a on a laptop computer with an Intel Core i7-11800H CPU (2.30 GHz) and 32 GB RAM.
 
-\subsection{European call option pricing}
+% the rough Heston model parameters are set to \(S_0 = 1\), \(V_0 = 0.05\), \(\kappa = 2\), \(\lambda = 0.1\), \(\theta = 0.05\), \(\nu = 0.3\), and \(\rho = -0.1\). The number of Monte Carlo simulation paths is fixed at \(N=3\times 10^{5}\). To comprehensively evaluate the convergence characteristics, we systematically vary the number of time steps \(n\), the number of kernel approximation factors \(n_f\), the Hurst parameter \(H\), and the time to maturity \(T\).
+
+\subsection{Varying number of approximation factors \(n_f\)}
+
+First, we examine the European call option pricing results under varying number of approximation factors \(n_f\) as a part of our convergence tests. Plots of the estimated option prices against \(n_f\) are reported in Figure~\ref{}, 
+support us to choose \(n_f=150\) in the following experiments.
+
 We first consider the Monte Carlo pricing of European call options with the payoff function
 \[
 f(S,V) = \max(S_T - K, 0),
