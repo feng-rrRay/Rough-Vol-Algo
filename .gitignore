@@ -3,7 +3,7 @@
 /Simulation/fig
 /Simulation/bound_test/testData
 /Simulation/bound_test/testFig
-/Simulation/assets/test_*.json
+/Simulation/assets/test_nf*.json
 # exclude test and tmp files
 **/test.*
 **/tmp.*

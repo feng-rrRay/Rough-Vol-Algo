@@ -95,7 +95,7 @@ for k = 1:num_maturity
 end
 t3 = toc;
 
-%% Acceleration method
+%% Accelerated Hybrid Scheme
 u_current = zeros(1,nf);
 num_steps_mc = num_maturity * step_maturity;
 % forward_curve = lambda * theta * sum(cs./xs .* (1-exp(-(1:num_steps_mc)'*dt*xs)),2)'; % func g_0(t)
