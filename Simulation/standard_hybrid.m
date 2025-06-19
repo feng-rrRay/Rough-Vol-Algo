@@ -52,16 +52,17 @@ function results = standard_hybrid(spotV, num_maturity, dt_maturity,...
     for i = 1:num_steps_mc
         f_mc_current = sqrt(max(V_mat_mc(:,i), eps));
         logS_mc_current = logS_mc_current + (r - f_mc_current.^2/2) * dt...
-            + f_mc_current .* (rho * noise_mat_3d_mc(:,i,1) + sqrt(1-rho^2) * noise_mat_3d_mc(:,i,2));
+            + dt^(1/2) * f_mc_current .* (rho * noise_mat_3d_mc(:,i,1) + ...
+            sqrt(1-rho^2) * noise_mat_3d_mc(:,i,2));
         % update the whole variance path
         j_vec = i+1 : num_steps_mc+1;
         adj_J = min(J, num_steps_mc+1-i);
         tmpd = nu / gamma_val * f_mc_current;
         tmpc = -dt^(H+1/2) * lambda / gamma_val * V_mat_mc(:,i); 
         V_mat_mc(:,j_vec) = V_mat_mc(:,j_vec) + tmpc * kernel_dt(j_vec-i)...
-            + tmpd * dt^(H-1/2) .* [zeros(1,adj_J), kernel_dt(J+1:num_steps_mc+1-i)] .* noise_mat_3d_mc(:,i,1); 
+            + tmpd * dt^H .* [zeros(1,adj_J), kernel_dt(J+1:num_steps_mc+1-i)] .* noise_mat_3d_mc(:,i,1); 
         for j = 1:adj_J  % adjustment to nearby terms (more accurate noises)
-            V_mat_mc(:,i+j) = V_mat_mc(:,i+j) + tmpd .* noise_mat_3d_mc(:,i,j+2); % dt^(H-1/2) not applicable here
+            V_mat_mc(:,i+j) = V_mat_mc(:,i+j) + dt^H * tmpd .* noise_mat_3d_mc(:,i,j+2);
         end
         if strcmp(mode, 'iv') && mod(i, steps_per_maturity) == 0
             index_maturity = i / steps_per_maturity;

@@ -2,14 +2,14 @@ clear; clc;
 rng(1);
 addpath("helpers/");
 %% begin test
-nList = [10, 50, 100, 300, 600, 1000];
-H = 0.2;
+nList = [10, 50, 100, 200, 300, 500];
+H = 0.1;
 T = 1/252;
 nf = 200;
 J = 2;
 
 results = testConvergenceN(nList, H, T, nf, J);
-instanceName = "test_n_1Day_point2H_200nf";
+instanceName = "new_test_n_1Day_point1H_200nf";
 json_add("assets/"+instanceName+".json", results);
 
 %% plot
@@ -32,7 +32,7 @@ plot(log([results.n]), log([results.rmse_acchyb_atm]), 'Marker', '.', 'DisplayNa
 plot(log([results.n]), log([results.rmse_markov_atm]), 'Marker', '+', 'DisplayName', 'Markov Approximation');
 plot(log([results.n]), log([results.rmse_hyb_atm]), 'Marker', 'x', 'DisplayName', 'Classical Hybrid');
 plot(log([results.n]), log([results.rmse_euler_atm]), 'Marker', '*', 'DisplayName', 'Euler Scheme');
-title("$H = 0.2, T = 1/252$", 'Interpreter', 'latex');
+title("$H = 0.1, T = 1/252$", 'Interpreter', 'latex');
 xlabel("$\log(n)$", 'Interpreter', 'latex');
 ylabel("$\log(RMSE)$", 'Interpreter', 'latex');
 legend('Interpreter','latex');
@@ -61,23 +61,8 @@ function result_struct = testConvergenceNf(nfList, H, T, n)
     J = 2; 
     alpha = H + 0.5;
 
-    Sigma = zeros(J+2,J+2);
-    j_vec = 2:J+1; k_vec = 2:J+1;
-    Sigma(1,3:J+2) = ((j_vec-1).^(H+1/2) - (j_vec-2).^(H+1/2)) / (H+1/2) * dt^(H+1/2); % dt term absorbed in path generation in reference code
-    F1mat = hypergeom([-H+1/2,1],H+3/2,[1,j_vec]'./[1,k_vec].*([1,j_vec]'<[1,k_vec]));
-    Sigma(3:J+2,3:J+2) = ((j_vec'<k_vec).*((j_vec-1)'.^(H+1/2).* (k_vec-1).^(H-1/2) .* F1mat(j_vec-1,k_vec-1) ... 
-        -(j_vec-2)'.^(H+1/2).* ([1,1:J-1]).^(H-1/2) .* F1mat([1,1:J-1],[1,1:J-1]))/(H+1/2))* dt^(2*H);
-    Sigma = Sigma + Sigma';
-    Sigma(logical(eye(J+2))) = [dt, dt, ((j_vec-1).^(2*H) - (j_vec-2).^(2*H)) / (2*H) * dt^(2*H)]';
-    
-    noise_mat_3d_mc = normrnd(0,1,[num_path_mc,num_steps_mc,J+2]);
-    L = chol(Sigma)'; % lower triangular matrix; **numerical problem here if H=1/2**
-    for j = J+2:-1:1
-        noise_mat_3d_mc(:,:,j) = L(j,j) * noise_mat_3d_mc(:,:,j);
-        for i = 1:j-1
-            noise_mat_3d_mc(:,:,j) = noise_mat_3d_mc(:,:,j) + L(j,i) * noise_mat_3d_mc(:,:,i);
-        end
-    end
+    % get noise matrix
+    noise_mat_3d_mc = get_noise_mat(J, H, num_path_mc, num_steps_mc);
     
     % use hybrid scheme forward curve
     forward_curve_hyb = lambda * theta * ((1:num_steps_mc)*dt).^(H+1/2) / (H+1/2) / gamma(H+1/2);
@@ -132,7 +117,7 @@ function result_struct = testConvergenceN(nList, H, T, nf, J)
     alpha = H + 0.5;
 
     % transform inverse pricing as reference
-    addpath("Fourier_Transform_Inversion\");
+    addpath("Fourier_Transform_Inversion/");
     left = 1e-12;
     right = 400;
     n = 1000; N = 20000;
@@ -144,6 +129,9 @@ function result_struct = testConvergenceN(nList, H, T, nf, J)
         refList(ii) = CallPriceArray(S,k,H,rho,nu,lambda,theta,V0,T,r,d,n,left,right,N);
         fprintf("Ref European call price: %.6f, S=%d, K=%.2f\n", refList(ii),S,KList(ii));
     end
+
+    % get noise matrix
+    noise_mat_3d_mc = get_noise_mat(J, H, num_path_mc, max(nList));
 
     % initialize markovian approximation factors
     rn = 1 + 10 * nf^(-0.9);
@@ -198,25 +186,6 @@ function result_struct = testConvergenceN(nList, H, T, nf, J)
         result_struct(k).ref_otm = refList(3);
         num_steps_mc = num_maturity * step_maturity;
         fprintf("Testing n = %d...\n", step_maturity);
-        
-        % compute noise matrix
-        Sigma = zeros(J+2,J+2);
-        j_vec = 2:J+1; k_vec = 2:J+1;
-        Sigma(1,3:J+2) = ((j_vec-1).^(H+1/2) - (j_vec-2).^(H+1/2)) / (H+1/2) * dt^(H+1/2); % dt term absorbed in path generation in reference code
-        F1mat = hypergeom([-H+1/2,1],H+3/2,[1,j_vec]'./[1,k_vec].*([1,j_vec]'<[1,k_vec]));
-        Sigma(3:J+2,3:J+2) = ((j_vec'<k_vec).*((j_vec-1)'.^(H+1/2).* (k_vec-1).^(H-1/2) .* F1mat(j_vec-1,k_vec-1) ... 
-            -(j_vec-2)'.^(H+1/2).* ([1,1:J-1]).^(H-1/2) .* F1mat([1,1:J-1],[1,1:J-1]))/(H+1/2))* dt^(2*H);
-        Sigma = Sigma + Sigma';
-        Sigma(logical(eye(J+2))) = [dt, dt, ((j_vec-1).^(2*H) - (j_vec-2).^(2*H)) / (2*H) * dt^(2*H)]'; 
-        
-        noise_mat_3d_mc = normrnd(0,1,[num_path_mc,num_steps_mc,J+2]);
-        L = chol(Sigma)'; % lower triangular matrix; **numerical problem here if H=1/2**
-        for j = J+2:-1:1
-            noise_mat_3d_mc(:,:,j) = L(j,j) * noise_mat_3d_mc(:,:,j);
-            for i = 1:j-1
-                noise_mat_3d_mc(:,:,j) = noise_mat_3d_mc(:,:,j) + L(j,i) * noise_mat_3d_mc(:,:,i);
-            end
-        end
 
         forward_curve_hyb = lambda * theta * ((1:num_steps_mc)*dt).^(H+1/2) / (H+1/2) / gamma(H+1/2);
         
@@ -256,7 +225,7 @@ function result_struct = testConvergenceN(nList, H, T, nf, J)
 
         % Running Euler scheme
         results_3 = euler_scheme(V0, num_maturity, dt_maturity, num_moneyness, num_path_mc, step_maturity,...
-            theta, rho, lambda, nu, H, noise_mat_3d_mc, J, r, eps, 'std');
+            theta, rho, lambda, nu, H, noise_mat_3d_mc, r, eps, 'std');
         result_struct(k).t_euler = results_3.t;
         result_struct(k).rmse_euler_itm = sqrt(mean((max(exp(results_3.logS_mc_final) - KList(1), 0) - refList(1)).^2));
         result_struct(k).rmse_euler_atm = sqrt(mean((max(exp(results_3.logS_mc_final) - KList(2), 0) - refList(2)).^2));

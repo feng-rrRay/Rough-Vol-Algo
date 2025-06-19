@@ -2,6 +2,7 @@
 % Markovian approximation for rough Heston model
 clear; clc;
 rng(1);
+addpath("helpers/");
 
 %% Parameters
 %  Rough Heston model:  (8.1.3)-(8.1.4) in (Abi Jaber, 2018)
@@ -27,7 +28,7 @@ end
 
 % time grid definition
 dt_maturity = 1/252;  % gap between maturities in IV surface
-num_maturity = 20;    % number of maturities for IV surface
+num_maturity = 4;    % number of maturities for IV surface
 num_moneyness = 41;
 step_maturity = 10;  % steps in-fill (100 for reasonable results for 1/10 day to maturity)
 num_steps_mc = num_maturity * step_maturity; % number of steps in total
@@ -37,27 +38,7 @@ J = 2; % hybrid scheme #(Gaussian noise)
 
 %% Kernel coefficients and random matrices
 % reference: Sec~3.1, Bennedsen et al. (2017)
-Sigma = zeros(J+2,J+2);
-j_vec = 2:J+1; k_vec = 2:J+1;
-Sigma(1,3:J+2) = ((j_vec-1).^(H+1/2) - (j_vec-2).^(H+1/2)) / (H+1/2) * dt^(H+1/2); % dt term absorbed in path generation in reference code
-F1mat = hypergeom([-H+1/2,1],H+3/2,[1,j_vec]'./[1,k_vec].*([1,j_vec]'<[1,k_vec]));
-Sigma(3:J+2,3:J+2) = ((j_vec'<k_vec).*((j_vec-1)'.^(H+1/2).* (k_vec-1).^(H-1/2) .* F1mat(j_vec-1,k_vec-1) ... 
-    -(j_vec-2)'.^(H+1/2).* ([1,1:J-1]).^(H-1/2) .* F1mat([1,1:J-1],[1,1:J-1]))/(H+1/2))* dt^(2*H);
-Sigma = Sigma + Sigma';
-Sigma(logical(eye(J+2))) = [dt, dt, ((j_vec-1).^(2*H) - (j_vec-2).^(2*H)) / (2*H) * dt^(2*H)]';
-
-% generate noise matrix (W_i, W_i', W_{i,1},...,W_{i,J}), i = 0,1,...,nT,
-% n = 1/dt, T = num_maturity * dt_maturity
-noise_mat_3d_mc = normrnd(0,1,[num_path_mc,num_steps_mc,J+2]);
-L = chol(Sigma)'; % lower triangular matrix; **numerical problem here if H=1/2**
-% L = cholcov(Sigma);
-
-for j = J+2:-1:1
-    noise_mat_3d_mc(:,:,j) = L(j,j) * noise_mat_3d_mc(:,:,j);
-    for i = 1:j-1
-        noise_mat_3d_mc(:,:,j) = noise_mat_3d_mc(:,:,j) + L(j,i) * noise_mat_3d_mc(:,:,i);
-    end
-end
+noise_mat_3d_mc = get_noise_mat(J, H, num_path_mc, num_steps_mc);
 
 %% Implicit-explicit scheme lifted Heston (Markov Approximation)
 u_current = zeros(1,nf);
@@ -110,7 +91,7 @@ tau_vec_4 = results_4.tau_vec;
 
 %% Euler scheme
 results_5 = euler_scheme(V0, num_maturity, dt_maturity, num_moneyness, num_path_mc, step_maturity,...
-    theta, rho, lambda, nu, H, noise_mat_3d_mc, J, r, eps, 'iv');
+    theta, rho, lambda, nu, H, noise_mat_3d_mc, r, eps, 'iv');
 t5 = results_5.t;
 moneyness_mat_5 = results_5.moneyness_mat;
 iv_mat_5 = results_5.iv_mat;
@@ -119,7 +100,7 @@ iv_mat_5 = results_5.iv_mat;
 figure;
 % indices = [1,2,3,4];
 indices = 1:4;
-for i = 1:1
+for i = 4:4
     % subplot(1, 4, i);  % Creates a 2x2 grid and selects the i-th subplot.
     hold on;
     plot(log(moneyness_mat_1(indices(i),:)), iv_mat_1(indices(i),:), "DisplayName", "Markovian approx");
