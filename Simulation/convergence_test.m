@@ -32,7 +32,7 @@ plot(log([results.n]), log([results.rmse_acchyb_atm]), 'Marker', '.', 'DisplayNa
 plot(log([results.n]), log([results.rmse_markov_atm]), 'Marker', '+', 'DisplayName', 'Markov Approximation');
 plot(log([results.n]), log([results.rmse_hyb_atm]), 'Marker', 'x', 'DisplayName', 'Classical Hybrid');
 plot(log([results.n]), log([results.rmse_euler_atm]), 'Marker', '*', 'DisplayName', 'Euler Scheme');
-title("$H = 0.1, T = 1/252$", 'Interpreter', 'latex');
+title("$H = 0.15, T = 1/4$", 'Interpreter', 'latex');
 xlabel("$\log(n)$", 'Interpreter', 'latex');
 ylabel("$\log(RMSE)$", 'Interpreter', 'latex');
 legend('Interpreter','latex', 'FontSize', 8, 'Location','best');
