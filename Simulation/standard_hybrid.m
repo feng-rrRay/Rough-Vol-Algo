@@ -43,6 +43,9 @@ function results = standard_hybrid(spotV, num_maturity, dt_maturity,...
         moneyness_mat = zeros(num_maturity, num_moneyness);
         tau_vec = zeros(num_maturity,1);
     end
+    % resize noise matrix (coupling strategy)
+    noise_mat_3d_mc = resize_noise_mat(noise_mat_3d_mc, num_steps_mc);
+
 
     kernel_length = num_steps_mc*2;
     kernel_dt = (linspace(1,kernel_length,kernel_length).^(H+1/2) - ...

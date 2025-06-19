@@ -784,9 +784,9 @@ Let \(\{X_t^{n_f}: 0 \le t \le T\}\) be the Markovian approximation of the proce
 \end{proof}
 
 Following the proof of Theorem~\ref{theorem:convergence_X}, we can find that the mean square error of the Accelerated Hybrid Scheme is bounded by
-\[
+\begin{equation}\label{eq:mse_upper_bound}
 \mathbb{E} |X_T - \widetilde{X}_T|^2 \le C_1 \|K - \widehat{K}\|_{2,T}^2 + C_2 n^{-2H},\quad \text{as }n_f \to \infty,\ n\to \infty,
-\]
+\end{equation}
 for some constants \(C_1,C_2>0\), rendering a strong order of convergence \(H\) with respect to the discretization time steps \(n\). With a time complexity \(\mathcal{O}(n\cdot (n_f + \log n))\), the Accelerated Hybrid Scheme is a rather efficient and accurate method to simulate the process \(\{X_t: t\ge 0\}\). 
 
 While the Accelerated Hybrid Scheme can be readily applied to rough volatility processes \eqref{eq:generalized_heston} and (\ref{eq:variance-process}), the presence of non-Lipschitz coefficients in these models may cause deviations from the results stated in Theorem~\ref{theorem:convergence_X}. This is primarily due to the challenges in establishing strong convergence for the scheme \eqref{eq:markov_V_update}-\eqref{eq:markov_U_update}. A rigorous treatment of this issue is deferred to future research. In the following section, we empirically demonstrate the efficiency and accuracy of the Accelerated Hybrid Scheme in simulating rough volatility processes under relaxed Lipschitz conditions.
@@ -814,22 +814,58 @@ In this section, we present numerical experiments that test the computational pe
 % \]
 % The critical value \(1.96\) corresponds to a 95\% confidence interval.
 
-In the following, we first investigate the impact of varying the number of Markovian approximation factors (\(n_f\)) and the number of time discretization steps (\(n\)) on the accuracy of the scheme. Then, we analyze the behavior of implied volatility surfaces computed using our method. In all experiments, we benchmark our Accelerated Hybrid Scheme against the Fourier transform inversion based pricing method mentioned by \cite{abijaber2018}. For the convergence tests, we additionally compare our method with other simulation algorithms including the Euler scheme \eqref{eq:euler_scheme_variance}, the implicit-explicit scheme of the Markovian approximation method \eqref{eq:markov_V_update}-\eqref{eq:markov_U_update}, and the classical hybrid scheme \eqref{eq:hybrid_scheme}. All the numerical experiments are conducted in MATLAB R2024a on a laptop computer with an Intel Core i7-11800H CPU (2.30 GHz) and 32 GB RAM.
+In the following, we first investigate the impact of varying the number of Markovian approximation factors (\(n_f\)) and the number of time discretization steps (\(n\)) on the accuracy of the scheme. Then, we analyze the behavior of implied volatility surfaces computed using our method. In all experiments, we benchmark our Accelerated Hybrid Scheme against the Fourier transform inversion based pricing method mentioned by \cite{abijaber2018}. For the convergence tests, we additionally compare our method with other simulation algorithms including the Euler scheme \eqref{eq:euler_scheme_variance}, the implicit-explicit scheme of the Markovian approximation method \eqref{eq:markov_V_update}-\eqref{eq:markov_U_update}, and the classical hybrid scheme \eqref{eq:hybrid_scheme}. 
+% All the numerical experiments are conducted in MATLAB R2024a on a laptop computer with an Intel Core i7-11800H CPU (2.30 GHz) and 32 GB RAM.
 
 % the rough Heston model parameters are set to \(S_0 = 1\), \(V_0 = 0.05\), \(\kappa = 2\), \(\lambda = 0.1\), \(\theta = 0.05\), \(\nu = 0.3\), and \(\rho = -0.1\). The number of Monte Carlo simulation paths is fixed at \(N=3\times 10^{5}\). To comprehensively evaluate the convergence characteristics, we systematically vary the number of time steps \(n\), the number of kernel approximation factors \(n_f\), the Hurst parameter \(H\), and the time to maturity \(T\).
 
 \subsection{Varying number of approximation factors \(n_f\)}
 
-First, we examine the European call option pricing results under varying number of approximation factors \(n_f\) as a part of our convergence tests. Plots of the estimated option prices against \(n_f\) are reported in Figure~\ref{}, 
+First, we examine the European call option pricing results under varying number of approximation factors \(n_f\) as a part of our convergence tests. Plots of the estimated option prices against \(n_f\) are reported in Figure~\ref{fig:convergence_nf_point1H} and \ref{fig:convergence_nf_point4H}, indicating a faster convergence of our Accelerated Hybrid Scheme than the simulation of Markovian approximation models as \(n_f\) increases. This demonstrates that the FFT-based hybrid scheme effectively mitigates kernel approximation errors introduced during the precomputation step. Also, it is worth noting that the convergence with respect to \(n_f\) is faster for longer maturities and larger Hurst indices. And for Hurst index \(H=0.4\), the pricing results of our method barely change with increasing \(n_f\). These observations are consistent with Proposition~\ref{prop:markov_approx_convergence} and equation \eqref{eq:mse_upper_bound}, as kernel approximation errors tend to be smaller for larger \(H\). 
+
+\begin{figure}[htb]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/nf_test/test_nf_intraDay_point1H_200n.png}
+        \caption{$T=1/252/10$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/nf_test/test_nf_1Day_point1H_200n.png}
+        \caption{$T=1/252$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/nf_test/test_nf_1Month_point1H_200n.png}
+        \caption{$T=1/12$}
+    \end{subfigure}
+    \caption{At-the-money European call option prices as the number of Markovian approximation factors $n_f$ increases. The parameters are chosen as $H = 0.1, S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho=-0.1$, and $\kappa = 2$.}
+    \label{fig:convergence_nf_point1H}
+\end{figure}
+
+\begin{figure}[htb]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/nf_test/test_nf_intraDay_point4H_200n.png}
+        \caption{$T=1/252/10$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/nf_test/test_nf_1Day_point4H_200n.png}
+        \caption{$T=1/252$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/nf_test/test_nf_1Month_point4H_200n.png}
+        \caption{$T=1/12$}
+    \end{subfigure}
+    \caption{At-the-money European call option prices as the number of Markovian approximation factors $n_f$ increases. The parameters are chosen as $H = 0.4, S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho=-0.1, n=200$, and $\kappa = 2$.}
+    \label{fig:convergence_nf_point4H}
+\end{figure}
+
 support us to choose \(n_f=150\) in the following experiments.
 
-We first consider the Monte Carlo pricing of European call options with the payoff function
-\[
-f(S,V) = \max(S_T - K, 0),
-\]
-where the strike price is set to \(K = 1\). The payoff function of the European call allows us to obtain the reference value of the option, which is given by inversing the characteristic function of \(\log S_T\) presented in (8.2.9)-(8.2.10), \cite{abijaber2018}. 
 
-Moreover, we benchmark the numerical results of the Accelerated Hybrid Scheme not only against the reference value but also against those obtained using the Euler scheme \eqref{eq:euler_scheme_variance}, the Markovian approximation method \eqref{eq:markov_V_update}-\eqref{eq:markov_U_update}, and the classical hybrid scheme \eqref{eq:hybrid_scheme}. This analysis enables a detailed evaluation of the trade-offs in computational efficiency, convergence rate, and numerical stability among different approaches.
 
 The numerical results are presented in Figures~\ref{fig:price_n_T_1-252}, \ref{fig:price_n_T_1-12} and \ref{fig:price_nf}.  Figures~\ref{fig:price_n_T_1-252} and \ref{fig:price_n_T_1-12} show the convergence of the European call option price estimates as the number of discrete time steps \(n\) increases for two different maturities, \(T=1/252\) (one day) and \(T=1/12\) (one month). Both results involve two Hurst indices \(H=0.15\) and \(H=0.3\). Figure~\ref{fig:price_nf} demonstrates the convergence of the option price estimates as the number of kernel approximation factors \(n_f\) increases. Shaded areas in all these figures represent the 95\% confidence intervals of the Monte Carlo simulation.
 

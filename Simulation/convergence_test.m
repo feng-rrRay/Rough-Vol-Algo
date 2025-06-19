@@ -2,14 +2,14 @@ clear; clc;
 rng(1);
 addpath("helpers/");
 %% begin test
-nList = [10, 50, 100, 200, 300, 500];
+nList = [25, 50, 100, 250, 500];
 H = 0.1;
 T = 1/252;
-nf = 400;
+nf = 200;
 J = 2;
 
 results = testConvergenceN(nList, H, T, nf, J);
-instanceName = "pc_test_n_1Day_point1H_200nf";
+instanceName = "new_pc_test_n_1Day_point1H_200nf";
 json_add("assets/"+instanceName+".json", results);
 
 %% plot
@@ -35,7 +35,7 @@ plot(log([results.n]), log([results.rmse_euler_atm]), 'Marker', '*', 'DisplayNam
 title("$H = 0.1, T = 1/252$", 'Interpreter', 'latex');
 xlabel("$\log(n)$", 'Interpreter', 'latex');
 ylabel("$\log(RMSE)$", 'Interpreter', 'latex');
-legend('Interpreter','latex', 'FontSize', 8);
+legend('Interpreter','latex', 'FontSize', 8, 'Location','best');
 grid off;
 box on;
 hold off;
@@ -122,13 +122,14 @@ function result_struct = testConvergenceN(nList, H, T, nf, J)
     right = 400;
     n = 1000; N = 20000;
     KList = [0.9, 1, 1.1];
-    refList = [0, 0, 0];
-    for ii = 1 : numel(KList)
-        k = log(KList(ii)); 
-        S = 1;
-        refList(ii) = CallPriceArray(S,k,H,rho,nu,lambda,theta,V0,T,r,d,n,left,right,N);
-        fprintf("Ref European call price: %.6f, S=%d, K=%.2f\n", refList(ii),S,KList(ii));
-    end
+    % refList = [0, 0, 0];
+    % for ii = 1 : numel(KList)
+    %     k = log(KList(ii)); 
+    %     S = 1;
+    %     refList(ii) = CallPriceArray(S,k,H,rho,nu,lambda,theta,V0,T,r,d,n,left,right,N);
+    %     fprintf("Ref European call price: %.6f, S=%d, K=%.2f\n", refList(ii),S,KList(ii));
+    % end
+    refList = [0.100000, 0.005404, -0.000001];
 
     % get noise matrix
     noise_mat_3d_mc = get_noise_mat(J, H, num_path_mc, max(nList));

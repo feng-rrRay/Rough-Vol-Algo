@@ -14,6 +14,9 @@ function results = euler_scheme(spotV, num_maturity, dt_maturity,...
         tau_vec = zeros(num_maturity,1);
     end
     gamma_val = gamma(H+1/2);
+    % resize noise matrix (coupling strategy)
+    noise_mat_3d_mc = resize_noise_mat(noise_mat_3d_mc, num_steps_mc);
+
     
     tic;
     for i = 1:num_steps_mc
