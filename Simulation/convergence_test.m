@@ -4,14 +4,14 @@ addpath("helpers/");
 %% begin test
 nList = [25, 50, 100, 250, 500];
 H = 0.1;
-T = 1/12;
+T = 1/252;
 nf = 200;
 J = 2;
 
 results = testConvergenceN(nList, H, T, nf, J);
 
 %% plot
-instanceName = "new_pc_test_n_1Month_point1H_200nf";
+instanceName = "new_pc_test_n_1Day_point1H_200nf";
 json_add("assets/"+instanceName+".json", results);
 width = 4;     % Width in inches
 height = 3;    % Height in inches
@@ -32,7 +32,7 @@ plot(log([results.n]), log([results.rmse_acchyb_atm]), 'Marker', '.', 'DisplayNa
 plot(log([results.n]), log([results.rmse_markov_atm]), 'Marker', '+', 'DisplayName', 'Markov Approximation');
 plot(log([results.n]), log([results.rmse_hyb_atm]), 'Marker', 'x', 'DisplayName', 'Classical Hybrid');
 plot(log([results.n]), log([results.rmse_euler_atm]), 'Marker', '*', 'DisplayName', 'Euler Scheme');
-title("$H = 0.1, T = 1/12$", 'Interpreter', 'latex');
+title("$H = 0.1, T = 1/252$", 'Interpreter', 'latex');
 xlabel("$\log(n)$", 'Interpreter', 'latex');
 ylabel("$\log(RMSE)$", 'Interpreter', 'latex');
 legend('Interpreter','latex', 'FontSize', 8, 'Location','best');
@@ -122,14 +122,14 @@ function result_struct = testConvergenceN(nList, H, T, nf, J)
     right = 400;
     n = 1000; N = 20000;
     KList = [0.9, 1, 1.1];
-    % refList = [0, 0, 0];
-    % for ii = 1 : numel(KList)
-    %     k = log(KList(ii)); 
-    %     S = 1;
-    %     refList(ii) = CallPriceArray(S,k,H,rho,nu,lambda,theta,V0,T,r,d,n,left,right,N);
-    %     fprintf("Ref European call price: %.6f, S=%d, K=%.2f\n", refList(ii),S,KList(ii));
-    % end
-    refList = [0.102132261667885, 0.024095334125073, 0.002281439730902];
+    refList = [0, 0, 0];
+    for ii = 1 : numel(KList)
+        k = log(KList(ii)); 
+        S = 1;
+        refList(ii) = CallPriceArray(S,k,H,rho,nu,lambda,theta,V0,T,r,d,n,left,right,N);
+        fprintf("Ref European call price: %.6f, S=%d, K=%.2f\n", refList(ii),S,KList(ii));
+    end
+    % refList = [0.102132261667885, 0.024095334125073, 0.002281439730902];
 
     % get noise matrix
     noise_mat_3d_mc = get_noise_mat(J, H, num_path_mc, max(nList));
@@ -196,12 +196,12 @@ function result_struct = testConvergenceN(nList, H, T, nf, J)
             theta, rho, lambda, nu, H, noise_mat_3d_mc, J, r, eps, 'std');
         result_struct(k).t_acchyb = results_1.t;
         result_struct(k).t_markov = results_1.t_markov;
-        [result_struct(k).rmse_markov_itm,~,~] = rmse_mc(results_1.logS_mc_markov, KList(1), refList(1));
-        [result_struct(k).rmse_acchyb_itm,~,~] = rmse_mc(results_1.logS_mc_final, KList(1), refList(1));
-        [result_struct(k).rmse_markov_atm,~,~] = rmse_mc(results_1.logS_mc_markov, KList(2), refList(2));
-        [result_struct(k).rmse_acchyb_atm,~,~] = rmse_mc(results_1.logS_mc_final, KList(2), refList(2));
-        [result_struct(k).rmse_markov_otm,~,~] = rmse_mc(results_1.logS_mc_markov, KList(3), refList(3));
-        [result_struct(k).rmse_acchyb_otm,~,~] = rmse_mc(results_1.logS_mc_final, KList(3), refList(3));
+        [result_struct(k).rmse_markov_itm,result_struct(k).se_markov_itm,result_struct(k).bias_markov_itm] = rmse_mc(results_1.logS_mc_markov, KList(1), refList(1));
+        [result_struct(k).rmse_acchyb_itm,result_struct(k).se_acchyb_itm,result_struct(k).bias_acchyb_itm] = rmse_mc(results_1.logS_mc_final, KList(1), refList(1));
+        [result_struct(k).rmse_markov_atm,result_struct(k).se_markov_atm,result_struct(k).bias_markov_atm] = rmse_mc(results_1.logS_mc_markov, KList(2), refList(2));
+        [result_struct(k).rmse_acchyb_atm,result_struct(k).se_acchyb_atm,result_struct(k).bias_acchyb_atm] = rmse_mc(results_1.logS_mc_final, KList(2), refList(2));
+        [result_struct(k).rmse_markov_otm,result_struct(k).se_markov_otm,result_struct(k).bias_markov_otm] = rmse_mc(results_1.logS_mc_markov, KList(3), refList(3));
+        [result_struct(k).rmse_acchyb_otm,result_struct(k).se_acchyb_otm,result_struct(k).bias_acchyb_otm] = rmse_mc(results_1.logS_mc_final, KList(3), refList(3));
         result_struct(k).price_markov_itm = european_call_mc(results_1.logS_mc_markov, KList(1));
         result_struct(k).price_acchyb_itm = european_call_mc(results_1.logS_mc_final, KList(1));
         result_struct(k).price_markov_atm = european_call_mc(results_1.logS_mc_markov, KList(2));
@@ -216,9 +216,9 @@ function result_struct = testConvergenceN(nList, H, T, nf, J)
             num_moneyness, num_path_mc, step_maturity, forward_curve_hyb,...
             theta, rho, lambda, nu, H, noise_mat_3d_mc, J, r, eps, 'std');
         result_struct(k).t_hyb = results_2.t;
-        [result_struct(k).rmse_hyb_itm,~,~] = rmse_mc(results_2.logS_mc_final, KList(1), refList(1));
-        [result_struct(k).rmse_hyb_atm,~,~] = rmse_mc(results_2.logS_mc_final, KList(2), refList(2));
-        [result_struct(k).rmse_hyb_otm,~,~] = rmse_mc(results_2.logS_mc_final, KList(3), refList(3));
+        [result_struct(k).rmse_hyb_itm,result_struct(k).se_hyb_itm,result_struct(k).bias_hyb_itm] = rmse_mc(results_2.logS_mc_final, KList(1), refList(1));
+        [result_struct(k).rmse_hyb_atm,result_struct(k).se_hyb_atm,result_struct(k).bias_hyb_atm] = rmse_mc(results_2.logS_mc_final, KList(2), refList(2));
+        [result_struct(k).rmse_hyb_otm,result_struct(k).se_hyb_otm,result_struct(k).bias_hyb_otm] = rmse_mc(results_2.logS_mc_final, KList(3), refList(3));
         result_struct(k).price_hyb_itm = european_call_mc(results_2.logS_mc_final, KList(1));
         result_struct(k).price_hyb_atm = european_call_mc(results_2.logS_mc_final, KList(2));
         result_struct(k).price_hyb_otm = european_call_mc(results_2.logS_mc_final, KList(3));
@@ -228,9 +228,9 @@ function result_struct = testConvergenceN(nList, H, T, nf, J)
         results_3 = euler_scheme(V0, num_maturity, dt_maturity, num_moneyness, num_path_mc, step_maturity,...
             theta, rho, lambda, nu, H, noise_mat_3d_mc, r, eps, 'std');
         result_struct(k).t_euler = results_3.t;
-        [result_struct(k).rmse_euler_itm,~,~] = rmse_mc(results_3.logS_mc_final, KList(1), refList(1));
-        [result_struct(k).rmse_euler_atm,~,~] = rmse_mc(results_3.logS_mc_final, KList(2), refList(2));
-        [result_struct(k).rmse_euler_otm,~,~] = rmse_mc(results_3.logS_mc_final, KList(3), refList(3));
+        [result_struct(k).rmse_euler_itm,result_struct(k).se_euler_itm,result_struct(k).bias_euler_itm] = rmse_mc(results_3.logS_mc_final, KList(1), refList(1));
+        [result_struct(k).rmse_euler_atm,result_struct(k).se_euler_atm,result_struct(k).bias_euler_atm] = rmse_mc(results_3.logS_mc_final, KList(2), refList(2));
+        [result_struct(k).rmse_euler_otm,result_struct(k).se_euler_otm,result_struct(k).bias_euler_otm] = rmse_mc(results_3.logS_mc_final, KList(3), refList(3));
         result_struct(k).price_euler_itm = european_call_mc(results_3.logS_mc_final, KList(1));
         result_struct(k).price_euler_atm = european_call_mc(results_3.logS_mc_final, KList(2));
         result_struct(k).price_euler_otm = european_call_mc(results_3.logS_mc_final, KList(3));

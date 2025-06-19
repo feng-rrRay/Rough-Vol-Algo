@@ -821,7 +821,7 @@ In the following, we first investigate the impact of varying the number of Marko
 
 \subsection{Varying number of approximation factors \(n_f\)}
 
-First, we examine the European call option pricing results under varying number of approximation factors \(n_f\) as a part of our convergence tests. Plots of the estimated option prices against \(n_f\) are reported in Figure~\ref{fig:convergence_nf_point1H} and \ref{fig:convergence_nf_point4H}, indicating a faster convergence of our Accelerated Hybrid Scheme than the simulation of Markovian approximation models as \(n_f\) increases. This demonstrates that the FFT-based hybrid scheme effectively mitigates kernel approximation errors introduced during the precomputation step while adding little time cost (see Table~\ref{}). Also, it is worth noting that the convergence with respect to \(n_f\) is faster for longer maturities and larger Hurst indices. And for Hurst index \(H=0.4\), the pricing results of our method barely change with increasing \(n_f\). These observations are consistent with Proposition~\ref{prop:markov_approx_convergence} and equation \eqref{eq:mse_upper_bound}, as kernel approximation errors tend to be smaller for larger \(H\). 
+First, we examine the European call option pricing results under varying number of approximation factors \(n_f\) as a part of our convergence tests. Plots of the estimated option prices against \(n_f\) are reported in Figure~\ref{fig:convergence_nf_point1H} and \ref{fig:convergence_nf_point4H}, indicating a faster convergence of our Accelerated Hybrid Scheme than the simulation of Markovian approximation models as \(n_f\) increases. This demonstrates that the FFT-based hybrid scheme effectively mitigates kernel approximation errors introduced during the precomputation step while adding little time cost (see Table~\ref{}). Also, it is worth noting that the convergence with respect to \(n_f\) is faster for longer maturities and larger Hurst indices. And for Hurst index \(H=0.4\), the pricing results of our method barely change with increasing \(n_f\). These observations are consistent with Proposition~\ref{prop:markov_approx_convergence} and equation \eqref{eq:mse_upper_bound}, in that kernel approximation errors tend to be smaller as \(H\) approaches \(1/2\). 
 
 \begin{figure}[htb]
     \centering
@@ -863,7 +863,10 @@ First, we examine the European call option pricing results under varying number 
     \label{fig:convergence_nf_point4H}
 \end{figure}
 
-% plot convergence test w.r.t. n on acchyb while varying n_f (show that n_f does not matter too much)
+% plot convergence test w.r.t. n on acchyb while varying n_f (show that n_f does not matter too much when H exceeds certain value)
+% convergence behavior of the Accelerated Hybrid Scheme under different choices of n_f
+-------------------------------------------
+
 support us to choose \(n_f=150\) in the following experiments.
 
 
