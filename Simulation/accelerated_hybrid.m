@@ -54,6 +54,10 @@ function results = accelerated_hybrid(spotV, num_maturity, dt_maturity,...
         option_price_mat = zeros(num_maturity, num_moneyness);
     end
 
+    % TODO: if size(noise_mat_3d_mc, 3) > num_steps_mc, sum up every
+    % [size(noise_mat_3d_mc, 3) / num_steps_mc] noises and get a new noise
+    % matrix that matches the size
+
     % Markovian precomputation
     tic;
     for i = 1:num_steps_mc

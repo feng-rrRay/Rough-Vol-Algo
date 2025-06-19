@@ -127,26 +127,30 @@
 \newlabel{eq:barXn_tildeX_1}{{39}{21}{}{equation.4.39}{}}
 \citation{AlfonsiKeabier2023}
 \newlabel{eq:barXn_tildeX_2}{{40}{22}{}{equation.4.40}{}}
+\newlabel{eq:mse_upper_bound}{{41}{22}{Convergence analysis}{equation.4.41}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {5}Numerical experiments}{22}{section.5}\protected@file@percent }
 \newlabel{sec:numerical_results}{{5}{22}{Numerical experiments}{section.5}{}}
 \citation{abijaber2018}
-\citation{abijaber2018}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Varying number of approximation factors \(n_f\)}{23}{subsection.5.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces European call option prices as the number of discrete time steps $n$ increases for one-day maturity ($T=1/252$) under two different Hurst indices.\relax }}{24}{figure.caption.13}\protected@file@percent }
-\newlabel{fig:price_n_T_1-252}{{1}{24}{European call option prices as the number of discrete time steps $n$ increases for one-day maturity ($T=1/252$) under two different Hurst indices.\relax }{figure.caption.13}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces European call option prices as the number of discrete time steps $n$ increases for one-month maturity ($T=1/12$) under two different Hurst indices.\relax }}{24}{figure.caption.14}\protected@file@percent }
-\newlabel{fig:price_n_T_1-12}{{2}{24}{European call option prices as the number of discrete time steps $n$ increases for one-month maturity ($T=1/12$) under two different Hurst indices.\relax }{figure.caption.14}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Option prices as the number of kernel approximation factors $n_f$ increases, \(H = 0.15\), \(n = 100\).\relax }}{25}{figure.caption.15}\protected@file@percent }
-\newlabel{fig:price_nf}{{3}{25}{Option prices as the number of kernel approximation factors $n_f$ increases, \(H = 0.15\), \(n = 100\).\relax }{figure.caption.15}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Time cost comparison of various simulation algorithms, $H=0.15$, $n_f = 100$. The results indicate that the Accelerated Hybrid Scheme achieves a greater balance between accuracy and computational efficiency relative to the Euler scheme, the classical hybrid scheme, and the Markovian approximation method.\relax }}{26}{figure.caption.16}\protected@file@percent }
-\newlabel{fig:time_cost}{{4}{26}{Time cost comparison of various simulation algorithms, $H=0.15$, $n_f = 100$. The results indicate that the Accelerated Hybrid Scheme achieves a greater balance between accuracy and computational efficiency relative to the Euler scheme, the classical hybrid scheme, and the Markovian approximation method.\relax }{figure.caption.16}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Implied volatility calculation}{27}{subsection.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusions and discussions}{27}{section.6}\protected@file@percent }
-\newlabel{sec:conclusion}{{6}{27}{Conclusions and discussions}{section.6}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Implied volatility curves as the number of discrete time steps $n$ increases for one-day maturity ($T=1/252$) under \(n_f = 100\), \(H = 0.15\).\relax }}{28}{figure.caption.17}\protected@file@percent }
-\newlabel{fig:iv_n_T_1-252}{{5}{28}{Implied volatility curves as the number of discrete time steps $n$ increases for one-day maturity ($T=1/252$) under \(n_f = 100\), \(H = 0.15\).\relax }{figure.caption.17}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Implied volatility curves as the number of discrete time steps $n$ increases for one-month maturity ($T=1/12$) under \(n_f = 100\), \(H = 0.15\).\relax }}{29}{figure.caption.18}\protected@file@percent }
-\newlabel{fig:iv_n_T_1-12}{{6}{29}{Implied volatility curves as the number of discrete time steps $n$ increases for one-month maturity ($T=1/12$) under \(n_f = 100\), \(H = 0.15\).\relax }{figure.caption.18}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces At-the-money European call option prices as the number of Markovian approximation factors $n_f$ increases. The parameters are chosen as $H = 0.1, S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho =-0.1$, and $\kappa = 2$.\relax }}{24}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:convergence_nf_point1H}{{1}{24}{At-the-money European call option prices as the number of Markovian approximation factors $n_f$ increases. The parameters are chosen as $H = 0.1, S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho =-0.1$, and $\kappa = 2$.\relax }{figure.caption.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces At-the-money European call option prices as the number of Markovian approximation factors $n_f$ increases. The parameters are chosen as $H = 0.4, S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho =-0.1, n=200$, and $\kappa = 2$.\relax }}{24}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:convergence_nf_point4H}{{2}{24}{At-the-money European call option prices as the number of Markovian approximation factors $n_f$ increases. The parameters are chosen as $H = 0.4, S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho =-0.1, n=200$, and $\kappa = 2$.\relax }{figure.caption.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces European call option prices as the number of discrete time steps $n$ increases for one-day maturity ($T=1/252$) under two different Hurst indices.\relax }}{25}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:price_n_T_1-252}{{3}{25}{European call option prices as the number of discrete time steps $n$ increases for one-day maturity ($T=1/252$) under two different Hurst indices.\relax }{figure.caption.15}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces European call option prices as the number of discrete time steps $n$ increases for one-month maturity ($T=1/12$) under two different Hurst indices.\relax }}{25}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:price_n_T_1-12}{{4}{25}{European call option prices as the number of discrete time steps $n$ increases for one-month maturity ($T=1/12$) under two different Hurst indices.\relax }{figure.caption.16}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Option prices as the number of kernel approximation factors $n_f$ increases, \(H = 0.15\), \(n = 100\).\relax }}{26}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:price_nf}{{5}{26}{Option prices as the number of kernel approximation factors $n_f$ increases, \(H = 0.15\), \(n = 100\).\relax }{figure.caption.17}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Time cost comparison of various simulation algorithms, $H=0.15$, $n_f = 100$. The results indicate that the Accelerated Hybrid Scheme achieves a greater balance between accuracy and computational efficiency relative to the Euler scheme, the classical hybrid scheme, and the Markovian approximation method.\relax }}{27}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:time_cost}{{6}{27}{Time cost comparison of various simulation algorithms, $H=0.15$, $n_f = 100$. The results indicate that the Accelerated Hybrid Scheme achieves a greater balance between accuracy and computational efficiency relative to the Euler scheme, the classical hybrid scheme, and the Markovian approximation method.\relax }{figure.caption.18}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Implied volatility calculation}{28}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusions and discussions}{28}{section.6}\protected@file@percent }
+\newlabel{sec:conclusion}{{6}{28}{Conclusions and discussions}{section.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Implied volatility curves as the number of discrete time steps $n$ increases for one-day maturity ($T=1/252$) under \(n_f = 100\), \(H = 0.15\).\relax }}{29}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:iv_n_T_1-252}{{7}{29}{Implied volatility curves as the number of discrete time steps $n$ increases for one-day maturity ($T=1/252$) under \(n_f = 100\), \(H = 0.15\).\relax }{figure.caption.19}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Implied volatility curves as the number of discrete time steps $n$ increases for one-month maturity ($T=1/12$) under \(n_f = 100\), \(H = 0.15\).\relax }}{30}{figure.caption.20}\protected@file@percent }
+\newlabel{fig:iv_n_T_1-12}{{8}{30}{Implied volatility curves as the number of discrete time steps $n$ increases for one-month maturity ($T=1/12$) under \(n_f = 100\), \(H = 0.15\).\relax }{figure.caption.20}{}}
 \bibstyle{elsevier}
 \bibdata{mainbib,mybib,newadded}
 \bibcite{abijaber2018}{{1}{2018}{{Abi~Jaber}}{{}}}
@@ -163,4 +167,4 @@
 \bibcite{richard2021}{{12}{2021}{{Richard et~al.}}{{Richard, Tan, and Yang}}}
 \bibcite{richard2023roughsimu}{{13}{2023}{{Richard et~al.}}{{Richard, Tan, and Yang}}}
 \bibcite{XinchengZhang2010}{{14}{2010}{{Zhang}}{{}}}
-\gdef \@abspage@last{32}
+\gdef \@abspage@last{33}

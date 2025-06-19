@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.4) (preloaded format=pdflatex 2025.2.10)  18 JUN 2025 16:15
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.4) (preloaded format=pdflatex 2025.2.10)  19 JUN 2025 14:33
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -496,58 +496,84 @@ Overfull \hbox (10.02408pt too wide) detected at line 719
 [20] [21] [22]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 821.
+(hyperref)                removing `math shift' on input line 822.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 821.
+(hyperref)                removing `subscript' on input line 822.
 
-
-LaTeX Warning: Reference `' on page 23 undefined on input line 823.
-
-[23]
-<fig/converge_n_1D_H_15.png, id=535, 401.5803pt x 301.125pt>
+<fig/nf_test/test_nf_intraDay_point1H_200n.png, id=520, 301.125pt x 225.9642pt>
+File: fig/nf_test/test_nf_intraDay_point1H_200n.png Graphic file (type png)
+<use fig/nf_test/test_nf_intraDay_point1H_200n.png>
+Package pdftex.def Info: fig/nf_test/test_nf_intraDay_point1H_200n.png  used on input line 829.
+(pdftex.def)             Requested size: 152.63786pt x 114.54373pt.
+<fig/nf_test/test_nf_1Day_point1H_200n.png, id=521, 301.125pt x 225.9642pt>
+File: fig/nf_test/test_nf_1Day_point1H_200n.png Graphic file (type png)
+<use fig/nf_test/test_nf_1Day_point1H_200n.png>
+Package pdftex.def Info: fig/nf_test/test_nf_1Day_point1H_200n.png  used on input line 834.
+(pdftex.def)             Requested size: 152.63786pt x 114.54373pt.
+<fig/nf_test/test_nf_1Month_point1H_200n.png, id=522, 301.125pt x 225.9642pt>
+File: fig/nf_test/test_nf_1Month_point1H_200n.png Graphic file (type png)
+<use fig/nf_test/test_nf_1Month_point1H_200n.png>
+Package pdftex.def Info: fig/nf_test/test_nf_1Month_point1H_200n.png  used on input line 839.
+(pdftex.def)             Requested size: 152.63786pt x 114.54373pt.
+<fig/nf_test/test_nf_intraDay_point4H_200n.png, id=523, 301.125pt x 225.9642pt>
+File: fig/nf_test/test_nf_intraDay_point4H_200n.png Graphic file (type png)
+<use fig/nf_test/test_nf_intraDay_point4H_200n.png>
+Package pdftex.def Info: fig/nf_test/test_nf_intraDay_point4H_200n.png  used on input line 849.
+(pdftex.def)             Requested size: 152.63786pt x 114.54373pt.
+<fig/nf_test/test_nf_1Day_point4H_200n.png, id=524, 301.125pt x 225.9642pt>
+File: fig/nf_test/test_nf_1Day_point4H_200n.png Graphic file (type png)
+<use fig/nf_test/test_nf_1Day_point4H_200n.png>
+Package pdftex.def Info: fig/nf_test/test_nf_1Day_point4H_200n.png  used on input line 854.
+(pdftex.def)             Requested size: 152.63786pt x 114.54373pt.
+<fig/nf_test/test_nf_1Month_point4H_200n.png, id=525, 301.125pt x 225.9642pt>
+File: fig/nf_test/test_nf_1Month_point4H_200n.png Graphic file (type png)
+<use fig/nf_test/test_nf_1Month_point4H_200n.png>
+Package pdftex.def Info: fig/nf_test/test_nf_1Month_point4H_200n.png  used on input line 859.
+(pdftex.def)             Requested size: 152.63786pt x 114.54373pt.
+<fig/converge_n_1D_H_15.png, id=532, 401.5803pt x 301.125pt>
 File: fig/converge_n_1D_H_15.png Graphic file (type png)
 <use fig/converge_n_1D_H_15.png>
-Package pdftex.def Info: fig/converge_n_1D_H_15.png  used on input line 839.
+Package pdftex.def Info: fig/converge_n_1D_H_15.png  used on input line 875.
 (pdftex.def)             Requested size: 228.94952pt x 171.67519pt.
-<fig/converge_n_1D_H_30.png, id=536, 401.5803pt x 301.125pt>
+<fig/converge_n_1D_H_30.png, id=533, 401.5803pt x 301.125pt>
 File: fig/converge_n_1D_H_30.png Graphic file (type png)
 <use fig/converge_n_1D_H_30.png>
-Package pdftex.def Info: fig/converge_n_1D_H_30.png  used on input line 844.
+Package pdftex.def Info: fig/converge_n_1D_H_30.png  used on input line 880.
 (pdftex.def)             Requested size: 228.94952pt x 171.67519pt.
-<fig/convergence_n_1M_H_15.png, id=537, 401.5803pt x 301.125pt>
+<fig/convergence_n_1M_H_15.png, id=534, 401.5803pt x 301.125pt>
 File: fig/convergence_n_1M_H_15.png Graphic file (type png)
 <use fig/convergence_n_1M_H_15.png>
-Package pdftex.def Info: fig/convergence_n_1M_H_15.png  used on input line 854.
+Package pdftex.def Info: fig/convergence_n_1M_H_15.png  used on input line 890.
 (pdftex.def)             Requested size: 228.94952pt x 171.67519pt.
-<fig/convergence_n_1M_H_30.png, id=538, 401.5803pt x 301.125pt>
+<fig/convergence_n_1M_H_30.png, id=535, 401.5803pt x 301.125pt>
 File: fig/convergence_n_1M_H_30.png Graphic file (type png)
 <use fig/convergence_n_1M_H_30.png>
-Package pdftex.def Info: fig/convergence_n_1M_H_30.png  used on input line 859.
+Package pdftex.def Info: fig/convergence_n_1M_H_30.png  used on input line 895.
 (pdftex.def)             Requested size: 228.94952pt x 171.67519pt.
-<fig/converge_nf_1D_H_15.png, id=539, 401.5803pt x 301.125pt>
+<fig/converge_nf_1D_H_15.png, id=536, 401.5803pt x 301.125pt>
 File: fig/converge_nf_1D_H_15.png Graphic file (type png)
 <use fig/converge_nf_1D_H_15.png>
-Package pdftex.def Info: fig/converge_nf_1D_H_15.png  used on input line 868.
+Package pdftex.def Info: fig/converge_nf_1D_H_15.png  used on input line 904.
 (pdftex.def)             Requested size: 381.5874pt x 286.14522pt.
-<fig/compute_time_H_15.png, id=540, 401.5803pt x 301.125pt>
+<fig/compute_time_H_15.png, id=537, 401.5803pt x 301.125pt>
 File: fig/compute_time_H_15.png Graphic file (type png)
 <use fig/compute_time_H_15.png>
-Package pdftex.def Info: fig/compute_time_H_15.png  used on input line 875.
+Package pdftex.def Info: fig/compute_time_H_15.png  used on input line 911.
 (pdftex.def)             Requested size: 381.5874pt x 286.14522pt.
- [24 <./fig/converge_n_1D_H_15.png (PNG copy)> <./fig/converge_n_1D_H_30.png (PNG copy)> <./fig/convergence_n_1M_H_15.png (PNG copy)> <./fig/convergence_n_1M_H_30.png (PNG copy)>] [25 <./fig/converge_nf_1D_H_15.png (PNG copy)>] [26 <./fig/compute_time_H_15.png (PNG copy)>]
-<fig/iv_converge_1D_H_15.png, id=564, 602.25pt x 451.6875pt>
+[23] [24 <./fig/nf_test/test_nf_intraDay_point1H_200n.png (PNG copy)> <./fig/nf_test/test_nf_1Day_point1H_200n.png (PNG copy)> <./fig/nf_test/test_nf_1Month_point1H_200n.png (PNG copy)> <./fig/nf_test/test_nf_intraDay_point4H_200n.png (PNG copy)> <./fig/nf_test/test_nf_1Day_point4H_200n.png (PNG copy)> <./fig/nf_test/test_nf_1Month_point4H_200n.png (PNG copy)>] [25 <./fig/converge_n_1D_H_15.png (PNG copy)> <./fig/converge_n_1D_H_30.png (PNG copy)> <./fig/convergence_n_1M_H_15.png (PNG copy)> <./fig/convergence_n_1M_H_30.png (PNG copy)>] [26 <./fig/converge_nf_1D_H_15.png (PNG copy)>] [27 <./fig/compute_time_H_15.png (PNG copy)>]
+<fig/iv_converge_1D_H_15.png, id=575, 602.25pt x 451.6875pt>
 File: fig/iv_converge_1D_H_15.png Graphic file (type png)
 <use fig/iv_converge_1D_H_15.png>
-Package pdftex.def Info: fig/iv_converge_1D_H_15.png  used on input line 899.
+Package pdftex.def Info: fig/iv_converge_1D_H_15.png  used on input line 935.
 (pdftex.def)             Requested size: 453.13185pt x 339.86064pt.
-<fig/iv_converge_1M_H_15.png, id=565, 602.25pt x 451.6875pt>
+<fig/iv_converge_1M_H_15.png, id=576, 602.25pt x 451.6875pt>
 File: fig/iv_converge_1M_H_15.png Graphic file (type png)
 <use fig/iv_converge_1M_H_15.png>
-Package pdftex.def Info: fig/iv_converge_1M_H_15.png  used on input line 906.
+Package pdftex.def Info: fig/iv_converge_1M_H_15.png  used on input line 942.
 (pdftex.def)             Requested size: 453.13185pt x 339.86064pt.
- [27] [28 <./fig/iv_converge_1D_H_15.png (PNG copy)>] [29 <./fig/iv_converge_1M_H_15.png (PNG copy)>] [30] (rough_volatility_simulation.bbl
+ [28] [29 <./fig/iv_converge_1D_H_15.png (PNG copy)>] [30 <./fig/iv_converge_1M_H_15.png (PNG copy)>] [31] (rough_volatility_simulation.bbl
 rough_volatility_simulation.bbl:17: Misplaced alignment tab character &.
 l.17   heston model. Statistics &
                                   Probability Letters 149, 63--72.
@@ -558,10 +584,7 @@ up above has ended a previous alignment prematurely,
 you're probably due for more error messages, and you
 might try typing `S' now just to see what is salvageable.
 
-[31]) [32] (rough_volatility_simulation.aux)
-
-LaTeX Warning: There were undefined references.
-
+[32]) [33] (rough_volatility_simulation.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
@@ -569,17 +592,17 @@ Package rerunfilecheck Info: File `rough_volatility_simulation.out' has not chan
 (rerunfilecheck)             Checksum: 2C732CF9F5D66984E13DB8794607726D;2594.
  ) 
 Here is how much of TeX's memory you used:
- 12562 strings out of 476331
- 200405 string characters out of 5801898
+ 12611 strings out of 476331
+ 202465 string characters out of 5801898
  1879660 words of memory out of 5000000
- 32600 multiletter control sequences out of 15000+600000
+ 32638 multiletter control sequences out of 15000+600000
  528065 words of font info for 97 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  75i,14n,77p,1371b,798s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\CTEX\UserData\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1095.pk> <C:\CTEX\UserData\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm0600.pk> <C:\CTEX\UserData\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm0800.pk><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt10.pfb><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt9.pfb><C:/CTEX/MiKTeX/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on rough_volatility_simulation.pdf (32 pages, 1756654 bytes).
+Output written on rough_volatility_simulation.pdf (33 pages, 2138123 bytes).
 PDF statistics:
- 739 PDF objects out of 1000 (max. 8388607)
- 186 named destinations out of 1000 (max. 500000)
- 153 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 751 PDF objects out of 1000 (max. 8388607)
+ 190 named destinations out of 1000 (max. 500000)
+ 183 words of extra memory for PDF output out of 10000 (max. 10000000)
 
