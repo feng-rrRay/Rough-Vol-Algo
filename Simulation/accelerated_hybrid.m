@@ -74,7 +74,7 @@ function results = accelerated_hybrid(spotV, num_maturity, dt_maturity,...
     kernel_dt = ones(num_path_mc,1) * [0, linspace(1,num_steps_mc,num_steps_mc).^(H+1/2) - ...
         linspace(0,num_steps_mc-1,num_steps_mc).^(H+1/2)] / (H+1/2);
     f_mat_mc = sqrt(max(V_mat_mc, eps));
-    noise_path_mc = squeeze(noise_mat_3d_mc(:,:,1));
+    noise_path_mc = squeeze(noise_mat_3d_mc(:,1:num_steps_mc,1));
     var_path_diff = nu * f_mat_mc .* [noise_path_mc,zeros(num_path_mc,1)];
     var_path_drift = lambda * dt^(1/2) * V_mat_mc;
     tmp_N = 2^nextpow2(2*num_steps_mc-1);
