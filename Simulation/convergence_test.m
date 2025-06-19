@@ -5,11 +5,11 @@ addpath("helpers/");
 nList = [10, 50, 100, 200, 300, 500];
 H = 0.1;
 T = 1/252;
-nf = 200;
+nf = 400;
 J = 2;
 
 results = testConvergenceN(nList, H, T, nf, J);
-instanceName = "new_test_n_1Day_point1H_200nf";
+instanceName = "pc_test_n_1Day_point1H_200nf";
 json_add("assets/"+instanceName+".json", results);
 
 %% plot
@@ -35,7 +35,7 @@ plot(log([results.n]), log([results.rmse_euler_atm]), 'Marker', '*', 'DisplayNam
 title("$H = 0.1, T = 1/252$", 'Interpreter', 'latex');
 xlabel("$\log(n)$", 'Interpreter', 'latex');
 ylabel("$\log(RMSE)$", 'Interpreter', 'latex');
-legend('Interpreter','latex');
+legend('Interpreter','latex', 'FontSize', 8);
 grid off;
 box on;
 hold off;
