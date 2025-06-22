@@ -3,25 +3,29 @@ rng(42);
 addpath("helpers/");
 %% begin test
 nList = [25, 50, 100, 250, 500];
-nfList = [50, 100, 200, 400, 800];
-H = 0.1;
-T = 1/252;
-% nf = 200;
-J = 2;
-titleStr = "$H = 0.1, T = 1/252$";
+% nfList = [50, 100, 200, 400, 800];
+nf = 800;
 
-taskId = 1;
+H = 0.4;
+T = 1/12;
+JList = [0, 1, 2, 3, 4];
+% J = 2;
+titleStr = "$H = 0.4$";
+
+taskId = 3;
 
 
 if taskId == 1
     results = testConvergenceAcchyb(nList, nfList, H, T, J, inf);
 elseif taskId == 2
     results = testConvergenceN(nList, H, T, nf, J);
+elseif taskId == 3
+    results = testConvergenceJ(nList, nf, H, T, JList, inf);
 end
 
 %% save
-dirNameList = {"conv1", "conv2"};
-instanceName = "42_conv1_1Day_point1H";
+dirNameList = {"conv1", "conv2", "conv3"};
+instanceName = "42_conv3_1Month_point4H";
 filePath = fullfile('assets', dirNameList{taskId}, instanceName);
 
 % save results
@@ -63,7 +67,7 @@ if taskId == 1
     print(gcf, '-dpng', '-r300', filePath+'.png');
 
 elseif taskId == 2
-    json_add("assets/"+instanceName+".json", results);
+    % json_add("assets/"+instanceName+".json", results);
     
     figure;
     pos = get(gcf, 'Position');
@@ -86,12 +90,33 @@ elseif taskId == 2
     hold off;
     % save plot
     print(gcf, '-dpng', '-r300', "assets/"+instanceName+".png");
+
+elseif taskId == 3
+    figure;
+    pos = get(gcf, 'Position');
+    set(gcf, 'Position', [pos(1) pos(2) width*100, height*100]); %<- Set size
+    set(gca, 'FontSize', fsz, 'LineWidth', alw); %<- Set properties
+    
+    hold on;
+    for k = 1 : numel(JList)
+        mask = [results.J] == JList(k);
+        data = results(mask);
+        plot(log([data.n]), log([data.rmse]), 'DisplayName', ...
+            sprintf("$J$ = %d", JList(k)), 'Marker', 'x');
+    end
+    title(titleStr, 'Interpreter', 'latex');
+    xlabel("$\log(n)$", 'Interpreter', 'latex');
+    ylabel("$\log(RMSE)$", 'Interpreter', 'latex');
+    grid off;
+    box on;
+    legend('Interpreter','latex','Location','best');
+    print(gcf, '-dpng', '-r300', filePath+'.png');
 end
 
 %% manual plot (for adjusting figures)
-is_enable = 0;
+is_enable = 1;
 if is_enable == 1
-    filename = "assets/conv1/42_conv1_1Day_point15H";
+    filename = "assets/conv3/42_conv3_1Month_point1H";
     resStr = jsondecode(fileread(filename+'.json'));
     alw = 0.75;    % AxesLineWidth
     fsz = 11;      % Fontsize
@@ -111,18 +136,18 @@ if is_enable == 1
     set(gca, 'FontSize', fsz, 'LineWidth', alw); %<- Set properties
     
     hold on;
-    for k = 1 : numel(nfList)
-        mask = [resStr.nf] == nfList(k);
+    for k = 1 : numel(JList)
+        mask = [resStr.J] == JList(k);
         data = resStr(mask);
         plot(log([data.n]), log([data.rmse]), 'DisplayName', ...
-            sprintf("$n_f$ = %d", nfList(k)), 'Marker', 'x');
+            "$\kappa$"+sprintf(" = %d", JList(k)), 'Marker', 'x');
     end
-    title("$H = 0.15, T = 1/252$", 'Interpreter', 'latex');
+    title("$H = 0.1$", 'Interpreter', 'latex');
     xlabel("$\log(n)$", 'Interpreter', 'latex');
     ylabel("$\log(RMSE)$", 'Interpreter', 'latex');
-    ylim([-11.2, -10]);
+    ylim([-8, -6.2]);
     grid off;
     box on;
-    legend('Interpreter','latex','Location','southwest');
+    legend('Interpreter','latex','Location','northeast');
     print(gcf, '-dpng', '-r300', filename+'.png'); 
 end
