@@ -88,4 +88,41 @@ elseif taskId == 2
     print(gcf, '-dpng', '-r300', "assets/"+instanceName+".png");
 end
 
-%% manual plot
+%% manual plot (for adjusting figures)
+is_enable = 0;
+if is_enable == 1
+    filename = "assets/conv1/42_conv1_1Day_point15H";
+    resStr = jsondecode(fileread(filename+'.json'));
+    alw = 0.75;    % AxesLineWidth
+    fsz = 11;      % Fontsize
+    lw = 1.5;      % LineWidth
+    msz = 8;       % MarkerSize
+    if ismac
+        width = 3;     % Width in inches
+        height = 2.25;    % Height in inches
+    elseif ispc
+        width = 4;     
+        height = 3;   
+    end
+    
+    figure;
+    pos = get(gcf, 'Position');
+    set(gcf, 'Position', [pos(1) pos(2) width*100, height*100]); %<- Set size
+    set(gca, 'FontSize', fsz, 'LineWidth', alw); %<- Set properties
+    
+    hold on;
+    for k = 1 : numel(nfList)
+        mask = [resStr.nf] == nfList(k);
+        data = resStr(mask);
+        plot(log([data.n]), log([data.rmse]), 'DisplayName', ...
+            sprintf("$n_f$ = %d", nfList(k)), 'Marker', 'x');
+    end
+    title("$H = 0.15, T = 1/252$", 'Interpreter', 'latex');
+    xlabel("$\log(n)$", 'Interpreter', 'latex');
+    ylabel("$\log(RMSE)$", 'Interpreter', 'latex');
+    ylim([-11.2, -10]);
+    grid off;
+    box on;
+    legend('Interpreter','latex','Location','southwest');
+    print(gcf, '-dpng', '-r300', filename+'.png'); 
+end
