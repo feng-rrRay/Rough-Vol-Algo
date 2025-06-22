@@ -4,15 +4,15 @@ addpath("helpers/");
 %% begin test
 nList = [25, 50, 100, 250, 500];
 % nfList = [50, 100, 200, 400, 800];
-nf = 800;
+nf = 400;
 
-H = 0.4;
-T = 1/12;
-JList = [0, 1, 2, 3, 4];
-% J = 2;
-titleStr = "$H = 0.4$";
+H = 0.1;
+T = 1/252;
+% JList = [0, 1, 2, 3, 4];
+J = 2;
+titleStr = "$H = 0.1, T = 1/252$";
 
-taskId = 3;
+taskId = 2;
 
 
 if taskId == 1
@@ -25,7 +25,7 @@ end
 
 %% save
 dirNameList = {"conv1", "conv2", "conv3"};
-instanceName = "42_conv3_1Month_point4H";
+instanceName = "42_conv2_1Day_point1H_400nf";
 filePath = fullfile('assets', dirNameList{taskId}, instanceName);
 
 % save results
@@ -89,7 +89,7 @@ elseif taskId == 2
     box on;
     hold off;
     % save plot
-    print(gcf, '-dpng', '-r300', "assets/"+instanceName+".png");
+    print(gcf, '-dpng', '-r300', filePath+".png");
 
 elseif taskId == 3
     figure;
@@ -114,9 +114,9 @@ elseif taskId == 3
 end
 
 %% manual plot (for adjusting figures)
-is_enable = 1;
+is_enable = 0;
 if is_enable == 1
-    filename = "assets/conv3/42_conv3_1Month_point1H";
+    filename = "assets/conv2/42_conv2_1Day_point1H_400nf";
     resStr = jsondecode(fileread(filename+'.json'));
     alw = 0.75;    % AxesLineWidth
     fsz = 11;      % Fontsize
@@ -136,18 +136,16 @@ if is_enable == 1
     set(gca, 'FontSize', fsz, 'LineWidth', alw); %<- Set properties
     
     hold on;
-    for k = 1 : numel(JList)
-        mask = [resStr.J] == JList(k);
-        data = resStr(mask);
-        plot(log([data.n]), log([data.rmse]), 'DisplayName', ...
-            "$\kappa$"+sprintf(" = %d", JList(k)), 'Marker', 'x');
-    end
-    title("$H = 0.1$", 'Interpreter', 'latex');
-    xlabel("$\log(n)$", 'Interpreter', 'latex');
-    ylabel("$\log(RMSE)$", 'Interpreter', 'latex');
-    ylim([-8, -6.2]);
+    plot([resStr.t_acchyb], [resStr.rmse_acchyb_atm], 'Marker', '.', 'DisplayName', 'Accelerated Hybrid');
+    plot([resStr.t_markov], [resStr.rmse_markov_atm], 'Marker', '+', 'DisplayName', 'Markov Approximation');
+    plot([resStr.t_hyb], [resStr.rmse_hyb_atm], 'Marker', 'x', 'DisplayName', 'Classical Hybrid');
+    plot([resStr.t_euler], [resStr.rmse_euler_atm], 'Marker', '*', 'DisplayName', 'Euler Scheme');
+    title(titleStr, 'Interpreter', 'latex');
+    xlabel("$CPU Time (Sec.)$", 'Interpreter', 'latex');
+    ylabel("$RMSE$", 'Interpreter', 'latex');
+ 
     grid off;
     box on;
     legend('Interpreter','latex','Location','northeast');
-    print(gcf, '-dpng', '-r300', filename+'.png'); 
+    print(gcf, '-dpng', '-r300', filename+'_time.png'); 
 end
