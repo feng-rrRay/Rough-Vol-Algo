@@ -4,13 +4,13 @@ addpath("helpers/");
 %% begin test
 nList = [25, 50, 100, 250, 500];
 % nfList = [50, 100, 200, 400, 800];
-nf = 400;
+nf = 100;
 
-H = 0.1;
-T = 1/252;
+H = 0.4;
+T = 1/4;
 % JList = [0, 1, 2, 3, 4];
 J = 2;
-titleStr = "$H = 0.1, T = 1/252$";
+titleStr = "$H = 0.4, T = 1/4$";
 
 taskId = 2;
 
@@ -25,7 +25,7 @@ end
 
 %% save
 dirNameList = {"conv1", "conv2", "conv3"};
-instanceName = "42_conv2_1Day_point1H_400nf";
+instanceName = "42_conv2_3Month_point4H_100nf";
 filePath = fullfile('assets', dirNameList{taskId}, instanceName);
 
 % save results
@@ -114,9 +114,9 @@ elseif taskId == 3
 end
 
 %% manual plot (for adjusting figures)
-is_enable = 0;
+is_enable = 1;
 if is_enable == 1
-    filename = "assets/conv2/42_conv2_1Day_point1H_400nf";
+    filename = "assets/conv2/"+instanceName;
     resStr = jsondecode(fileread(filename+'.json'));
     alw = 0.75;    % AxesLineWidth
     fsz = 11;      % Fontsize
@@ -141,7 +141,7 @@ if is_enable == 1
     plot([resStr.t_hyb], [resStr.rmse_hyb_atm], 'Marker', 'x', 'DisplayName', 'Classical Hybrid');
     plot([resStr.t_euler], [resStr.rmse_euler_atm], 'Marker', '*', 'DisplayName', 'Euler Scheme');
     title(titleStr, 'Interpreter', 'latex');
-    xlabel("$CPU Time (Sec.)$", 'Interpreter', 'latex');
+    xlabel("CPU Time (Sec.)", 'Interpreter', 'latex');
     ylabel("$RMSE$", 'Interpreter', 'latex');
  
     grid off;
