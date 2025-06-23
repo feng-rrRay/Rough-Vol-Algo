@@ -1,14 +1,14 @@
 % MAIN script for discretization scheme implementation--Lifted model
 % Markovian approximation for rough Heston model
 clear; clc;
-rng(1);
+rng(42);
 addpath("helpers/");
 
 %% Parameters
 %  Rough Heston model:  (8.1.3)-(8.1.4) in (Abi Jaber, 2018)
 H = 0.15;
 theta = 0.05;
-rho = -0.1;
+rho = -0.7;
 lambda = 0.1;
 nu = 0.3;
 r = 0; d = 0;
@@ -16,7 +16,7 @@ V0 = 0.05;
 eps = 0.0001;
 
 %  Lifted Heston model: (8.2.1)-(8.2.3) in (Abi Jaber, 2018)
-nf = 100; % number of factors (50 would yield reasonable results for 1 day to maturity)
+nf = 400; % number of factors 
 alpha = H + 0.5;
 rn = 1 + 10 * nf^(-0.9);
 cs = ones(1,nf) .* ((rn^(1-alpha) - 1)*rn^((alpha-1)*(1+nf/2))) ./ (gamma(alpha) * gamma(2-alpha));
@@ -28,9 +28,9 @@ end
 
 % time grid definition
 dt_maturity = 1/252;  % gap between maturities in IV surface
-num_maturity = 4;    % number of maturities for IV surface
+num_maturity = 20;    % number of maturities for IV surface
 num_moneyness = 41;
-step_maturity = 10;  % steps in-fill (100 for reasonable results for 1/10 day to maturity)
+step_maturity = 50;  % steps in-fill (100 for reasonable results for 1/10 day to maturity)
 num_steps_mc = num_maturity * step_maturity; % number of steps in total
 num_path_mc = 3e5;    % Monte Carlo paths
 dt = dt_maturity / step_maturity; 
@@ -66,7 +66,7 @@ addpath('Fourier_Transform_Inversion');
 n = 1000; N = 20000;
 left = 1e-12; right = 400;
 iv_mat_3 = zeros(num_maturity, num_moneyness);
-log_strikes = linspace(-2*sqrt(V0*dt_maturity),2*sqrt(V0*dt_maturity),num_moneyness);
+% log_strikes = linspace(-2*sqrt(V0*dt_maturity),2*sqrt(V0*dt_maturity),num_moneyness);
 % iv_mat_3(1,:) = IVCurveArray(log_strikes, H, rho, nu, lambda, theta, V0, dt_maturity, r, d, n, left, right, N);
 tic;
 for k = 1:num_maturity
@@ -96,29 +96,76 @@ t5 = results_5.t;
 moneyness_mat_5 = results_5.moneyness_mat;
 iv_mat_5 = results_5.iv_mat;
 
-%% Comparison
-figure;
-% indices = [1,2,3,4];
-indices = 1:4;
-for i = 4:4
-    % subplot(1, 4, i);  % Creates a 2x2 grid and selects the i-th subplot.
-    hold on;
-    plot(log(moneyness_mat_1(indices(i),:)), iv_mat_1(indices(i),:), "DisplayName", "Markovian approx");
-    plot(log(moneyness_mat_2(indices(i),:)), iv_mat_2(indices(i),:), "DisplayName", "Hybrid scheme");
-    plot(log(moneyness_mat_2(indices(i),:)), iv_mat_3(indices(i),:), "DisplayName", "Inverse transform");
-    plot(log(moneyness_mat_4(indices(i),:)), iv_mat_4(indices(i),:), "DisplayName", "Hybrid Acceleration");
-    plot(log(moneyness_mat_5(indices(i),:)), iv_mat_5(indices(i),:), "DisplayName", "Euler Scheme");
-    hold off;
-    
-    legend('Location','best');
-    title(sprintf('IV: t = %d/252, H = %.2f, n = %d', indices(i), H, num_maturity*step_maturity));
+%% Plot
+alw = 0.75;    % AxesLineWidth
+fsz = 11;      % Fontsize
+lw = 1.5;      % LineWidth
+msz = 8;       % MarkerSize
+if ismac
+    width = 3;     % Width in inches
+    height = 2.25;    % Height in inches
+elseif ispc
+    width = 4;     
+    height = 3;   
 end
 
+indices = [1,5,10,15,20];
+for i = 1 : numel(indices)
+    figure;
+    pos = get(gcf, 'Position');
+    set(gcf, 'Position', [pos(1) pos(2) width*100, height*100]); %<- Set size
+    set(gca, 'FontSize', fsz, 'LineWidth', alw); %<- Set properties
+    hold on;
+    plot(log(moneyness_mat_1(indices(i),:)), iv_mat_1(indices(i),:), "DisplayName", "Markov Approximation");
+    plot(log(moneyness_mat_2(indices(i),:)), iv_mat_2(indices(i),:), "DisplayName", "Classical Hybrid");
+    plot(log(moneyness_mat_2(indices(i),:)), iv_mat_3(indices(i),:), "DisplayName", "Transform Inversion");
+    plot(log(moneyness_mat_4(indices(i),:)), iv_mat_4(indices(i),:), "DisplayName", "Accelerated Hybrid");
+    plot(log(moneyness_mat_5(indices(i),:)), iv_mat_5(indices(i),:), "DisplayName", "Euler Scheme");
+    grid off;
+    box on;
+    hold off;
+
+    xlabel('$\log(K/S)$', 'Interpreter','latex');
+    ylabel('Implied Volatility', 'Interpreter','latex');
+    legend('Location','best','Interpreter','latex','FontSize',8);
+    title(sprintf('IV: $T = %d/252$, $H = %.2f$', indices(i), H), 'Interpreter','latex');
+    print(gcf, '-dpng', '-r300', sprintf('assets/iv/iv_%d_Day_point15H_400nf_50n_neg7rho.png', indices(i)));
+end
+
+%% plot implied volatility surface
+figure;
+pos = get(gcf, 'Position');
+set(gcf, 'Position', [pos(1) pos(2) width*100, height*100]); %<- Set size
+set(gca, 'FontSize', fsz, 'LineWidth', alw); %<- Set properties
+
+tc = colormapToTrueColor(winter(), iv_mat_4);
+surf(moneyness_mat_4, results_4.tau_vec, iv_mat_4, tc, 'FaceColor','interp', ...
+    'EdgeAlpha',0.3,'DisplayName','Accelerated Hybrid');
+
+hold on;
+tc = colormapToTrueColor(autumn(), iv_mat_3);
+surf(moneyness_mat_4, results_4.tau_vec, iv_mat_3, tc, 'FaceColor','interp', ...
+    'EdgeAlpha',0.3,'DisplayName','Transform Inversion');
+
+xlabel("$K$", "Interpreter", "latex");
+ylabel("$T$", "Interpreter", "latex");
+zlabel("Implied Volatility", "Interpreter", "latex");
+title("$H=0.15, \rho=-0.7$", 'Interpreter','latex');
+
+% colorbar;
+% view(45,30);
+legend('Location','northeast','Interpreter','latex');
+grid on;
+box off;
+hold off;
+print(gcf, '-dpng', '-r300', 'assets/iv/iv_surface_point15H_400nf_50n_neg7rho.png');
+
 %% Report
-err_exact_1 = sqrt(mean((iv_mat_1 - iv_mat_3).^2,'all')); err_exact_2 = sqrt(mean((iv_mat_2 - iv_mat_3).^2,'all')); err_exact_3 = 0; err_exact_4 = sqrt(mean((iv_mat_4 - iv_mat_3).^2,'all'));
-err_hyb_1 = sqrt(mean((iv_mat_1 - iv_mat_2).^2,'all')); err_hyb_2 = 0; err_hyb_3 = sqrt(mean((iv_mat_3 - iv_mat_2).^2,'all')); err_hyb_4 = sqrt(mean((iv_mat_4 - iv_mat_2).^2,'all'));
-fprintf("Parameters: nf = %d, steps_per_maturity = %d.\n", nf, step_maturity);
-fprintf("Markov Approximation: cpu time: %5.2f, err-to-exact: %3.2E, err-to-hybrid: %3.2E.\n", t1, err_exact_1, err_hyb_1);
-fprintf("       Hybrid Scheme: cpu time: %5.2f, err-to-exact: %3.2E, err-to-hybrid: %3.2E.\n", t2, err_exact_2, err_hyb_2);
-fprintf("             Inverse Transform: cpu time: %5.2f, err-to-exact: %3.2E, err-to-hybrid: %3.2E.\n", t3, err_exact_3, err_hyb_3);
-fprintf("        Acceleration: cpu time: %5.2f, err-to-exact: %3.2E, err-to-hybrid: %3.2E.\n", t4, err_exact_4, err_hyb_4);
+% err_exact_1 = sqrt(mean((iv_mat_1 - iv_mat_3).^2,'all')); err_exact_2 = sqrt(mean((iv_mat_2 - iv_mat_3).^2,'all')); err_exact_3 = 0; err_exact_4 = sqrt(mean((iv_mat_4 - iv_mat_3).^2,'all'));
+% err_hyb_1 = sqrt(mean((iv_mat_1 - iv_mat_2).^2,'all')); err_hyb_2 = 0; err_hyb_3 = sqrt(mean((iv_mat_3 - iv_mat_2).^2,'all')); err_hyb_4 = sqrt(mean((iv_mat_4 - iv_mat_2).^2,'all'));
+fprintf("Parameters: nf = %d, steps_per_maturity = %d, H = %.2f, rho = %.1f\n", nf, step_maturity, H, rho);
+fprintf("Markov Approximation: cpu time: %5.2f\n", t1);
+fprintf("    Classical Hybrid: cpu time: %5.2f\n", t2);
+fprintf(" Transform Inversion: cpu time: %5.2f\n", t3);
+fprintf("  Accelerated Hybrid: cpu time: %5.2f\n", t4);
+fprintf("        Euler Scheme: cpu time: %5.2f\n", t5);

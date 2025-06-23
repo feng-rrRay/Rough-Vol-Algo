@@ -1,0 +1,6 @@
+Parameters: nf = 400, steps_per_maturity = 50, H = 0.15, rho = -0.1
+Markov Approximation: cpu time: 104.70
+    Classical Hybrid: cpu time: 437.07
+ Transform Inversion: cpu time: 1879.83
+  Accelerated Hybrid: cpu time: 180.70
+        Euler Scheme: cpu time: 466.12
