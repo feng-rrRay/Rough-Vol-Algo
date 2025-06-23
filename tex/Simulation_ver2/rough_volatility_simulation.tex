@@ -821,8 +821,6 @@ In the following, we first investigate the impact of varying the number of Marko
 
 \subsection{Varying number of approximation factors \(n_f\)}
 
-First, we examine the European call option pricing results under varying number of approximation factors \(n_f\) as a part of our convergence tests. Plots of the estimated option prices against \(n_f\) are reported in Figure~\ref{fig:convergence_nf_point1H} and \ref{fig:convergence_nf_point4H}, indicating a faster convergence of our Accelerated Hybrid Scheme than the simulation of Markovian approximation models as \(n_f\) increases. This demonstrates that the FFT-based hybrid scheme effectively mitigates kernel approximation errors introduced during the precomputation step while adding little time cost (see Table~\ref{}). Also, it is worth noting that the convergence with respect to \(n_f\) is faster for longer maturities and larger Hurst indices. And for Hurst index \(H=0.4\), the pricing results of our method barely change with increasing \(n_f\). These observations are consistent with Proposition~\ref{prop:markov_approx_convergence} and equation \eqref{eq:mse_upper_bound}, in that kernel approximation errors tend to be smaller as \(H\) approaches \(1/2\). 
-
 \begin{figure}[htb]
     \centering
     \begin{subfigure}[b]{0.32\textwidth}
@@ -863,70 +861,99 @@ First, we examine the European call option pricing results under varying number 
     \label{fig:convergence_nf_point4H}
 \end{figure}
 
-% plot convergence test w.r.t. n on acchyb while varying n_f (show that n_f does not matter too much when H exceeds certain value)
-% convergence behavior of the Accelerated Hybrid Scheme under different choices of n_f
--------------------------------------------
-
-support us to choose \(n_f=150\) in the following experiments.
+First, we examine the European call option pricing results under varying number of approximation factors \(n_f\) as a part of our convergence tests. Plots of the estimated option prices against \(n_f\) are reported in Figure~\ref{fig:convergence_nf_point1H} and \ref{fig:convergence_nf_point4H}, indicating a faster convergence of our Accelerated Hybrid Scheme than the simulation of Markovian approximation models as \(n_f\) increases. This demonstrates that the FFT-based hybrid scheme effectively mitigates kernel approximation errors introduced during the precomputation step while adding little time cost (see Table~\ref{}). Also, it is worth noting that the convergence with respect to \(n_f\) is faster for longer maturities and larger Hurst indices. And for Hurst index \(H=0.4\), the pricing results of our method barely change with increasing \(n_f\). These observations are consistent with Proposition~\ref{prop:markov_approx_convergence} and equation \eqref{eq:mse_upper_bound}, in that kernel approximation errors tend to be smaller as \(H\) approaches \(1/2\). 
 
 
 
-The numerical results are presented in Figures~\ref{fig:price_n_T_1-252}, \ref{fig:price_n_T_1-12} and \ref{fig:price_nf}.  Figures~\ref{fig:price_n_T_1-252} and \ref{fig:price_n_T_1-12} show the convergence of the European call option price estimates as the number of discrete time steps \(n\) increases for two different maturities, \(T=1/252\) (one day) and \(T=1/12\) (one month). Both results involve two Hurst indices \(H=0.15\) and \(H=0.3\). Figure~\ref{fig:price_nf} demonstrates the convergence of the option price estimates as the number of kernel approximation factors \(n_f\) increases. Shaded areas in all these figures represent the 95\% confidence intervals of the Monte Carlo simulation.
+
+\subsection{Varying number of time steps \(n\)}
+
+\begin{figure}[htb]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv1/conv1_1Day_point1H.png}
+        \caption{$T=1/252$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv1/conv1_1Month_point1H.png}
+        \caption{$T=1/12$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv1/conv1_3Month_point1H.png}
+        \caption{$T=1/4$}
+    \end{subfigure}
+    \caption{At-the-money European call option pricing errors as the number of discretization time step $n$ increases. \(\text{RMSE} = \sqrt{\text{standard error}^2 + \text{bias}^2}\). The parameters are chosen as $H = 0.1, S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho=-0.1$, and $\kappa = 2$.}
+    \label{fig:convergence_n_wrt_nf_1}
+\end{figure}
+
+\begin{figure}[htb]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv1/42_conv1_1Day_point1H.png}
+        \caption{$H = 0.1$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv1/42_conv1_1Day_point15H.png}
+        \caption{$H = 0.15$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv1/42_conv1_1Day_point2H.png}
+        \caption{$H = 0.2$}
+    \end{subfigure}
+
+    \vspace{0.5cm}
+    
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv1/42_conv1_1Day_point3H.png}
+        \caption{$H = 0.3$}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv1/42_conv1_1Day_point4H.png}
+        \caption{$H = 0.4$}
+    \end{subfigure}
+    
+    \caption{At-the-money European call option pricing errors as the number of discretization time step $n$ increases. \(\text{RMSE} = \sqrt{\text{standard error}^2 + \text{bias}^2}\). Parameters are chosen as $S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho=-0.1$, and $\kappa = 2$ along with varying \(H\).}
+    \label{fig:convergence_n_wrt_nf_2}
+\end{figure}
+
+Next, we examine the convergence behavior of the Accelerated Hybrid Scheme with respect to the number of time discretization steps \(n\). To isolate the effect of \(n\), we analyze the root mean squared error (RMSE) of the scheme in at-the-money European call option pricing as \(n_f\) varies, considering several representative values of \(n_f\). Under \(H = 0.1\), Figure \ref{fig:convergence_n_wrt_nf_1} shows that the convergence of the Accelerated Hybrid Scheme tends to be more robust to \(n_f\) as the option's time-to-maturity increases, and that sufficient number of Markovian approximation factors in the precomputation step can help the scheme achieve better accuracy. However, the effect of \(n_f\) on the convergence is less significant when \(H\) becomes larger (the volatility paths become smoother). As shown in Figure~\ref{fig:convergence_n_wrt_nf_2}, the increased number of approximation factors \(n_f\) does not necessarily lead to better convergence of the scheme. This is because the kernel approximation error is already small enough when \(H\) exceeds a certain value. Further, it deserves noting that the RMSE of the Accelerated Hybrid Scheme may not decrease monotonically as \(n\) increases, especially for small \(T\). Evidence from Table \ref{} provides an explanation to this issue, that when \(T\) is small, the bias term, which is suseptible to the choice of noise matrix, dominates the RMSE. Therefore, varying the random seed in the Monte Carlo simulation can lead to different convergence behaviors of the Accelerated Hybrid Scheme for \(T = 1/252\) or smaller, while this phenomenon is rarely observed for larger maturities. 
 
 \begin{figure}[htbp]
     \centering
     \begin{subfigure}[b]{0.48\textwidth}
-        \includegraphics[width=\textwidth]{fig/converge_n_1D_H_15.png}
-        \caption{$T=1/252$, $H=0.15$, $n_f=100$}
+        \includegraphics[width=\textwidth]{fig/conv3/42_conv3_1Month_point1H.png}
+        \caption{$H = 0.1$}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.48\textwidth}
-        \includegraphics[width=\textwidth]{fig/converge_n_1D_H_30.png}
-        \caption{$T=1/252$, $H=0.3$, $n_f=100$}
+        \includegraphics[width=\textwidth]{fig/conv3/42_conv3_1Month_point2H.png}
+        \caption{$H = 0.2$}
     \end{subfigure}
-    \caption{European call option prices as the number of discrete time steps $n$ increases for one-day maturity ($T=1/252$) under two different Hurst indices.}
-    \label{fig:price_n_T_1-252}
-\end{figure}
 
-\begin{figure}[htbp]
-    \centering
+    \vspace{0.5cm}
+
     \begin{subfigure}[b]{0.48\textwidth}
-        \includegraphics[width=\textwidth]{fig/convergence_n_1M_H_15.png}
-        \caption{$T=1/12$, $H=0.15$, $n_f=100$}
+        \includegraphics[width=\textwidth]{fig/conv3/42_conv3_1Month_point3H.png}
+        \caption{$H = 0.3$}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.48\textwidth}
-        \includegraphics[width=\textwidth]{fig/convergence_n_1M_H_30.png}
-        \caption{$T=1/12$, $H=0.3$, $n_f=100$}
+        \includegraphics[width=\textwidth]{fig/conv3/42_conv3_1Month_point4H.png}
+        \caption{$H = 0.4$}
     \end{subfigure}
-    \caption{European call option prices as the number of discrete time steps $n$ increases for one-month maturity ($T=1/12$) under two different Hurst indices.}
-    \label{fig:price_n_T_1-12}
+    
+    \caption{At-the-money European call option pricing errors as the number of discretization time step $n$ increases. \(\text{RMSE} = \sqrt{\text{standard error}^2 + \text{bias}^2}\). Parameters are chosen as $T = 1/12, S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho=-0.1$.}
+    \label{fig:convergence_n_wrt_kappa}
 \end{figure}
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.8\textwidth]{fig/converge_nf_1D_H_15.png}
-    \caption{Option prices as the number of kernel approximation factors $n_f$ increases, \(H = 0.15\), \(n = 100\).}
-    \label{fig:price_nf}
-\end{figure}
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.8\textwidth]{fig/compute_time_H_15.png}
-    \caption{Time cost comparison of various simulation algorithms, $H=0.15$, $n_f = 100$. The results indicate that the Accelerated Hybrid Scheme achieves a greater balance between accuracy and computational efficiency relative to the Euler scheme, the classical hybrid scheme, and the Markovian approximation method.}
-    \label{fig:time_cost}
-\end{figure}
+Additionally, we investigate the sensitivity of the Accelerated Hybrid Scheme to the choice of \(\kappa\), which determines the number of Gaussian random variables used to model the singular part in \eqref{eq:hybrid_scheme}. Notably, when \(\kappa = 0\), the FFT-accelerated hybrid scheme reduces to an FFT-accelerated Euler scheme following the precomputation step. This flexibility highlights the adaptability of our framework to different simulation requirements. As shown in Figure \ref{fig:convergence_n_wrt_kappa}, while pricing results under \(\kappa=0,1,3,4\) exhibit different convergence behaviors with various choices of \(H\), \(\kappa=2\) demonstrates a balanced performance across the board. This observation supports us to choose \(\kappa = 2\) for stable Monte Carlo pricing results. Also, we use \(n_f=400\) for \(H < 0.2\) and \(n_f=100\) for \(H \ge 0.2\) in the following experiments, as it balances the accuracy and computational efficiency of the Accelerated Hybrid Scheme.
 
-% Explanation of the pricing figures
-From Figures~\ref{fig:price_n_T_1-252} and \ref{fig:price_n_T_1-12}, it is evident that, as the number of discrete time steps $n$ increases, the estimated option prices converge toward the reference value. This convergence is more obvious for longer maturities (e.g., $T=1/12$) and smaller Hurst indices. We may notice that the convergence does not take place in a perfectly smooth manner and appears somewhat zigzagged. This is possibly because different discrete-time grids correspond to different sets of Gaussian noise \(\{\mathbf{W}_i:i=0,1,\ldots,n-1\}\) in Algorithm~\ref{alg:simulation_rough_heston} as \(n\) varies, resulting in variations in the simulation outputs across grids.
-
-Furthermore, when the Hurst index $H$ is not excessively low, the Accelerated Hybrid Scheme consistently achieves better pricing accuracy than other methods. Meanwhile, it is worth noting that the convergence behavior of the Accelerated Hybrid Scheme exhibits a higher sensitivity to variations in the Hurst index than the other approaches.
-
-% Explanation of the nf figure
-Figure~\ref{fig:price_nf} shows that the convergence of the Accelerated Hybrid Scheme in terms of the number of kernel approximation factors \(n_f\) is more rapid compared to that of the Markovian approximation method. This implies that a smaller number of factors, $n_f$, may be sufficient for the Accelerated Hybrid Scheme to achieve a comparable level of accuracy, thus further reducing computational cost without sacrificing precision.
-
-% Explanation of the time cost figure
-Finally, Figure~\ref{fig:time_cost} illustrates the time cost comparison of various simulation algorithms. From results in Figures~\ref{fig:price_n_T_1-252} through \ref{fig:time_cost}, the Accelerated Hybrid Scheme is shown to achieve a greater balance between accuracy and computational efficiency than the Euler scheme, the classical hybrid scheme, and the Markovian approximation method. 
+Based on the findings of ...
 
 
 \subsection{Implied volatility calculation}
