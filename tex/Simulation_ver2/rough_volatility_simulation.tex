@@ -920,7 +920,7 @@ First, we examine the European call option pricing results under varying number 
     \label{fig:convergence_n_wrt_nf_2}
 \end{figure}
 
-Next, we examine the convergence behavior of the Accelerated Hybrid Scheme with respect to the number of time discretization steps \(n\). To isolate the effect of \(n\), we analyze the root mean squared error (RMSE) of the scheme in at-the-money European call option pricing as \(n_f\) varies, considering several representative values of \(n_f\). Under \(H = 0.1\), Figure \ref{fig:convergence_n_wrt_nf_1} shows that the convergence of the Accelerated Hybrid Scheme tends to be more robust to \(n_f\) as the option's time-to-maturity increases, and that sufficient number of Markovian approximation factors in the precomputation step can help the scheme achieve better accuracy. However, the effect of \(n_f\) on the convergence is less significant when \(H\) becomes larger (the volatility paths become smoother). As shown in Figure~\ref{fig:convergence_n_wrt_nf_2}, the increased number of approximation factors \(n_f\) does not necessarily lead to better convergence of the scheme. This is because the kernel approximation error is already small enough when \(H\) exceeds a certain value. Further, it deserves noting that the RMSE of the Accelerated Hybrid Scheme may not decrease monotonically as \(n\) increases, especially for small \(T\). Evidence from Table \ref{} provides an explanation to this issue, that when \(T\) is small, the bias term, which is suseptible to the choice of noise matrix, dominates the RMSE. Therefore, varying the random seed in the Monte Carlo simulation can lead to different convergence behaviors of the Accelerated Hybrid Scheme for \(T = 1/252\) or smaller, while this phenomenon is less frequently observed for larger maturities. 
+Next, we examine the convergence behavior of the Accelerated Hybrid Scheme with respect to the number of time discretization steps \(n\). To isolate the effect of \(n\), we analyze the root mean squared error (RMSE) of the scheme in at-the-money European call option pricing as \(n_f\) varies, considering several representative values of \(n_f\). Under \(H = 0.1\), Figure \ref{fig:convergence_n_wrt_nf_1} shows that the convergence of the Accelerated Hybrid Scheme tends to be more robust to \(n_f\) as the option's time-to-maturity increases, and that sufficient number of Markovian approximation factors in the precomputation step can help the scheme achieve better accuracy. However, the effect of \(n_f\) on the convergence is less significant when \(H\) becomes larger (the volatility paths become smoother). As shown in Figure~\ref{fig:convergence_n_wrt_nf_2}, the increased number of approximation factors \(n_f\) does not necessarily lead to better convergence of the scheme. This is because the kernel approximation error is already small enough when \(H\) exceeds a certain value. Further, it deserves noting that the RMSE of the Accelerated Hybrid Scheme may not decrease monotonically as \(n\) increases, especially for small \(T\). Evidence from Table \ref{} provides an explanation to this issue, that when \(T\) is small, the bias term, which is suseptible to the choice of noise matrix, dominates the RMSE. Therefore, varying the random seed in the Monte Carlo simulation can lead to different convergence behaviors of the Accelerated Hybrid Scheme for \(T = 1/252\) or smaller, while this phenomenon is less frequently observed for longer maturities. 
 
 \begin{figure}[htbp]
     \centering
@@ -1058,23 +1058,118 @@ Based on the findings above, we compare the convergence behavior of our Accelera
 
 
 
-\subsection{Implied volatility calculation}
+\subsection{Applications in implied volatility calculation}
 
-In this subsection, we apply the Accelerated Hybrid Scheme to calculate the implied volatility curves based on European call option pricing results, and compare the computational efficiency and accuracy with other methods. 
+In this subsection, we apply our Accelerated Hybrid Scheme to calculate the implied volatility curves based on European call option pricing results, and compare the computational efficiency and accuracy with other methods. The experiment includes calculating implied volatility curves for 20 consecutive trading days, and deriving an implied volatility surface thereafter. Without loss of generality, we choose $H=0.15$, $n_f = 400$, and discretization time steps to be \(50\) between every two consecutive trading days. Results in Figure~\ref{fig:iv_neg1rho} indicate that approximation errors of our scheme are all at the same level as other methods, while our scheme's computational effciency significantly outperforms the others (see Table~\ref{tab:iv_time_neg1rho}). 
 
-
-\begin{figure}[htbp]
+\begin{figure}[h]
     \centering
-    \includegraphics[width=0.95\textwidth]{fig/iv_converge_1D_H_15.png}
-    \caption{Implied volatility curves as the number of discrete time steps $n$ increases for one-day maturity ($T=1/252$) under \(n_f = 100\), \(H = 0.15\).}
-    \label{fig:iv_n_T_1-252}
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/iv/iv_1_Day_point15H_400nf_50n_neg1rho.png}
+        \caption{$T = 1/252$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/iv/iv_5_Day_point15H_400nf_50n_neg1rho.png}
+        \caption{$T = 5/252$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/iv/iv_10_Day_point15H_400nf_50n_neg1rho.png}
+        \caption{$T = 10/252$}
+    \end{subfigure}
+
+    \vspace{0.5cm}
+    
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/iv/iv_15_Day_point15H_400nf_50n_neg1rho.png}
+        \caption{$T = 15/252$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/iv/iv_20_Day_point15H_400nf_50n_neg1rho.png}
+        \caption{$T = 20/252$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/iv/iv_surface_point15H_400nf_50n_neg1rho.png}
+        \caption{IV surface}
+    \end{subfigure}
+    
+    \caption{Implied volatility curves for options expiring in 1, 5, 10, and 20 trading days. Parameters are chosen as $H=0.15, n=50, n_f=400, S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho=-0.1$, and $\kappa = 2$.}
+    \label{fig:iv_neg1rho}
 \end{figure}
 
-\begin{figure}[htbp]
+In Figure~\ref{fig:iv_neg1rho}, it is worth noting that the implied volatility surface calculated by the Accelerated Hybrid Scheme is not as smooth as the one obtained by the Fourier transform inversion method in the deep in-the-money region. This is not only the problem of our scheme but all simulation methods listed in the paper. This issue is more evident if we set \(\rho\) to 0.7, as shown in Figure~\ref{fig:iv_7rho} (the implied volatility surface is left empty because all the simulation methods fail to calculate implied volatilty values for deep in-the-money options). One possible reason is that 
+
+\begin{figure}[htb]
     \centering
-    \includegraphics[width=0.95\textwidth]{fig/iv_converge_1M_H_15.png}
-    \caption{Implied volatility curves as the number of discrete time steps $n$ increases for one-month maturity ($T=1/12$) under \(n_f = 100\), \(H = 0.15\).}
-    \label{fig:iv_n_T_1-12}
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/iv/iv_1_Day_point15H_400nf_50n_7rho.png}
+        \caption{$T = 1/252$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/iv/iv_5_Day_point15H_400nf_50n_7rho.png}
+        \caption{$T = 5/252$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/iv/iv_10_Day_point15H_400nf_50n_7rho.png}
+        \caption{$T = 10/252$}
+    \end{subfigure}
+
+    \vspace{0.5cm}
+    
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/iv/iv_15_Day_point15H_400nf_50n_7rho.png}
+        \caption{$T = 15/252$}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/iv/iv_20_Day_point15H_400nf_50n_7rho.png}
+        \caption{$T = 20/252$}
+    \end{subfigure}
+    
+    \caption{Implied volatility curves for options expiring in 1, 5, 10, and 20 trading days. Parameters are chosen as $H=0.15, n=50, n_f=400, S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho=0.7$, and $\kappa = 2$.}
+    \label{fig:iv_7rho}
+\end{figure}
+
+\begin{figure}[htb]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/iv/iv_1_Day_point15H_400nf_50n_neg7rho.png}
+        \caption{$T = 1/252$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/iv/iv_5_Day_point15H_400nf_50n_neg7rho.png}
+        \caption{$T = 5/252$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/iv/iv_10_Day_point15H_400nf_50n_neg7rho.png}
+        \caption{$T = 10/252$}
+    \end{subfigure}
+
+    \vspace{0.5cm}
+    
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/iv/iv_15_Day_point15H_400nf_50n_neg7rho.png}
+        \caption{$T = 15/252$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/iv/iv_20_Day_point15H_400nf_50n_neg7rho.png}
+        \caption{$T = 20/252$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/iv/iv_surface_point15H_400nf_50n_neg7rho.png}
+        \caption{IV surface}
+    \end{subfigure}
+    
+    \caption{Implied volatility curves for options expiring in 1, 5, 10, and 20 trading days. Parameters are chosen as $H=0.15, n=50, n_f=400, S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho=-0.7$, and $\kappa = 2$.}
+    \label{fig:iv_neg7rho}
 \end{figure}
 
 \section{Conclusions and discussions}\label{sec:conclusion}
