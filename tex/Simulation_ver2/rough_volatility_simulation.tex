@@ -837,7 +837,7 @@ In the following, we first investigate the impact of varying the number of Marko
         \includegraphics[width=\textwidth]{fig/nf_test/test_nf_1Month_point1H_200n.png}
         \caption{$T=1/12$}
     \end{subfigure}
-    \caption{At-the-money European call option prices as the number of Markovian approximation factors $n_f$ increases. The parameters are chosen as $H = 0.1, S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho=-0.1$, and $\kappa = 2$.}
+    \caption{At-the-money European call option prices as the number of Markovian approximation factors $n_f$ increases. The parameters are chosen as $H = 0.1, S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho=-0.1$, $\kappa = 2$, and $n=200$.}
     \label{fig:convergence_nf_point1H}
 \end{figure}
 
@@ -857,7 +857,7 @@ In the following, we first investigate the impact of varying the number of Marko
         \includegraphics[width=\textwidth]{fig/nf_test/test_nf_1Month_point4H_200n.png}
         \caption{$T=1/12$}
     \end{subfigure}
-    \caption{At-the-money European call option prices as the number of Markovian approximation factors $n_f$ increases. The parameters are chosen as $H = 0.4, S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho=-0.1, n=200$, and $\kappa = 2$.}
+    \caption{At-the-money European call option prices as the number of Markovian approximation factors $n_f$ increases. The parameters are chosen as $H = 0.4, S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho=-0.1, n=200$, $\kappa = 2$, and $n=200$.}
     \label{fig:convergence_nf_point4H}
 \end{figure}
 
@@ -920,7 +920,7 @@ First, we examine the European call option pricing results under varying number 
     \label{fig:convergence_n_wrt_nf_2}
 \end{figure}
 
-Next, we examine the convergence behavior of the Accelerated Hybrid Scheme with respect to the number of time discretization steps \(n\). To isolate the effect of \(n\), we analyze the root mean squared error (RMSE) of the scheme in at-the-money European call option pricing as \(n_f\) varies, considering several representative values of \(n_f\). Under \(H = 0.1\), Figure \ref{fig:convergence_n_wrt_nf_1} shows that the convergence of the Accelerated Hybrid Scheme tends to be more robust to \(n_f\) as the option's time-to-maturity increases, and that sufficient number of Markovian approximation factors in the precomputation step can help the scheme achieve better accuracy. However, the effect of \(n_f\) on the convergence is less significant when \(H\) becomes larger (the volatility paths become smoother). As shown in Figure~\ref{fig:convergence_n_wrt_nf_2}, the increased number of approximation factors \(n_f\) does not necessarily lead to better convergence of the scheme. This is because the kernel approximation error is already small enough when \(H\) exceeds a certain value. Further, it deserves noting that the RMSE of the Accelerated Hybrid Scheme may not decrease monotonically as \(n\) increases, especially for small \(T\). Evidence from Table \ref{} provides an explanation to this issue, that when \(T\) is small, the bias term, which is suseptible to the choice of noise matrix, dominates the RMSE. Therefore, varying the random seed in the Monte Carlo simulation can lead to different convergence behaviors of the Accelerated Hybrid Scheme for \(T = 1/252\) or smaller, while this phenomenon is rarely observed for larger maturities. 
+Next, we examine the convergence behavior of the Accelerated Hybrid Scheme with respect to the number of time discretization steps \(n\). To isolate the effect of \(n\), we analyze the root mean squared error (RMSE) of the scheme in at-the-money European call option pricing as \(n_f\) varies, considering several representative values of \(n_f\). Under \(H = 0.1\), Figure \ref{fig:convergence_n_wrt_nf_1} shows that the convergence of the Accelerated Hybrid Scheme tends to be more robust to \(n_f\) as the option's time-to-maturity increases, and that sufficient number of Markovian approximation factors in the precomputation step can help the scheme achieve better accuracy. However, the effect of \(n_f\) on the convergence is less significant when \(H\) becomes larger (the volatility paths become smoother). As shown in Figure~\ref{fig:convergence_n_wrt_nf_2}, the increased number of approximation factors \(n_f\) does not necessarily lead to better convergence of the scheme. This is because the kernel approximation error is already small enough when \(H\) exceeds a certain value. Further, it deserves noting that the RMSE of the Accelerated Hybrid Scheme may not decrease monotonically as \(n\) increases, especially for small \(T\). Evidence from Table \ref{} provides an explanation to this issue, that when \(T\) is small, the bias term, which is suseptible to the choice of noise matrix, dominates the RMSE. Therefore, varying the random seed in the Monte Carlo simulation can lead to different convergence behaviors of the Accelerated Hybrid Scheme for \(T = 1/252\) or smaller, while this phenomenon is less frequently observed for larger maturities. 
 
 \begin{figure}[htbp]
     \centering
@@ -946,20 +946,122 @@ Next, we examine the convergence behavior of the Accelerated Hybrid Scheme with 
         \caption{$H = 0.4$}
     \end{subfigure}
     
-    \caption{At-the-money European call option pricing errors as the number of discretization time step $n$ increases. \(\text{RMSE} = \sqrt{\text{standard error}^2 + \text{bias}^2}\). Parameters are chosen as $T = 1/12, S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho=-0.1$.}
+    \caption{At-the-money European call option pricing errors as the number of discretization time step $n$ increases under varying \(\kappa\). \(\text{RMSE} = \sqrt{\text{standard error}^2 + \text{bias}^2}\). Parameters are chosen as $T = 1/12, S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho=-0.1, n_f=800$.}
     \label{fig:convergence_n_wrt_kappa}
 \end{figure}
 
 
-Additionally, we investigate the sensitivity of the Accelerated Hybrid Scheme to the choice of \(\kappa\), which determines the number of Gaussian random variables used to model the singular part in \eqref{eq:hybrid_scheme}. Notably, when \(\kappa = 0\), the FFT-accelerated hybrid scheme reduces to an FFT-accelerated Euler scheme following the precomputation step. This flexibility highlights the adaptability of our framework to different simulation requirements. As shown in Figure \ref{fig:convergence_n_wrt_kappa}, while pricing results under \(\kappa=0,1,3,4\) exhibit different convergence behaviors with various choices of \(H\), \(\kappa=2\) demonstrates a balanced performance across the board. This observation supports us to choose \(\kappa = 2\) for stable Monte Carlo pricing results. Also, we use \(n_f=400\) for \(H < 0.2\) and \(n_f=100\) for \(H \ge 0.2\) in the following experiments, as it balances the accuracy and computational efficiency of the Accelerated Hybrid Scheme.
+Additionally, we investigate the sensitivity of the Accelerated Hybrid Scheme to the choice of \(\kappa\), which determines the number of Gaussian random variables used to model the singular part in \eqref{eq:hybrid_scheme}. Notably, when \(\kappa = 0\), the FFT-accelerated hybrid scheme reduces to an FFT-accelerated Euler scheme following the precomputation step. This flexibility highlights the adaptability of our framework to different simulation requirements. As shown in Figure~\ref{fig:convergence_n_wrt_kappa}, while pricing results under \(\kappa=0,1,3,4\) exhibit different convergence behaviors with various choices of \(H\), \(\kappa=2\) demonstrates a balanced performance across the board. This observation supports us to choose \(\kappa = 2\) for stable Monte Carlo pricing results. Also, we use \(n_f=400\) for \(H < 0.2\) and \(n_f=100\) for \(H \ge 0.2\) in the following experiments, as it balances the accuracy and computational efficiency of the Accelerated Hybrid Scheme.
 
-Based on the findings of ...
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv2/42_conv2_1Day_point1H_400nf.png}
+        \caption{$T=1/252$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv2/42_conv2_1Month_point1H_400nf.png}
+        \caption{$T=1/12$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv2/42_conv2_3Month_point1H_400nf.png}
+        \caption{$T=1/4$}
+    \end{subfigure}
+    \caption{At-the-money European call option pricing errors under $H=0.1$. \(\text{RMSE} = \sqrt{\text{standard error}^2 + \text{bias}^2}\). Parameters are chosen as $S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho=-0.1, \kappa=2, n_f=400$.}
+    \label{fig:convergence_n_comp1}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv2/42_conv2_1Day_point15H_400nf.png}
+        \caption{$T=1/252$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv2/42_conv2_1Month_point15H_400nf.png}
+        \caption{$T=1/12$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv2/42_conv2_3Month_point15H_400nf.png}
+        \caption{$T=1/4$}
+    \end{subfigure}
+    \caption{At-the-money European call option pricing errors under $H=0.15$. \(\text{RMSE} = \sqrt{\text{standard error}^2 + \text{bias}^2}\). Parameters are chosen as $S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho=-0.1, \kappa=2, n_f=400$.}
+    \label{fig:convergence_n_comp2}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv2/42_conv2_1Day_point2H_100nf.png}
+        \caption{$T=1/252$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv2/42_conv2_1Month_point2H_100nf.png}
+        \caption{$T=1/12$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv2/42_conv2_3Month_point2H_100nf.png}
+        \caption{$T=1/4$}
+    \end{subfigure}
+    \caption{At-the-money European call option pricing errors under $H=0.2$. \(\text{RMSE} = \sqrt{\text{standard error}^2 + \text{bias}^2}\). Parameters are chosen as $S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho=-0.1, \kappa=2, n_f=100$.}
+    \label{fig:convergence_n_comp3}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv2/42_conv2_1Day_point3H_100nf.png}
+        \caption{$T=1/252$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv2/42_conv2_1Month_point3H_100nf.png}
+        \caption{$T=1/12$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv2/42_conv2_3Month_point3H_100nf.png}
+        \caption{$T=1/4$}
+    \end{subfigure}
+    \caption{At-the-money European call option pricing errors under $H=0.3$. \(\text{RMSE} = \sqrt{\text{standard error}^2 + \text{bias}^2}\). Parameters are chosen as $S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho=-0.1, \kappa=2, n_f=100$.}
+    \label{fig:convergence_n_comp4}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv2/42_conv2_1Day_point4H_100nf.png}
+        \caption{$T=1/252$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv2/42_conv2_1Month_point4H_100nf.png}
+        \caption{$T=1/12$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig/conv2/42_conv2_3Month_point4H_100nf.png}
+        \caption{$T=1/4$}
+    \end{subfigure}
+    \caption{At-the-money European call option pricing errors under $H=0.4$. \(\text{RMSE} = \sqrt{\text{standard error}^2 + \text{bias}^2}\). Parameters are chosen as $S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho=-0.1, \kappa=2, n_f=100$.}
+    \label{fig:convergence_n_comp5}
+\end{figure}
+
+Based on the findings above, we compare the convergence behavior of our Accelerated Hybrid Scheme with other simulation algorithms, including the Euler scheme, the implicit-explicit scheme of the Markovian approximation method, and the classical hybrid scheme. The results are summarized in Figure~\ref{fig:convergence_n_comp1} to \ref{fig:convergence_n_comp5}, showing that the Accelerated Hybrid Scheme outperforms the other methods in terms of convergence speed and accuracy when \(H\) is not too small and the time-to-maturity \(T\) is moderate. 
+% For example, with \(H=0.1\) and \(T=1/12\), the Accelerated Hybrid Scheme achieves a RMSE of \(0.0002\) with \(n=200\) and \(n_f=400\), while the classical hybrid scheme requires \(n=1000\) to achieve a similar RMSE of \(0.0003\).
+
 
 
 \subsection{Implied volatility calculation}
-We further apply the Accelerated Hybrid Scheme to estimate the implied volatility of European call options. The implied volatility is calculated by inverting the Black-Scholes formula, which is implemented by \texttt{blsimpv} function in MATLAB. The estimated implied volatility is then compared with the reference value obtained from inversing the characteristic function of \(\log S_T\), as in the European call option pricing task.
 
-The numerical results are presented in Figures~\ref{fig:iv_n_T_1-252} and \ref{fig:iv_n_T_1-12}, all showing the convergence of the implied volatility estimates as the number of discrete time steps \(n\) increases with \(H=0.15\). These results are concrete evidence that the Accelerated Hybrid Scheme is a reliable and efficient method for option pricing and implied volatility calculation.
+In this subsection, we apply the Accelerated Hybrid Scheme to calculate the implied volatility curves based on European call option pricing results, and compare the computational efficiency and accuracy with other methods. 
+
 
 \begin{figure}[htbp]
     \centering
