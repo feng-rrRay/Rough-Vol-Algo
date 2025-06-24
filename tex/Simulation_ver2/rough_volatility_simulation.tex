@@ -480,7 +480,7 @@ The detailed algorithm for the simulation of \(X_t\) is summarized in Algorithm~
 
 
 
-\begin{algorithm}[htp]
+\begin{algorithm}[tbh]
     \caption{Simulation of \(X_t\) in (\ref{eq:target_process}) using Accelerated Hybrid Scheme}
     \label{alg:simulation_X}
     \begin{algorithmic}[1]
@@ -540,7 +540,7 @@ where \[
 \]
 and \(b_i\) takes the form (\ref{eq:seq_b_choice}). The detailed algorithm for the simulation of the rough Heston model is given in Algorithm~\ref{alg:simulation_rough_heston}.
 
-\begin{algorithm}[h!]
+\begin{algorithm}[bph]
     \caption{Simulation of rough Heston model (\ref{eq:price-process})-(\ref{eq:variance-process}) using Accelerated Hybrid Scheme}
     \label{alg:simulation_rough_heston}
     \begin{algorithmic}[1]
@@ -592,195 +592,8 @@ The convergence of the Accelerated Hybrid Scheme is guaranteed by the following 
     \]
 \end{theorem}
 
-Before proving Theorem~\ref{theorem:convergence_X}, we introduce the following lemma that establishes the tightness of the Markovian approximation process.
-\begin{lemma}\label{lemma:tightness_markov_approx}
-Let \(\{X_t^{n_f}: 0 \le t \le T\}\) be the Markovian approximation of the process defined by (\ref{eq:target_process}) with the kernel approximate \(\widehat{K}(t) = \sum_{i=1}^{n_f}w_i e^{-x_i t}\) and \(\{(w_i,x_i)\}_{i=1}^{n_f}\) given by (\ref{eq:parameter_choice_1}). Then, for any \(t,h\ge 0\) and \(t + h \le T\), there exists a constant \(C>0\) such that
-\[
-\mathbb{E} |X_{t+h}^{n_f} - X_t^{n_f}|^2 \le C h^{2H}.
-\]
-\end{lemma}
-
 \begin{proof}
-    By definition of \(\{X_t^{n_f}: 0 \le t \le T\}\) and \((a+b)^2\le 2a^2+2b^2\), we have
-    \begin{align*}
-        \mathbb{E} |X_{t+h}^{n_f} - X_t^{n_f}|^2 &\le 2\mathbb{E} \left|\int_{0}^{t+h} \widehat{K}(t+h-s) b(X_s^{n_f})\,ds - \int_{0}^{t}\widehat{K}(t-s) b(X_s^{n_f})\,ds\right|^2\nonumber\\
-        &\quad + 2\mathbb{E} \left|\int_{0}^{t+h} \widehat{K}(t+h-s) \sigma(X_s^{n_f})\,dW_s - \int_{0}^{t}\widehat{K}(t-s) \sigma(X_s^{n_f})\,dW_s\right|^2=: 2I_1 + 2I_2.
-    \end{align*}
-    Using Jensen's inequality, Fubini theorem and linear growth condition, we have 
-    \begin{align*}
-        I_1 &\le 2\mathbb{E}\left|\int_{0}^{t} (\widehat{K}(t+h-s)-\widehat{K}(t-s))b(X_s^{n_f})\,ds\right|^2 + 2\mathbb{E}\left|\int_{t}^{t+h} \widehat{K}(t+h-s)b(X_s^{n_f})\,ds\right|^2\\
-        % line 2
-        &\le 2t \mathbb{E}\left[\int_{0}^{t} |\widehat{K}(t+h-s)-\widehat{K}(t-s)|^2 |b(X_s^{n_f})|^2\,ds\right] + 2h \mathbb{E}\left[\int_{t}^{t+h} |\widehat{K}(t+h-s)|^2 |b(X_s^{n_f})|^2\,ds\right]\\
-        % line 3
-        &\le 2t C_b \mathbb{E}\left[\int_{0}^{t} |\widehat{K}(t+h-s)-\widehat{K}(t-s)|^2 (1+|X_s^{n_f}|)^2\,ds\right] + 2h C_b \mathbb{E}\left[\int_{t}^{t+h} |\widehat{K}(t+h-s)|^2 (1+|X_s^{n_f}|)^2\,ds\right]\\
-        % line 4
-        &\le 2TC_b \left(\sup_{0\le s \le T}  \mathbb{E} [(1+|X_s^{n_f}|)^2] \right) \left(\int_{0}^{t} |\widehat{K}(t+h-s)-\widehat{K}(t-s)|^2\,ds + \int_{t}^{t+h} |\widehat{K}(t+h-s)|^2\,ds \right)\\
-        % line 5
-        &\le 2TC_b \left(\sup_{0\le s \le T}  \mathbb{E} [(1+|X_s^{n_f}|)^2] \right) \left(\int_{0}^{T-h} |\widehat{K}(h+s)-\widehat{K}(s)|^2\,ds + \int_{0}^{h} |\widehat{K}(s)|^2\,ds \right)\\
-        % line 6
-        &\le 2TC_1 \left(\int_{0}^{T-h} |\widehat{K}(h+s)-\widehat{K}(s)|^2\,ds + \int_{0}^{h} |\widehat{K}(s)|^2\,ds \right),
-    \end{align*}
-    where \(C_1>0\) is a constant, since \[
-    \sup_{0\le t \le T} \mathbb{E} [|X_t^{n_f}|^p] < \infty,\quad p\ge 1,
-    \]
-    for a given \(n_f\). Likewise, we can obtain a similar bound for \(I_2\) by It\^o isometry, which is given by 
-    \begin{align*}
-        I_2 &\le 2\mathbb{E}\left[\int_{0}^{t} |\widehat{K}(t+h-s)-\widehat{K}(t-s)|^2 |\sigma(X_s^{n_f})|^2\,ds\right] + 2\mathbb{E}\left[\int_{t}^{t+h} |\widehat{K}(t+h-s)|^2 |\sigma(X_s^{n_f})|^2\,ds\right]\\
-        &\le 2C_2 \left(\int_{0}^{T-h} |\widehat{K}(h+s)-\widehat{K}(s)|^2\,ds + \int_{0}^{h} |\widehat{K}(s)|^2\,ds \right).
-    \end{align*}
-    Combining results for \(I_1\) and \(I_2\),  we have for any given \(T>0, n_f \ge 1\) that 
-    \begin{align*}
-        \mathbb{E} |X_{t+h}^{n_f} - X_t^{n_f}|^2 \le 4(C_1 T + C_2) \left(\int_{0}^{T-h} |\widehat{K}(h+s)-\widehat{K}(s)|^2\,ds + \int_{0}^{h} |\widehat{K}(s)|^2\,ds \right),
-    \end{align*}
-    Then, from Section~8.6.1 and Lemma~7.13 in \cite{abijaber2018}, we have 
-    \[
-    \sup_{n_f\ge 1} \left(\int_{0}^{T-h} |\widehat{K}(h+s)-\widehat{K}(s)|^2\,ds + \int_{0}^{h} |\widehat{K}(s)|^2\,ds \right) \le C_K h^{2H},
-    \]
-    which gives that 
-    \[
-        \mathbb{E} |X_{t+h}^{n_f} - X_t^{n_f}|^2 \le C h^{2H},
-    \]
-    for some constant \(C>0\).
-
-\end{proof}
-
-\begin{proof}[Proof of Theorem~\ref{theorem:convergence_X}]
-    Let \(T\in \mathbb{R}_+\) be fixed. We can write the approximation \(\widetilde{X}_T\) as 
-    \begin{align*}
-        \widetilde{X}_T &= X_0 + \sum_{i=1}^{n} b\bigl(\widehat{X}_{t_{n-i}}^{n_f}\bigr) \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s)\,ds \nonumber\\[1mm]
-        &\quad + \sum_{i=1}^{\kappa} \sigma\bigl(\widehat{X}_{t_{n-i}}^{n_f}\bigr)
-        \int_{(k-i)T/n}^{(k-i+1)T/n} K(T-s)\,dW_s
-        + \sum_{i=\kappa+1}^{k} K\Bigl(\frac{b_{i}T}{n}\Bigr)\, \sigma\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) \Delta W_{k-i},
-    \end{align*}
-    and we introduce the auxillary processes 
-    \begin{align*}
-        \bar{X}_T = X_0 + \int_{0}^{T} K(T-s) b(X_s^{n_f})\,ds + \int_{0}^{T} K(T-s) \sigma(X_s^{n_f})\,dW_s,
-    \end{align*}
-    and 
-    \begin{align*}
-        \bar{X}_T^n &= X_0 + \sum_{i=1}^{n} b\bigl(X_{t_{n-i}}^{n_f}\bigr) \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s)\,ds \nonumber\\[1mm]
-        &\quad + \sum_{i=1}^{\kappa} \sigma\bigl(X_{t_{n-i}}^{n_f}\bigr)
-        \int_{(k-i)T/n}^{(k-i+1)T/n} K(T-s)\,dW_s
-        + \sum_{i=\kappa+1}^{k} K\Bigl(\frac{b_{i}T}{n}\Bigr)\, \sigma\bigl(X_{t_{k-i}}^{n_f}\bigr) \Delta W_{k-i}.
-    \end{align*}
-    By \((a+b+c)^2 \le 3a^2+3b^2+3c^2\), we have 
-    \[
-        \mathbb{E} |X_T - \widetilde{X}_T|^2 \le 3\mathbb{E} |X_T - \bar{X}_T|^2 + 3\mathbb{E} |\bar{X}_T - \bar{X}_T^n|^2 + 3\mathbb{E} |\bar{X}_T^n - \widetilde{X}_T|^2.
-    \]
-    In what follows, we show that each term on the right-hand side converges to $0$ as \(n_f\to \infty\) and \(n\to \infty\).
-
-    Let us analyze \(\mathbb{E} |X_T - \bar{X}_T|^2\) first:
-    \begin{align*}
-        \mathbb{E} |X_T - \bar{X}_T|^2 &= \mathbb{E} \left|\int_{0}^{T}K(T-s) \left(b(X_s) - b(X_s^{n_f})\right)ds + \int_{0}^{T}K(T-s) \left(\sigma(X_s) - \sigma(X_s^{n_f})\right)dW_s\right|^2\\
-        %line 2
-        &\le 2\mathbb{E} \left|\int_{0}^{T}K(T-s) \left(b(X_s) - b(X_s^{n_f})\right)ds\right|^2 + 2\mathbb{E} \left|\int_{0}^{T}K(T-s) \left(\sigma(X_s) - \sigma(X_s^{n_f})\right)dW_s\right|^2
-    \end{align*}
-    By applying Cauchy-Schwarz inequality to the first term, It\^o isometry to the second term, and using Fubini theorem, we have
-    \begin{align*}
-        \mathbb{E} |X_T - \bar{X}_T|^2 &\le 2T \mathbb{E} \left[\int_{0}^{T}K(T-s)^2  \left|b(X_s) - b(X_s^{n_f})\right|^2 ds \right] 
-        + 2\mathbb{E} \left[\int_{0}^{T}K(T-s)^2  \left|\sigma(X_s) - \sigma(X_s^{n_f})\right|^2 ds\right]\\
-        % line 2
-        &= 2T\int_{0}^{T} K(T-s)^2 \mathbb{E} \left|b(X_s) - b(X_s^{n_f})\right|^2 ds + 2\int_{0}^{T} K(T-s)^2 \mathbb{E} \left|\sigma(X_s) - \sigma(X_s^{n_f})\right|^2 ds.
-    \end{align*}
-    Under Assumption~\ref{assumption:coefficients}, there exists a constant \(L>0\) such that
-    \begin{align*}
-        \mathbb{E} \left|b(X_s) - b(X_s^{n_f})\right|^2 &\le L \cdot \mathbb{E} \left|X_s - X_s^{n_f}\right|^2,\\
-        \mathbb{E} \left|\sigma(X_s) - \sigma(X_s^{n_f})\right|^2 &\le L\cdot \mathbb{E} \left|X_s - X_s^{n_f}\right|^2.
-    \end{align*}
-    Hence, we have 
-    \begin{align*}
-        \mathbb{E} |X_T - \bar{X}_T|^2 &\le (2T+1)L \int_{0}^{T} K(T-s)^2 \mathbb{E} \left|X_s - X_s^{n_f}\right|^2 ds\\
-        &\le \left(\sup_{0\le t\le T} \mathbb{E} \left|X_s - X_s^{n_f}\right|^2 \right) \cdot (2T+1)L \int_{0}^{T} K(T-s)^2 ds
-    \end{align*}
-    By Proposition~\ref{prop:markov_approx_convergence}, we have 
-    \[
-    \sup_{0\le t\le T} \mathbb{E} \left|X_s - X_s^{n_f}\right|^2 \le C \sup_{0\le t\le T} \int_0^t |K(s) - \widehat{K}(s)|^2 ds = C \|K - \widehat{K}\|_{2,T}^2,
-    \]
-    where \(C>0\) is a constant, and \(\widehat{K}(u) = \sum_{i=1}^{n_f} w_i e^{-x_i u}\) is a kernel approximation following (\ref{eq:parameter_choice_1}). By (\ref{eq:parameter_choice_1_convergence}), we have \(\|K - \widehat{K}\|_{2,T} \to 0\) as \(n_f\to \infty\). Therefore, \(\mathbb{E} |X_T - \bar{X}_T|^2 \to 0\) as \(n_f\to \infty\).
-
-    \paragraph{} Next, we analyze \(\mathbb{E} |\bar{X}_T - \bar{X}_T^n|^2\). Likewise, we introduce an ancillary term 
-    \begin{equation*}
-        \check{X}_T^n = X_0 + \sum_{i=1}^{n} b\bigl(X_{t_{n-i}}^{n_f}\bigr) \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s)\,ds + \sum_{i=1}^{n} \sigma\bigl(X_{t_{n-i}}^{n_f}\bigr) \int_{(k-i)T/n}^{(k-i+1)T/n} K(T-s)\,dW_s,
-    \end{equation*}
-    and split the error term as
-    \begin{align*}
-        \mathbb{E} |\bar{X}_T - \bar{X}_T^n|^2 &\le 2\mathbb{E}|\bar{X}_T - \check{X}_T^n|^2 + 2\mathbb{E}|\check{X}_T^n - \bar{X}_T^n|^2.
-    \end{align*}
-    Using Jensen's inequality, It\^o isometry, Lipschitz continuity of \(b,\sigma\), and Lemma~\ref{lemma:tightness_markov_approx}, we have
-    \begin{align}
-        \mathbb{E}|\bar{X}_T - \check{X}_T^n|^2 &\le 2\mathbb{E} \left|\sum_{i=1}^n \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s) (b(X_s^{n_f}) - b(X_{t_{n-i}}^{n_f}))\,ds\right|^2\nonumber\\
-        &\qquad + 2\mathbb{E}\left| \sum_{i=1}^n \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s) (\sigma(X_s^{n_f}) - \sigma(X_{t_{n-i}}^{n_f}))\,dW_s\right|^2\nonumber\\
-        % line 2
-        &\le 2T \int_{0}^{T} K(T-s)^2 \mathbb{E} |b(X_s^{n_f}) - b(X_{\eta(s)}^{n_f})|^2\,ds + 2\int_{0}^{T} K(T-s)^2 \mathbb{E} |\sigma(X_s^{n_f}) - \sigma(X_{\eta(s)}^{n_f})|^2\,ds\nonumber\\ 
-        % line 3
-        &\le (2T+1)L \cdot \left(\sup_{0\le s\le T} \mathbb{E} |X_s^{n_f} - X_{\eta(s)}^{n_f}|^2\right) \int_{0}^{T} K(u)^2 \,du\nonumber\\
-        % line 4
-        &\le (2T+1)LC \left(\frac{T}{n}\right)^{2H} \int_{0}^{T} K(u)^2 \,du,\label{eq:barX_checkX}
-    \end{align}
-    where \(\eta(s) = \tfrac{(n-i)T}{n}\) for \(s \in [\tfrac{(n-i)T}{n},\tfrac{(n-i+1)T}{n}),\ i=1,2,\ldots n\), \(L>0\) is defined as above, \(C>0\) is the constant from Lemma~\ref{lemma:tightness_markov_approx}. \eqref{eq:barX_checkX} indicates that 
-    \[
-        \mathbb{E}|\bar{X}_T - \check{X}_T^n|^2 \to 0,\quad n\to \infty
-    \]
-    Likewise, we can derive the upper bound of \(\mathbb{E}|\check{X}_T^n - \bar{X}_T^n|^2\) as follows.
-    \begin{align}
-        \mathbb{E}|\check{X}_T^n - \bar{X}_T^n|^2 &= \mathbb{E} \left|\sum_{i=\kappa+1}^{n} \int_{(n-i)T/n}^{(n-i+1)T/n} \left(K\left(\frac{b_i T}{n}\right) - K(T-s)\right) \sigma(X_{t_{n-i}}^{n_f}) \,dW_s\right|^2\nonumber\\ 
-        % line 2
-        &= \sum_{i=\kappa+1}^{n} \int_{(n-i)T/n}^{(n-i+1)T/n} \left(K\left(\frac{b_i T}{n}\right) - K(T-s)\right)^2 \mathbb{E} |\sigma(X_{t_{n-i}}^{n_f})|^2\,ds\nonumber\\
-        % line 3
-        &\le \frac{\widetilde{C}_\sigma \sup_{0\le s \le T} \mathbb{E} (1 + |X_s^{n_f}|)^2}{\Gamma(H+\frac{1}{2})^2} \left(\frac{T}{n}\right)^{2H}\sum_{i=\kappa+1}^{n}  \int_{i-1}^{i} (b_i^{H-\frac{1}{2}} - y^{H-\frac{1}{2}})^2\,dy\nonumber\\
-        % line 4
-        &\le C_{\sigma,H}\left(\frac{T}{n}\right)^{2H} \sum_{i=\kappa+1}^{n}  \int_{i-1}^{i} (b_i^{H-\frac{1}{2}} - y^{H-\frac{1}{2}})^2\,dy\label{eq:checkX_barXn}
-    \end{align}
-    where \(C_{\sigma,H}>0\) is a constant related to \(\sigma, H\) and the upper bound of \(\sup_{0\le s \le T} \mathbb{E}[|X_s^{n_f}|^p]\) for \(p>0\) (which is finite by Section~7.5.1, \cite{abijaber2018}). Minimizing \(\int_{i-1}^{i} (b_i^{H-\frac{1}{2}} - y^{H-\frac{1}{2}})^2 dy\) above with respect to \(b_i\), we have 
-    \begin{equation}
-        b_i = \left(\frac{i^{H+\frac{1}{2}} - (i-1)^{H+\frac{1}{2}}}{H+\frac{1}{2}}\right)^{\frac{1}{H-\frac{1}{2}}}.\label{eq:optimal_bi}
-    \end{equation}
-    By Theorem~2.5, \cite{bennedsen_2017_FS}, we have 
-    \[
-    \sum_{i=\kappa+1}^{\infty}  \int_{i-1}^{i} (b_i^{H-\frac{1}{2}} - y^{H-\frac{1}{2}})^2\,dy < \infty,
-    \]
-    which directly leads to
-    \[
-        \mathbb{E}|\check{X}_T^n - \bar{X}_T^n|^2 \to 0,\quad n\to \infty.
-    \]
-
-    \paragraph{} Finally, we analyze \(\mathbb{E}|\bar{X}_T^n - \widetilde{X}_T|^2\), which is given by
-    \begin{align}
-        \mathbb{E}|\bar{X}_T^n - \widetilde{X}_T|^2 &= \mathbb{E} \left|\sum_{i=1}^{n} (b(X_{t_{n-i}}^{n_f}) - b(\widehat{X}_{t_{n-i}}^{n_f})) \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s)\,ds\right|^2\nonumber\\
-        % line 2
-        &\qquad + \mathbb{E} \left|\sum_{i=1}^{\kappa} (\sigma(X_{t_{n-i}}^{n_f}) - \sigma(\widehat{X}_{t_{n-i}}^{n_f}))\int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s)\,dW_s\right|^2\nonumber\\
-        % line 3
-        &\qquad + \mathbb{E} \left|\sum_{i=\kappa+1}^{n} K\left(\frac{b_i T}{n}\right) (\sigma(X_{t_{n-i}}^{n_f}) - \sigma(X_{t_{n-i}}^{n_f})) \int_{(n-i)T/n}^{(n-i+1)T/n} dW_s\right|^2\nonumber\\
-        % line 4
-        &=: J_1 + J_2 + J_3.
-    \end{align}
-    Likewise, by Jensen's inequality and Lipschitz continuity, 
-    \begin{align}
-        J_1 &= \mathbb{E}\left|\int_0^T K(T-s) (b(X_{\eta(s)}^{n_f}) - b(\widehat{X}_{\eta(s)}^{n_f}))\,ds\right|^2\nonumber\\
-        % line 2
-        &\le T \int_0^T K(T-s)^2 \mathbb{E} |b(X_{\eta(s)}^{n_f}) - b(\widehat{X}_{\eta(s)}^{n_f})|^2\,ds\nonumber\\
-        % line 3
-        &\le T L \cdot \left(\max_{i\in\{0,...,n-1\}} \mathbb{E} |X_{t_i}^{n_f} - \widehat{X}_{t_i}^{n_f}|^2\right) \int_0^T K(u)^2\,du\label{eq:barXn_tildeX_1}
-    \end{align}
-    where \(L>0\) is the Lipschitz constant, \(\eta(\cdot)\) is defined as above. Similarly, by It\^o isometry and Lipschitz continuity, we have
-    \begin{align}
-        J_2 + J_3 &= \sum_{i=1}^{\kappa} \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s)^2 \mathbb{E} |\sigma(X_{t_{n-i}}^{n_f}) - \sigma(\widehat{X}_{t_{n-i}}^{n_f})|^2\,ds \nonumber\\
-        &\qquad + \sum_{i=\kappa+1}^{n} K\left(\frac{b_i T}{n}\right)^2 \mathbb{E} |\sigma(X_{t_{n-i}}^{n_f}) - \sigma(\widehat{X}_{t_{n-i}}^{n_f})|^2 \left(\frac{T}{n}\right)\nonumber\\
-        % line 2
-        &\le L\cdot \left(\max_{i\in\{0,...,n-1\}} \mathbb{E} |X_{t_i}^{n_f} - \widehat{X}_{t_i}^{n_f}|^2\right) \left(\sum_{i=1}^{\kappa} \int_{(i-1)T/n}^{iT/n} K(u)^2 du + \frac{T}{n} \sum_{i=\kappa+1}^{n} K\left(\frac{b_i T}{n}\right)^2\right)\label{eq:barXn_tildeX_2}
-    \end{align}
-    It is easy to show that \(\frac{T}{n} \sum_{i=\kappa+1}^{n} K\left(\frac{b_i T}{n}\right)^2 < \infty\) as \(n\to \infty\) for any sequence \(b_i \in [i-1,i],\ i=1,\ldots n\). As the discretization scheme \eqref{eq:markovian_X_update}-\eqref{eq:markovian_Z_update} is inherently the same as the Euler scheme \eqref{eq:euler_scheme_target} (Theorem~4.2, \cite{AlfonsiKeabier2023}) with kernel \(\widehat{K}(u) = \sum_{i=1}^{n_f}w_i e^{-x_i u}\), by Proposition~\ref{prop:euler_convergence}, \[
-        \max_{i\in\{0,...,n-1\}} \mathbb{E} |X_{t_i}^{n_f} - \widehat{X}_{t_i}^{n_f}|^2 \to 0,\quad n\to \infty,
-    \] 
-    which leads to 
-    \[
-        \mathbb{E}|\bar{X}_T^n - \widetilde{X}_T|^2 = J_1 + J_2 + J_3 \to 0,\quad n\to \infty.
-    \]
-
-    Combining the convergence results of \(\mathbb{E} |X_T - \bar{X}_T|^2\), \(\mathbb{E} |\bar{X}_T - \bar{X}_T^n|^2\), and \(\mathbb{E} |\bar{X}_T^n - \widetilde{X}_T|^2\), we can therefore conclude that 
-    \[
-        \mathbb{E} |X_T - \widetilde{X}_T|^2 \to 0,\quad n_f\to \infty,\quad n\to \infty.
-    \]
+    See \ref{Appendix_proof}.
 \end{proof}
 
 Following the proof of Theorem~\ref{theorem:convergence_X}, we can find that the mean square error of the Accelerated Hybrid Scheme is bounded by
@@ -821,7 +634,10 @@ In the following, we first investigate the impact of varying the number of Marko
 
 \subsection{Varying number of approximation factors \(n_f\)}
 
-\begin{figure}[htb]
+First, we examine the European call option pricing results under varying number of approximation factors \(n_f\) as a part of our convergence tests. Plots of the estimated option prices against \(n_f\) are reported in Figure~\ref{fig:convergence_nf_point1H} and \ref{fig:convergence_nf_point4H}, indicating a faster convergence of our Accelerated Hybrid Scheme than the simulation of Markovian approximation models as \(n_f\) increases in most scenarios. This demonstrates that the FFT-based hybrid scheme effectively mitigates kernel approximation errors introduced during the precomputation step while adding little time cost (the additional CPU time required by our method averages 5.68 seconds across all experiments presented in Figures~\ref{fig:convergence_nf_point1H} and \ref{fig:convergence_nf_point4H}, measured on a laptop with an Intel Core i7-11800H (2.30GHz) processor and 32 GB RAM, and remains consistent across all values of $n_f$). Also, it is worth noting that the convergence with respect to \(n_f\) is faster for longer maturities and larger Hurst indices. And for Hurst index \(H=0.4\), the pricing results of our method barely change with increasing \(n_f\). These observations are consistent with Proposition~\ref{prop:markov_approx_convergence} and equation \eqref{eq:mse_upper_bound}, in that kernel approximation errors tend to be smaller as \(H\) approaches \(1/2\). 
+
+
+\begin{figure}[thp]
     \centering
     \begin{subfigure}[b]{0.32\textwidth}
         \includegraphics[width=\textwidth]{fig/nf_test/test_nf_intraDay_point1H_200n.png}
@@ -841,7 +657,7 @@ In the following, we first investigate the impact of varying the number of Marko
     \label{fig:convergence_nf_point1H}
 \end{figure}
 
-\begin{figure}[htb]
+\begin{figure}[thp]
     \centering
     \begin{subfigure}[b]{0.32\textwidth}
         \includegraphics[width=\textwidth]{fig/nf_test/test_nf_intraDay_point4H_200n.png}
@@ -860,10 +676,6 @@ In the following, we first investigate the impact of varying the number of Marko
     \caption{At-the-money European call option prices as the number of Markovian approximation factors $n_f$ increases. The parameters are chosen as $H = 0.4, S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0, \rho=-0.1, n=200$, $\kappa = 2$, and $n=200$.}
     \label{fig:convergence_nf_point4H}
 \end{figure}
-
-First, we examine the European call option pricing results under varying number of approximation factors \(n_f\) as a part of our convergence tests. Plots of the estimated option prices against \(n_f\) are reported in Figure~\ref{fig:convergence_nf_point1H} and \ref{fig:convergence_nf_point4H}, indicating a faster convergence of our Accelerated Hybrid Scheme than the simulation of Markovian approximation models as \(n_f\) increases. This demonstrates that the FFT-based hybrid scheme effectively mitigates kernel approximation errors introduced during the precomputation step while adding little time cost (see Table~\ref{}). Also, it is worth noting that the convergence with respect to \(n_f\) is faster for longer maturities and larger Hurst indices. And for Hurst index \(H=0.4\), the pricing results of our method barely change with increasing \(n_f\). These observations are consistent with Proposition~\ref{prop:markov_approx_convergence} and equation \eqref{eq:mse_upper_bound}, in that kernel approximation errors tend to be smaller as \(H\) approaches \(1/2\). 
-
-
 
 
 \subsection{Varying number of time steps \(n\)}
@@ -920,7 +732,113 @@ First, we examine the European call option pricing results under varying number 
     \label{fig:convergence_n_wrt_nf_2}
 \end{figure}
 
-Next, we examine the convergence behavior of the Accelerated Hybrid Scheme with respect to the number of time discretization steps \(n\). To isolate the effect of \(n\), we analyze the root mean squared error (RMSE) of the scheme in at-the-money European call option pricing as \(n_f\) varies, considering several representative values of \(n_f\). Under \(H = 0.1\), Figure \ref{fig:convergence_n_wrt_nf_1} shows that the convergence of the Accelerated Hybrid Scheme tends to be more robust to \(n_f\) as the option's time-to-maturity increases, and that sufficient number of Markovian approximation factors in the precomputation step can help the scheme achieve better accuracy. However, the effect of \(n_f\) on the convergence is less significant when \(H\) becomes larger (the volatility paths become smoother). As shown in Figure~\ref{fig:convergence_n_wrt_nf_2}, the increased number of approximation factors \(n_f\) does not necessarily lead to better convergence of the scheme. This is because the kernel approximation error is already small enough when \(H\) exceeds a certain value. Further, it deserves noting that the RMSE of the Accelerated Hybrid Scheme may not decrease monotonically as \(n\) increases, especially for small \(T\). Evidence from Table \ref{} provides an explanation to this issue, that when \(T\) is small, the bias term, which is suseptible to the choice of noise matrix, dominates the RMSE. Therefore, varying the random seed in the Monte Carlo simulation can lead to different convergence behaviors of the Accelerated Hybrid Scheme for \(T = 1/252\) or smaller, while this phenomenon is less frequently observed for longer maturities. 
+\begin{table}[tph]
+  \begin{center}
+  \begin{tabular}{lccccc}
+    \hline\hline
+    $n$ & Price & RMSE & SE & Bias & CPU time (s) \\
+    \hline
+    \multicolumn{6}{l}{$n_f = 50$, $\text{Reference Price} = 0.005404$} \\
+      25 & 0.005608 & 2.044e-04 & 1.545e-05 & 2.038e-04 & 0.67 \\
+      50 & 0.005596 & 1.929e-04 & 1.543e-05 & 1.923e-04 & 1.27 \\
+     100 & 0.005602 & 1.989e-04 & 1.544e-05 & 1.983e-04 & 2.41 \\
+     250 & 0.005604 & 2.010e-04 & 1.544e-05 & 2.004e-04 & 7.86 \\
+     500 & 0.005603 & 2.001e-04 & 1.545e-05 & 1.995e-04 & 19.41 \\
+    \addlinespace
+    \multicolumn{6}{l}{$n_f = 100$, $\text{Reference Price} = 0.005404$} \\
+      25 & 0.005583 & 1.794e-04 & 1.539e-05 & 1.788e-04 & 0.89 \\
+      50 & 0.005568 & 1.645e-04 & 1.536e-05 & 1.637e-04 & 1.68 \\
+     100 & 0.005571 & 1.676e-04 & 1.537e-05 & 1.668e-04 & 2.89 \\
+     250 & 0.005571 & 1.676e-04 & 1.536e-05 & 1.669e-04 & 6.85 \\
+     500 & 0.005569 & 1.658e-04 & 1.537e-05 & 1.651e-04 & 20.21 \\
+    \addlinespace
+    \multicolumn{6}{l}{$n_f = 200$, $\text{Reference Price} = 0.005404$} \\
+      25 & 0.005567 & 1.641e-04 & 1.535e-05 & 1.634e-04 & 1.16 \\
+      50 & 0.005549 & 1.460e-04 & 1.531e-05 & 1.452e-04 & 2.19 \\
+     100 & 0.005549 & 1.465e-04 & 1.531e-05 & 1.457e-04 & 4.22 \\
+     250 & 0.005547 & 1.439e-04 & 1.530e-05 & 1.431e-04 & 10.64 \\
+     500 & 0.005544 & 1.409e-04 & 1.530e-05 & 1.401e-04 & 27.66 \\
+    \addlinespace
+    \multicolumn{6}{l}{$n_f = 400$, $\text{Reference Price} = 0.005404$} \\
+      25 & 0.005560 & 1.565e-04 & 1.533e-05 & 1.558e-04 & 2.30 \\
+      50 & 0.005538 & 1.347e-04 & 1.528e-05 & 1.338e-04 & 4.52 \\
+     100 & 0.005535 & 1.320e-04 & 1.527e-05 & 1.311e-04 & 8.98 \\
+     250 & 0.005530 & 1.271e-04 & 1.525e-05 & 1.262e-04 & 22.32 \\
+     500 & 0.005526 & 1.227e-04 & 1.525e-05 & 1.218e-04 & 50.88 \\
+    \addlinespace
+    \multicolumn{6}{l}{$n_f = 800$, $\text{Reference Price} = 0.005404$} \\
+      25 & 0.005557 & 1.539e-04 & 1.532e-05 & 1.532e-04 & 4.02 \\
+      50 & 0.005532 & 1.287e-04 & 1.526e-05 & 1.278e-04 & 8.01 \\
+     100 & 0.005525 & 1.226e-04 & 1.524e-05 & 1.217e-04 & 17.93 \\
+     250 & 0.005517 & 1.146e-04 & 1.522e-05 & 1.136e-04 & 42.05 \\
+     500 & 0.005512 & 1.090e-04 & 1.522e-05 & 1.080e-04 & 88.55 \\
+    \hline
+  \end{tabular}
+  \caption{Accelerated Hybrid Scheme pricing results of Figure \ref{fig:convergence_n_wrt_nf_1}(a), $H=0.1$, $T=1/252$}
+  \label{tab:sim_results_groupByNf_1Day_point1H}
+  \end{center}
+
+  \begin{small}%
+Note: Other parameters are set as \(S_0 = 1\), \(\theta = 0.05\), \(\lambda = 0.1\), \(\nu = 0.3\), \(V_0 = 0.05\), \(r=d=0\), \(\rho=-0.1\), and \(\kappa = 2\). The reference price is computed using the Fourier transform inversion method. The CPU time is measured on a MacBook Pro with a 10-core Apple M2 Pro processor and 32 GB RAM.
+\end{small}
+\end{table}
+
+
+\begin{table}[tph]
+  \begin{center}
+  \begin{tabular}{lccccc}
+    \hline\hline
+    $n$ & Price & RMSE & SE & Bias & CPU time (s) \\
+    \hline
+    \multicolumn{6}{l}{$n_f = 50$, $\text{Reference Price} = 0.024095$} \\
+      25 & 0.025615 & 1.521e-03 & 7.474e-05 & 1.520e-03 & 0.60 \\
+      50 & 0.025434 & 1.341e-03 & 7.429e-05 & 1.339e-03 & 1.16 \\
+     100 & 0.025333 & 1.240e-03 & 7.404e-05 & 1.237e-03 & 2.36 \\
+     250 & 0.025230 & 1.137e-03 & 7.378e-05 & 1.135e-03 & 8.25 \\
+     500 & 0.025201 & 1.108e-03 & 7.369e-05 & 1.106e-03 & 21.32 \\
+    \addlinespace
+    \multicolumn{6}{l}{$n_f = 100$, $\text{Reference Price} = 0.024095$} \\
+      25 & 0.025599 & 1.506e-03 & 7.470e-05 & 1.504e-03 & 0.88 \\
+      50 & 0.025399 & 1.305e-03 & 7.419e-05 & 1.303e-03 & 1.70 \\
+     100 & 0.025257 & 1.164e-03 & 7.381e-05 & 1.162e-03 & 2.92 \\
+     250 & 0.025115 & 1.023e-03 & 7.345e-05 & 1.020e-03 & 6.55 \\
+     500 & 0.025064 & 9.715e-04 & 7.331e-05 & 9.688e-04 & 19.92 \\
+    \addlinespace
+    \multicolumn{6}{l}{$n_f = 200$, $\text{Reference Price} = 0.024095$} \\
+      25 & 0.025594 & 1.500e-03 & 7.468e-05 & 1.499e-03 & 1.15 \\
+      50 & 0.025390 & 1.297e-03 & 7.417e-05 & 1.295e-03 & 2.16 \\
+     100 & 0.025232 & 1.139e-03 & 7.374e-05 & 1.137e-03 & 4.26 \\
+     250 & 0.025059 & 9.665e-04 & 7.329e-05 & 9.637e-04 & 10.60 \\
+     500 & 0.024987 & 8.943e-04 & 7.310e-05 & 8.913e-04 & 27.82 \\
+    \addlinespace
+    \multicolumn{6}{l}{$n_f = 400$, $\text{Reference Price} = 0.024095$} \\
+      25 & 0.025590 & 1.497e-03 & 7.468e-05 & 1.495e-03 & 2.32 \\
+      50 & 0.025387 & 1.294e-03 & 7.416e-05 & 1.292e-03 & 4.52 \\
+     100 & 0.025226 & 1.133e-03 & 7.372e-05 & 1.131e-03 & 8.94 \\
+     250 & 0.025037 & 9.442e-04 & 7.323e-05 & 9.414e-04 & 22.34 \\
+     500 & 0.024947 & 8.549e-04 & 7.299e-05 & 8.517e-04 & 51.51 \\
+    \addlinespace
+    \multicolumn{6}{l}{$n_f = 800$, $\text{Reference Price} = 0.024095$} \\
+      25 & 0.025588 & 1.495e-03 & 7.467e-05 & 1.493e-03 & 4.49 \\
+      50 & 0.025385 & 1.291e-03 & 7.415e-05 & 1.289e-03 & 8.27 \\
+     100 & 0.025224 & 1.131e-03 & 7.372e-05 & 1.129e-03 & 15.94 \\
+     250 & 0.025031 & 9.385e-04 & 7.322e-05 & 9.357e-04 & 39.64 \\
+     500 & 0.024931 & 8.392e-04 & 7.295e-05 & 8.360e-04 & 87.27 \\
+    \hline
+  \end{tabular}
+  \caption{Accelerated Hybrid Scheme pricing results of Figure \ref{fig:convergence_n_wrt_nf_1}(b), $H=0.1$, $T=1/12$}
+  \label{tab:sim_results_groupByNf_1Month_point1H}
+\end{center}
+    \begin{small}%
+    Note: Other parameters are set as \(S_0 = 1\), \(\theta = 0.05\), \(\lambda = 0.1\), \(\nu = 0.3\), \(V_0 = 0.05\), \(r=d=0\), \(\rho=-0.1\), and \(\kappa = 2\). The reference price is computed using the Fourier transform inversion method. The CPU time is measured on a MacBook Pro with a 10-core Apple M2 Pro processor and 32 GB RAM.
+    \end{small}
+\end{table}
+
+
+
+Next, we examine the convergence behavior of the Accelerated Hybrid Scheme with respect to the number of time discretization steps \(n\). To isolate the effect of \(n\), we analyze the root mean squared error (RMSE) of the scheme in at-the-money European call option pricing as \(n_f\) varies, considering several representative values of \(n_f\). Under \(H = 0.1\), Figure \ref{fig:convergence_n_wrt_nf_1} shows that the convergence of the Accelerated Hybrid Scheme tends to be more robust to \(n_f\) as the option's time-to-maturity increases, and that sufficient number of Markovian approximation factors in the precomputation step can help the scheme achieve better accuracy. However, the effect of \(n_f\) on the convergence is less significant when \(H\) becomes larger (the volatility paths become smoother). As shown in Figure~\ref{fig:convergence_n_wrt_nf_2}, the increased number of approximation factors \(n_f\) does not necessarily lead to better convergence of the scheme. This is because the kernel approximation error is already small enough when \(H\) exceeds a certain value. Further, it deserves noting that the RMSE of the Accelerated Hybrid Scheme may not decrease monotonically as \(n\) increases, especially for small \(T\). 
+This is because the bias itself is estimated via Monte Carlo and Fourier transform inversion, thus carrying a numerical error. For very short maturities \(T\), the theoretical discretization bias of the Accelerated Hybrid Scheme becomes negligible compared to the numerical error in the bias estimate, and hence the measured bias fluctuates with \(n\), producing non-monotonic ``wobbles'' in the total RMSE (see Tables~\ref{tab:sim_results_groupByNf_1Day_point1H} and~\ref{tab:sim_results_groupByNf_1Month_point1H}). For longer maturities, the bias stabilizes and the convergence behavior of the RMSE aligns well with the theoretical results in \eqref{eq:mse_upper_bound}, despite discrepancies in model assumptions.
+
 
 \begin{figure}[htbp]
     \centering
@@ -1060,7 +978,7 @@ Based on the findings above, we compare the convergence behavior of our Accelera
 
 \subsection{Applications in implied volatility calculation}
 
-In this subsection, we apply our Accelerated Hybrid Scheme to calculate the implied volatility curves based on European call option pricing results, and compare the computational efficiency and accuracy with other methods. The experiment includes calculating implied volatility curves for 20 consecutive trading days, and deriving an implied volatility surface thereafter. Without loss of generality, we choose $H=0.15$, $n_f = 400$, and discretization time steps to be \(50\) between every two consecutive trading days. Results in Figure~\ref{fig:iv_neg1rho} indicate that approximation errors of our scheme are all at the same level as other methods, while our scheme's computational effciency significantly outperforms the others (see Table~\ref{tab:iv_time_neg1rho}). 
+In this subsection, we apply our Accelerated Hybrid Scheme to calculate the implied volatility curves based on European call option pricing results, and compare the computational efficiency and accuracy with other methods. The experiment includes calculating implied volatility curves for 20 consecutive trading days, and deriving an implied volatility surface thereafter. Without loss of generality, we choose $H=0.15$, $n_f = 400$, and discretization time steps to be \(n=50\) between every two consecutive trading days. Results in Figure~\ref{fig:iv_neg1rho} indicate that approximation errors of our scheme are all at the same level as other methods, while our scheme's computational effciency significantly outperforms the others (see Table~\ref{tab:iv_time_neg1rho}). 
 
 \begin{figure}[h]
     \centering
@@ -1100,9 +1018,25 @@ In this subsection, we apply our Accelerated Hybrid Scheme to calculate the impl
     \label{fig:iv_neg1rho}
 \end{figure}
 
-In Figure~\ref{fig:iv_neg1rho}, it is worth noting that the implied volatility surface calculated by the Accelerated Hybrid Scheme is not as smooth as the one obtained by the Fourier transform inversion method in the deep in-the-money region. This is not only the problem of our scheme but all simulation methods listed in the paper. This issue is more evident if we set \(\rho\) to 0.7, as shown in Figure~\ref{fig:iv_7rho} (the implied volatility surface is left empty because all the simulation methods fail to calculate implied volatilty values for deep in-the-money options). One possible reason is that 
+\begin{table}[tph]
+\begin{center}
+\begin{tabular}{l p{2.2cm} p{2cm} p{2cm} p{2cm} p{2cm}}
+\hline\hline
+ & Markov Approximation & Classical Hybrid & Transform Inversion & Accelerated Hybrid & Euler Scheme \\
+\hline
+CPU time (s) & 104.70 & 437.07 & 1879.83 & 180.70 & 466.12 \\
+\hline
+\end{tabular}
 
-\begin{figure}[htb]
+\caption{CPU times for implied volatility calculations under \(H=0.15, \rho=-0.1, n_f=400, n=50\). Other parameters are set as \(S_0 = 1, \theta = 0.05, \lambda = 0.1, \nu = 0.3, V_0 = 0.05, r=d=0\). The performance results are measured on a MacBook Pro with a 10-core Apple M2 Pro processor and 32 GB RAM.}
+\label{tab:iv_time_neg1rho}
+\end{center}
+
+\end{table}
+
+Furthermore, Figure~\ref{fig:iv_neg1rho} indicates that the implied volatility surface computed via the Accelerated Hybrid Scheme exhibits reduced smoothness in the deep in-the-money region compared to the Fourier transform inversion method. This phenomenon is not unique to our approach but is observed across all simulation-based methods considered in this study. The issue becomes more pronounced when the correlation parameter \(\rho\) is set to a highly positive value, such as 0.7, as illustrated in Figure~\ref{fig:iv_7rho}, where the implied volatility surface is absent in the deep in-the-money region due to the failure of all simulation methods to produce reliable option price estimates. A plausible explanation is that, for deep in-the-money options, the option price is dominated by its intrinsic value, and the time value component becomes negligible. In Monte Carlo simulations, this results in most simulated paths ending in the money, making the estimation of the small time value component highly sensitive to statistical noise and leading to substantial variance. This challenge can be partially addressed by increasing the number of Monte Carlo paths or employing advanced variance reduction techniques. Notably, this issue does not arise when \(\rho\) is strongly negative. For instance, as shown in Figure~\ref{fig:iv_neg7rho} with \(\rho = -0.7\), the implied volatility surface remains smooth and accurate even in the deep in-the-money region. A more thorough investigation into this phenomenon is left for future research. 
+
+\begin{figure}[hptb]
     \centering
     \begin{subfigure}[b]{0.32\textwidth}
         \includegraphics[width=\textwidth]{fig/iv/iv_1_Day_point15H_400nf_50n_7rho.png}
@@ -1134,7 +1068,7 @@ In Figure~\ref{fig:iv_neg1rho}, it is worth noting that the implied volatility s
     \label{fig:iv_7rho}
 \end{figure}
 
-\begin{figure}[htb]
+\begin{figure}[hptb]
     \centering
     \begin{subfigure}[b]{0.32\textwidth}
         \includegraphics[width=\textwidth]{fig/iv/iv_1_Day_point15H_400nf_50n_neg7rho.png}
@@ -1186,6 +1120,7 @@ As a result, the Accelerated Hybrid Scheme offers a significant improvement in s
 \bibliography{mainbib,mybib,newadded}
 
 
+
 \newpage
 %\doublespacing%
 %TCIMACRO{\TeXButton{reset numbering at 0}{\setcounter{section}{0}
@@ -1207,13 +1142,199 @@ As a result, the Accelerated Hybrid Scheme offers a significant improvement in s
 %EndExpansion
 
 
-% \section{Tables of simulation results}\label{appendix:tables}
+\section{Proof of Theorem \ref{theorem:convergence_X}\label{Appendix_proof}}
 
-% \subsection{\label{proof: sum}Proof of Theorem \ref{theorem: sum}}
+Before proving Theorem~\ref{theorem:convergence_X}, we introduce the following lemma that establishes the tightness of the Markovian approximation process.
+\begin{lemma}\label{lemma:tightness_markov_approx}
+Let \(\{X_t^{n_f}: 0 \le t \le T\}\) be the Markovian approximation of the process defined by (\ref{eq:target_process}) with the kernel approximate \(\widehat{K}(t) = \sum_{i=1}^{n_f}w_i e^{-x_i t}\) and \(\{(w_i,x_i)\}_{i=1}^{n_f}\) given by (\ref{eq:parameter_choice_1}). Then, for any \(t,h\ge 0\) and \(t + h \le T\), there exists a constant \(C>0\) such that
+\[
+\mathbb{E} |X_{t+h}^{n_f} - X_t^{n_f}|^2 \le C h^{2H}.
+\]
+\end{lemma}
 
-% \begin{proof}
-% The proof goes here.
-% \end{proof}
+\begin{proof}
+    By definition of \(\{X_t^{n_f}: 0 \le t \le T\}\) and \((a+b)^2\le 2a^2+2b^2\), we have
+    \begin{align*}
+        \mathbb{E} |X_{t+h}^{n_f} - X_t^{n_f}|^2 &\le 2\mathbb{E} \left|\int_{0}^{t+h} \widehat{K}(t+h-s) b(X_s^{n_f})\,ds - \int_{0}^{t}\widehat{K}(t-s) b(X_s^{n_f})\,ds\right|^2\nonumber\\
+        &\quad + 2\mathbb{E} \left|\int_{0}^{t+h} \widehat{K}(t+h-s) \sigma(X_s^{n_f})\,dW_s - \int_{0}^{t}\widehat{K}(t-s) \sigma(X_s^{n_f})\,dW_s\right|^2=: 2I_1 + 2I_2.
+    \end{align*}
+    Using Jensen's inequality, Fubini theorem and linear growth condition, we have 
+    \begin{align*}
+        I_1 &\le 2\mathbb{E}\left|\int_{0}^{t} (\widehat{K}(t+h-s)-\widehat{K}(t-s))b(X_s^{n_f})\,ds\right|^2 + 2\mathbb{E}\left|\int_{t}^{t+h} \widehat{K}(t+h-s)b(X_s^{n_f})\,ds\right|^2\\
+        % line 2
+        &\le 2t \mathbb{E}\left[\int_{0}^{t} |\widehat{K}(t+h-s)-\widehat{K}(t-s)|^2 |b(X_s^{n_f})|^2\,ds\right] + 2h \mathbb{E}\left[\int_{t}^{t+h} |\widehat{K}(t+h-s)|^2 |b(X_s^{n_f})|^2\,ds\right]\\
+        % line 3
+        &\le 2t C_b \mathbb{E}\left[\int_{0}^{t} |\widehat{K}(t+h-s)-\widehat{K}(t-s)|^2 (1+|X_s^{n_f}|)^2\,ds\right] + 2h C_b \mathbb{E}\left[\int_{t}^{t+h} |\widehat{K}(t+h-s)|^2 (1+|X_s^{n_f}|)^2\,ds\right]\\
+        % line 4
+        &\le 2TC_b \left(\sup_{0\le s \le T}  \mathbb{E} [(1+|X_s^{n_f}|)^2] \right) \left(\int_{0}^{t} |\widehat{K}(t+h-s)-\widehat{K}(t-s)|^2\,ds + \int_{t}^{t+h} |\widehat{K}(t+h-s)|^2\,ds \right)\\
+        % line 5
+        &\le 2TC_b \left(\sup_{0\le s \le T}  \mathbb{E} [(1+|X_s^{n_f}|)^2] \right) \left(\int_{0}^{T-h} |\widehat{K}(h+s)-\widehat{K}(s)|^2\,ds + \int_{0}^{h} |\widehat{K}(s)|^2\,ds \right)\\
+        % line 6
+        &\le 2TC_1 \left(\int_{0}^{T-h} |\widehat{K}(h+s)-\widehat{K}(s)|^2\,ds + \int_{0}^{h} |\widehat{K}(s)|^2\,ds \right),
+    \end{align*}
+    where \(C_1>0\) is a constant, since \[
+    \sup_{0\le t \le T} \mathbb{E} [|X_t^{n_f}|^p] < \infty,\quad p\ge 1,
+    \]
+    for a given \(n_f\). Likewise, we can obtain a similar bound for \(I_2\) by It\^o isometry, which is given by 
+    \begin{align*}
+        I_2 &\le 2\mathbb{E}\left[\int_{0}^{t} |\widehat{K}(t+h-s)-\widehat{K}(t-s)|^2 |\sigma(X_s^{n_f})|^2\,ds\right] + 2\mathbb{E}\left[\int_{t}^{t+h} |\widehat{K}(t+h-s)|^2 |\sigma(X_s^{n_f})|^2\,ds\right]\\
+        &\le 2C_2 \left(\int_{0}^{T-h} |\widehat{K}(h+s)-\widehat{K}(s)|^2\,ds + \int_{0}^{h} |\widehat{K}(s)|^2\,ds \right).
+    \end{align*}
+    Combining results for \(I_1\) and \(I_2\),  we have for any given \(T>0, n_f \ge 1\) that 
+    \begin{align*}
+        \mathbb{E} |X_{t+h}^{n_f} - X_t^{n_f}|^2 \le 4(C_1 T + C_2) \left(\int_{0}^{T-h} |\widehat{K}(h+s)-\widehat{K}(s)|^2\,ds + \int_{0}^{h} |\widehat{K}(s)|^2\,ds \right),
+    \end{align*}
+    Then, from Section~8.6.1 and Lemma~7.13 in \cite{abijaber2018}, we have 
+    \[
+    \sup_{n_f\ge 1} \left(\int_{0}^{T-h} |\widehat{K}(h+s)-\widehat{K}(s)|^2\,ds + \int_{0}^{h} |\widehat{K}(s)|^2\,ds \right) \le C_K h^{2H},
+    \]
+    which gives that 
+    \[
+        \mathbb{E} |X_{t+h}^{n_f} - X_t^{n_f}|^2 \le C h^{2H},
+    \]
+    for some constant \(C>0\).
 
+\end{proof}
+
+
+
+\begin{proof}[Proof of Theorem~\ref{theorem:convergence_X}]
+    Let \(T\in \mathbb{R}_+\) be fixed. We can write the approximation \(\widetilde{X}_T\) as 
+    \begin{align*}
+        \widetilde{X}_T &= X_0 + \sum_{i=1}^{n} b\bigl(\widehat{X}_{t_{n-i}}^{n_f}\bigr) \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s)\,ds \nonumber\\[1mm]
+        &\quad + \sum_{i=1}^{\kappa} \sigma\bigl(\widehat{X}_{t_{n-i}}^{n_f}\bigr)
+        \int_{(k-i)T/n}^{(k-i+1)T/n} K(T-s)\,dW_s
+        + \sum_{i=\kappa+1}^{k} K\Bigl(\frac{b_{i}T}{n}\Bigr)\, \sigma\bigl(\widehat{X}_{t_{k-i}}^{n_f}\bigr) \Delta W_{k-i},
+    \end{align*}
+    and we introduce the auxillary processes 
+    \begin{align*}
+        \bar{X}_T = X_0 + \int_{0}^{T} K(T-s) b(X_s^{n_f})\,ds + \int_{0}^{T} K(T-s) \sigma(X_s^{n_f})\,dW_s,
+    \end{align*}
+    and 
+    \begin{align*}
+        \bar{X}_T^n &= X_0 + \sum_{i=1}^{n} b\bigl(X_{t_{n-i}}^{n_f}\bigr) \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s)\,ds \nonumber\\[1mm]
+        &\quad + \sum_{i=1}^{\kappa} \sigma\bigl(X_{t_{n-i}}^{n_f}\bigr)
+        \int_{(k-i)T/n}^{(k-i+1)T/n} K(T-s)\,dW_s
+        + \sum_{i=\kappa+1}^{k} K\Bigl(\frac{b_{i}T}{n}\Bigr)\, \sigma\bigl(X_{t_{k-i}}^{n_f}\bigr) \Delta W_{k-i}.
+    \end{align*}
+    By \((a+b+c)^2 \le 3a^2+3b^2+3c^2\), we have 
+    \[
+        \mathbb{E} |X_T - \widetilde{X}_T|^2 \le 3\mathbb{E} |X_T - \bar{X}_T|^2 + 3\mathbb{E} |\bar{X}_T - \bar{X}_T^n|^2 + 3\mathbb{E} |\bar{X}_T^n - \widetilde{X}_T|^2.
+    \]
+    In what follows, we show that each term on the right-hand side converges to $0$ as \(n_f\to \infty\) and \(n\to \infty\).
+
+    Let us analyze \(\mathbb{E} |X_T - \bar{X}_T|^2\) first:
+    \begin{align*}
+        \mathbb{E} |X_T - \bar{X}_T|^2 &= \mathbb{E} \left|\int_{0}^{T}K(T-s) \left(b(X_s) - b(X_s^{n_f})\right)ds + \int_{0}^{T}K(T-s) \left(\sigma(X_s) - \sigma(X_s^{n_f})\right)dW_s\right|^2\\
+        %line 2
+        &\le 2\mathbb{E} \left|\int_{0}^{T}K(T-s) \left(b(X_s) - b(X_s^{n_f})\right)ds\right|^2 + 2\mathbb{E} \left|\int_{0}^{T}K(T-s) \left(\sigma(X_s) - \sigma(X_s^{n_f})\right)dW_s\right|^2
+    \end{align*}
+    By applying Cauchy-Schwarz inequality to the first term, It\^o isometry to the second term, and using Fubini theorem, we have
+    \begin{align*}
+        \mathbb{E} |X_T - \bar{X}_T|^2 &\le 2T \mathbb{E} \left[\int_{0}^{T}K(T-s)^2  \left|b(X_s) - b(X_s^{n_f})\right|^2 ds \right] 
+        + 2\mathbb{E} \left[\int_{0}^{T}K(T-s)^2  \left|\sigma(X_s) - \sigma(X_s^{n_f})\right|^2 ds\right]\\
+        % line 2
+        &= 2T\int_{0}^{T} K(T-s)^2 \mathbb{E} \left|b(X_s) - b(X_s^{n_f})\right|^2 ds + 2\int_{0}^{T} K(T-s)^2 \mathbb{E} \left|\sigma(X_s) - \sigma(X_s^{n_f})\right|^2 ds.
+    \end{align*}
+    Under Assumption~\ref{assumption:coefficients}, there exists a constant \(L>0\) such that
+    \begin{align*}
+        \mathbb{E} \left|b(X_s) - b(X_s^{n_f})\right|^2 &\le L \cdot \mathbb{E} \left|X_s - X_s^{n_f}\right|^2,\\
+        \mathbb{E} \left|\sigma(X_s) - \sigma(X_s^{n_f})\right|^2 &\le L\cdot \mathbb{E} \left|X_s - X_s^{n_f}\right|^2.
+    \end{align*}
+    Hence, we have 
+    \begin{align*}
+        \mathbb{E} |X_T - \bar{X}_T|^2 &\le (2T+1)L \int_{0}^{T} K(T-s)^2 \mathbb{E} \left|X_s - X_s^{n_f}\right|^2 ds\\
+        &\le \left(\sup_{0\le t\le T} \mathbb{E} \left|X_s - X_s^{n_f}\right|^2 \right) \cdot (2T+1)L \int_{0}^{T} K(T-s)^2 ds
+    \end{align*}
+    By Proposition~\ref{prop:markov_approx_convergence}, we have 
+    \[
+    \sup_{0\le t\le T} \mathbb{E} \left|X_s - X_s^{n_f}\right|^2 \le C \sup_{0\le t\le T} \int_0^t |K(s) - \widehat{K}(s)|^2 ds = C \|K - \widehat{K}\|_{2,T}^2,
+    \]
+    where \(C>0\) is a constant, and \(\widehat{K}(u) = \sum_{i=1}^{n_f} w_i e^{-x_i u}\) is a kernel approximation following (\ref{eq:parameter_choice_1}). By (\ref{eq:parameter_choice_1_convergence}), we have \(\|K - \widehat{K}\|_{2,T} \to 0\) as \(n_f\to \infty\). Therefore, \(\mathbb{E} |X_T - \bar{X}_T|^2 \to 0\) as \(n_f\to \infty\).
+
+    \paragraph{} Next, we analyze \(\mathbb{E} |\bar{X}_T - \bar{X}_T^n|^2\). Likewise, we introduce an ancillary term 
+    \begin{equation*}
+        \check{X}_T^n = X_0 + \sum_{i=1}^{n} b\bigl(X_{t_{n-i}}^{n_f}\bigr) \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s)\,ds + \sum_{i=1}^{n} \sigma\bigl(X_{t_{n-i}}^{n_f}\bigr) \int_{(k-i)T/n}^{(k-i+1)T/n} K(T-s)\,dW_s,
+    \end{equation*}
+    and split the error term as
+    \begin{align*}
+        \mathbb{E} |\bar{X}_T - \bar{X}_T^n|^2 &\le 2\mathbb{E}|\bar{X}_T - \check{X}_T^n|^2 + 2\mathbb{E}|\check{X}_T^n - \bar{X}_T^n|^2.
+    \end{align*}
+    Using Jensen's inequality, It\^o isometry, Lipschitz continuity of \(b,\sigma\), and Lemma~\ref{lemma:tightness_markov_approx}, we have
+    \begin{align}
+        \mathbb{E}|\bar{X}_T - \check{X}_T^n|^2 &\le 2\mathbb{E} \left|\sum_{i=1}^n \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s) (b(X_s^{n_f}) - b(X_{t_{n-i}}^{n_f}))\,ds\right|^2\nonumber\\
+        &\qquad + 2\mathbb{E}\left| \sum_{i=1}^n \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s) (\sigma(X_s^{n_f}) - \sigma(X_{t_{n-i}}^{n_f}))\,dW_s\right|^2\nonumber\\
+        % line 2
+        &\le 2T \int_{0}^{T} K(T-s)^2 \mathbb{E} |b(X_s^{n_f}) - b(X_{\eta(s)}^{n_f})|^2\,ds + 2\int_{0}^{T} K(T-s)^2 \mathbb{E} |\sigma(X_s^{n_f}) - \sigma(X_{\eta(s)}^{n_f})|^2\,ds\nonumber\\ 
+        % line 3
+        &\le (2T+1)L \cdot \left(\sup_{0\le s\le T} \mathbb{E} |X_s^{n_f} - X_{\eta(s)}^{n_f}|^2\right) \int_{0}^{T} K(u)^2 \,du\nonumber\\
+        % line 4
+        &\le (2T+1)LC \left(\frac{T}{n}\right)^{2H} \int_{0}^{T} K(u)^2 \,du,\label{eq:barX_checkX}
+    \end{align}
+    where \(\eta(s) = \tfrac{(n-i)T}{n}\) for \(s \in [\tfrac{(n-i)T}{n},\tfrac{(n-i+1)T}{n}),\ i=1,2,\ldots n\), \(L>0\) is defined as above, \(C>0\) is the constant from Lemma~\ref{lemma:tightness_markov_approx}. \eqref{eq:barX_checkX} indicates that 
+    \[
+        \mathbb{E}|\bar{X}_T - \check{X}_T^n|^2 \to 0,\quad n\to \infty
+    \]
+    Likewise, we can derive the upper bound of \(\mathbb{E}|\check{X}_T^n - \bar{X}_T^n|^2\) as follows.
+    \begin{align}
+        \mathbb{E}|\check{X}_T^n - \bar{X}_T^n|^2 &= \mathbb{E} \left|\sum_{i=\kappa+1}^{n} \int_{(n-i)T/n}^{(n-i+1)T/n} \left(K\left(\frac{b_i T}{n}\right) - K(T-s)\right) \sigma(X_{t_{n-i}}^{n_f}) \,dW_s\right|^2\nonumber\\ 
+        % line 2
+        &= \sum_{i=\kappa+1}^{n} \int_{(n-i)T/n}^{(n-i+1)T/n} \left(K\left(\frac{b_i T}{n}\right) - K(T-s)\right)^2 \mathbb{E} |\sigma(X_{t_{n-i}}^{n_f})|^2\,ds\nonumber\\
+        % line 3
+        &\le \frac{\widetilde{C}_\sigma \sup_{0\le s \le T} \mathbb{E} (1 + |X_s^{n_f}|)^2}{\Gamma(H+\frac{1}{2})^2} \left(\frac{T}{n}\right)^{2H}\sum_{i=\kappa+1}^{n}  \int_{i-1}^{i} (b_i^{H-\frac{1}{2}} - y^{H-\frac{1}{2}})^2\,dy\nonumber\\
+        % line 4
+        &\le C_{\sigma,H}\left(\frac{T}{n}\right)^{2H} \sum_{i=\kappa+1}^{n}  \int_{i-1}^{i} (b_i^{H-\frac{1}{2}} - y^{H-\frac{1}{2}})^2\,dy\label{eq:checkX_barXn}
+    \end{align}
+    where \(C_{\sigma,H}>0\) is a constant related to \(\sigma, H\) and the upper bound of \(\sup_{0\le s \le T} \mathbb{E}[|X_s^{n_f}|^p]\) for \(p>0\) (which is finite by Section~7.5.1, \cite{abijaber2018}). Minimizing \(\int_{i-1}^{i} (b_i^{H-\frac{1}{2}} - y^{H-\frac{1}{2}})^2 dy\) above with respect to \(b_i\), we have 
+    \begin{equation}
+        b_i = \left(\frac{i^{H+\frac{1}{2}} - (i-1)^{H+\frac{1}{2}}}{H+\frac{1}{2}}\right)^{\frac{1}{H-\frac{1}{2}}}.\label{eq:optimal_bi}
+    \end{equation}
+    By Theorem~2.5, \cite{bennedsen_2017_FS}, we have 
+    \[
+    \sum_{i=\kappa+1}^{\infty}  \int_{i-1}^{i} (b_i^{H-\frac{1}{2}} - y^{H-\frac{1}{2}})^2\,dy < \infty,
+    \]
+    which directly leads to
+    \[
+        \mathbb{E}|\check{X}_T^n - \bar{X}_T^n|^2 \to 0,\quad n\to \infty.
+    \]
+
+    \paragraph{} Finally, we analyze \(\mathbb{E}|\bar{X}_T^n - \widetilde{X}_T|^2\), which is given by
+    \begin{align}
+        \mathbb{E}|\bar{X}_T^n - \widetilde{X}_T|^2 &= \mathbb{E} \left|\sum_{i=1}^{n} (b(X_{t_{n-i}}^{n_f}) - b(\widehat{X}_{t_{n-i}}^{n_f})) \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s)\,ds\right|^2\nonumber\\
+        % line 2
+        &\qquad + \mathbb{E} \left|\sum_{i=1}^{\kappa} (\sigma(X_{t_{n-i}}^{n_f}) - \sigma(\widehat{X}_{t_{n-i}}^{n_f}))\int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s)\,dW_s\right|^2\nonumber\\
+        % line 3
+        &\qquad + \mathbb{E} \left|\sum_{i=\kappa+1}^{n} K\left(\frac{b_i T}{n}\right) (\sigma(X_{t_{n-i}}^{n_f}) - \sigma(X_{t_{n-i}}^{n_f})) \int_{(n-i)T/n}^{(n-i+1)T/n} dW_s\right|^2\nonumber\\
+        % line 4
+        &=: J_1 + J_2 + J_3.
+    \end{align}
+    Likewise, by Jensen's inequality and Lipschitz continuity, 
+    \begin{align}
+        J_1 &= \mathbb{E}\left|\int_0^T K(T-s) (b(X_{\eta(s)}^{n_f}) - b(\widehat{X}_{\eta(s)}^{n_f}))\,ds\right|^2\nonumber\\
+        % line 2
+        &\le T \int_0^T K(T-s)^2 \mathbb{E} |b(X_{\eta(s)}^{n_f}) - b(\widehat{X}_{\eta(s)}^{n_f})|^2\,ds\nonumber\\
+        % line 3
+        &\le T L \cdot \left(\max_{i\in\{0,...,n-1\}} \mathbb{E} |X_{t_i}^{n_f} - \widehat{X}_{t_i}^{n_f}|^2\right) \int_0^T K(u)^2\,du\label{eq:barXn_tildeX_1}
+    \end{align}
+    where \(L>0\) is the Lipschitz constant, \(\eta(\cdot)\) is defined as above. Similarly, by It\^o isometry and Lipschitz continuity, we have
+    \begin{align}
+        J_2 + J_3 &= \sum_{i=1}^{\kappa} \int_{(n-i)T/n}^{(n-i+1)T/n} K(T-s)^2 \mathbb{E} |\sigma(X_{t_{n-i}}^{n_f}) - \sigma(\widehat{X}_{t_{n-i}}^{n_f})|^2\,ds \nonumber\\
+        &\qquad + \sum_{i=\kappa+1}^{n} K\left(\frac{b_i T}{n}\right)^2 \mathbb{E} |\sigma(X_{t_{n-i}}^{n_f}) - \sigma(\widehat{X}_{t_{n-i}}^{n_f})|^2 \left(\frac{T}{n}\right)\nonumber\\
+        % line 2
+        &\le L\cdot \left(\max_{i\in\{0,...,n-1\}} \mathbb{E} |X_{t_i}^{n_f} - \widehat{X}_{t_i}^{n_f}|^2\right) \left(\sum_{i=1}^{\kappa} \int_{(i-1)T/n}^{iT/n} K(u)^2 du + \frac{T}{n} \sum_{i=\kappa+1}^{n} K\left(\frac{b_i T}{n}\right)^2\right)\label{eq:barXn_tildeX_2}
+    \end{align}
+    It is easy to show that \(\frac{T}{n} \sum_{i=\kappa+1}^{n} K\left(\frac{b_i T}{n}\right)^2 < \infty\) as \(n\to \infty\) for any sequence \(b_i \in [i-1,i],\ i=1,\ldots n\). As the discretization scheme \eqref{eq:markovian_X_update}-\eqref{eq:markovian_Z_update} is inherently the same as the Euler scheme \eqref{eq:euler_scheme_target} (Theorem~4.2, \cite{AlfonsiKeabier2023}) with kernel \(\widehat{K}(u) = \sum_{i=1}^{n_f}w_i e^{-x_i u}\), by Proposition~\ref{prop:euler_convergence}, \[
+        \max_{i\in\{0,...,n-1\}} \mathbb{E} |X_{t_i}^{n_f} - \widehat{X}_{t_i}^{n_f}|^2 \to 0,\quad n\to \infty,
+    \] 
+    which leads to 
+    \[
+        \mathbb{E}|\bar{X}_T^n - \widetilde{X}_T|^2 = J_1 + J_2 + J_3 \to 0,\quad n\to \infty.
+    \]
+
+    Combining the convergence results of \(\mathbb{E} |X_T - \bar{X}_T|^2\), \(\mathbb{E} |\bar{X}_T - \bar{X}_T^n|^2\), and \(\mathbb{E} |\bar{X}_T^n - \widetilde{X}_T|^2\), we can therefore conclude that 
+    \[
+        \mathbb{E} |X_T - \widetilde{X}_T|^2 \to 0,\quad n_f\to \infty,\quad n\to \infty.
+    \]
+\end{proof}
 
 \end{document}
