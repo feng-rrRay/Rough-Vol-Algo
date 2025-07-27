@@ -279,7 +279,7 @@ where the constant
 J(\alpha,\kappa,\mathbf{b}) := \sum_{k=\kappa+1}^{\infty}\int_{k-1}^{k}\Bigl(y^\alpha - b_k^\alpha\Bigr)^2dy < \infty,
 \]
 and $\mathbf{b}=(b_k)_{k=\kappa+1}^\infty$ is the chosen sequence of evaluation points with $b_k\in[k-1,k]\setminus\{0\}$.
-\end{theorem}
+\end{proposition}
 
 For kernel function \(K(t) = \tfrac{t^{H-1/2}}{\Gamma(H+1/2)}\), the above result yields a strong order of $H$. If the volatility process \(\sigma_t\) is known, the time complexity of the original hybrid scheme can be reduced to \(\mathcal{O}(N_n\log N_n)\) using the fast Fourier transform.
 However, these properties are not directly applicable to our models of interest, since the volatility process $\sigma_t$ is endogenously determined by \(\{Y_{u}: u \le t\}\), pushing the time complexity back to \(\mathcal{O}(N_n^2)\); and the process (\ref{eq:target_process}) and (\ref{eq:variance-process}) are not necessarily covariance-stationary, which baffles the mean square error analysis in Proposition~\ref{prop:mse_orignial_hybrid}.
