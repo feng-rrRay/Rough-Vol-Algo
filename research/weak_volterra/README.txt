@@ -1,6 +1,6 @@
 WEAK VOLTERRA ALGORITHM AND COMPARISONS
 
-Branch: codex/weak-volterra-comparisons
+Branch: research/weak-volterra-comparisons
 Initialized: 2026-11-08, from main at d341bd6.
 
 This directory brings the current numerical work into the GitHub-linked
