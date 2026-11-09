@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+*.dylib
+*.so
+exact_cell/results/
+haar_prototype/results/
+branch_validation.json
+exact_cell/orders_table.tex
+exact_cell/differences_table.tex
+exact_cell/verdict.tex
+exact_cell/secondary_verdict.tex

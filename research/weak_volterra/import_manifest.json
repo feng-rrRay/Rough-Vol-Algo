@@ -1,0 +1,97 @@
+{
+  "import_date": "2026-11-08",
+  "base_commit": "d341bd6",
+  "note": "Source hashes before the small migration fixes documented in README.txt. Source workspace is not part of this Git repository. Historical results are self-convergence diagnostics, not continuous-bias validation.",
+  "files": [
+    {
+      "source_workspace_relative": "manuscript/weak_volterra/numerics/rate_test/run_rate_test.py",
+      "destination_repository_relative": "research/weak_volterra/exact_cell/run_rate_test.py",
+      "sha256": "78787bcc5f858e58d6832c003a3feb61ae8813dd40e8c462b2f825025d70e85e"
+    },
+    {
+      "source_workspace_relative": "manuscript/weak_volterra/numerics/rate_test/rate_kernels.c",
+      "destination_repository_relative": "research/weak_volterra/exact_cell/rate_kernels.c",
+      "sha256": "f3a37a0934cfafe0c898fa61ea726e8cbda2f9d3841c6866ff1ed2f86357d5ca"
+    },
+    {
+      "source_workspace_relative": "manuscript/weak_volterra/numerics/rate_test/check_references.py",
+      "destination_repository_relative": "research/weak_volterra/exact_cell/check_references.py",
+      "sha256": "448f7ccb74209c7fdadebdc3562b505fbaa611bcd8eb05bf0b382d10e261467f"
+    },
+    {
+      "source_workspace_relative": "manuscript/weak_volterra/numerics/rate_test/gaussian_control.py",
+      "destination_repository_relative": "research/weak_volterra/exact_cell/gaussian_control.py",
+      "sha256": "6413c1dbb61d8248c5925278b8e20f4503d1e20c5dc3fa77d29dad48de7b9fd1"
+    },
+    {
+      "source_workspace_relative": "manuscript/weak_volterra/numerics/rate_test/analyze_rate_test.py",
+      "destination_repository_relative": "research/weak_volterra/exact_cell/analyze_rate_test.py",
+      "sha256": "81bc8ece98af30890b098921a2d2602c4a9e6690307c4f7e2d9493e8e4bcfdef"
+    },
+    {
+      "source_workspace_relative": "notes/weak_bias_refinement/verify_randomized_haar_correction.py",
+      "destination_repository_relative": "research/weak_volterra/haar_prototype/verify_randomized_haar_correction.py",
+      "sha256": "137ebbb36821fb0ef6e446694e97e5774f6cb766044a17c17b8ecbc5a5ae2cef"
+    },
+    {
+      "source_workspace_relative": "notes/weak_bias_refinement/benchmark_haar_compression.py",
+      "destination_repository_relative": "research/weak_volterra/haar_prototype/benchmark_haar_compression.py",
+      "sha256": "b49152b41d7ae7ad52cbd1c9f234e0356c60094c1759617c4778c896cfedbef8"
+    },
+    {
+      "source_workspace_relative": "notes/weak_bias_refinement/benchmark_fft_residual_cost.py",
+      "destination_repository_relative": "research/weak_volterra/haar_prototype/benchmark_fft_residual_cost.py",
+      "sha256": "fec4ad5aab4683847063866e8ece4ea630f8ac00b01dc87874a136a8dae75d1e"
+    },
+    {
+      "source_workspace_relative": "notes/weak_bias_refinement/haar_benchmark_kernels.c",
+      "destination_repository_relative": "research/weak_volterra/haar_prototype/haar_benchmark_kernels.c",
+      "sha256": "30a4aa9a694123742509e4d87d22d0a40e8c1fcab514a245101dd4ef1f73fcb4"
+    },
+    {
+      "source_workspace_relative": "notes/weak_bias_refinement/fft_cost_generic_kernels.c",
+      "destination_repository_relative": "research/weak_volterra/haar_prototype/fft_cost_generic_kernels.c",
+      "sha256": "0cf70701087a55d2e6aec80377ccc79bf8bdcd31f9ee3b820f22b08297f4ceba"
+    },
+    {
+      "source_workspace_relative": "manuscript/weak_volterra/numerics/rate_test/requirements.lock.txt",
+      "destination_repository_relative": "research/weak_volterra/requirements.lock.txt",
+      "sha256": "5931bac7589be2649ca6039f5402a6fc4024585a1e3ea485491a2d761ca260aa"
+    },
+    {
+      "source_workspace_relative": "manuscript/weak_volterra/numerics/experiment_matrix.json",
+      "destination_repository_relative": "research/weak_volterra/experiment_matrix.json",
+      "sha256": "55fa65bb6e2f2378828a4460014f2110ed77ace5c3ef8e282104b1e00191dd45"
+    },
+    {
+      "source_workspace_relative": "manuscript/weak_volterra/numerics/rate_test/results/production/differences.csv",
+      "destination_repository_relative": "research/weak_volterra/recorded_results/initial_mesh_test/differences.csv",
+      "sha256": "8ba835668daee6dfbcb9de9cbad03eeecce5a3e82f44f4b9839e6836277a2aa9"
+    },
+    {
+      "source_workspace_relative": "manuscript/weak_volterra/numerics/rate_test/results/production/effective_orders.csv",
+      "destination_repository_relative": "research/weak_volterra/recorded_results/initial_mesh_test/effective_orders.csv",
+      "sha256": "26ed3fc421d767cda3e5f7b7ea38cc34a6f35a877af219d3f0c0a284dd9310ff"
+    },
+    {
+      "source_workspace_relative": "manuscript/weak_volterra/numerics/rate_test/results/production/summary.json",
+      "destination_repository_relative": "research/weak_volterra/recorded_results/initial_mesh_test/summary.json",
+      "sha256": "2d42d0d0e71eb0fadbf4e2c3840eca49f047c0b1595c0a83e730b1ac5be76b00"
+    },
+    {
+      "source_workspace_relative": "manuscript/weak_volterra/numerics/rate_test/results/production/metadata.json",
+      "destination_repository_relative": "research/weak_volterra/recorded_results/initial_mesh_test/metadata.json",
+      "sha256": "170c03ff3f73374f511c904ae473036fb528be7900cc7debe2ddba4fbf01dcf9"
+    },
+    {
+      "source_workspace_relative": "manuscript/weak_volterra/numerics/rate_test/results/low_h_extension/differences.csv",
+      "destination_repository_relative": "research/weak_volterra/recorded_results/initial_mesh_test/low_h_extension_differences.csv",
+      "sha256": "f65487b4e196b7c1ef014e6dfe479b634ab585e98d88e07c135df6c3c04d12d1"
+    },
+    {
+      "source_workspace_relative": "manuscript/weak_volterra/numerics/rate_test/validation.json",
+      "destination_repository_relative": "research/weak_volterra/recorded_results/initial_mesh_test/validation_original.json",
+      "sha256": "4e0455d1db204b329976f4e5488eaff5614eb972cb75ed39a857d7201caf5a11"
+    }
+  ]
+}

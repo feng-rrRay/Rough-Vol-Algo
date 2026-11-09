@@ -1,5 +1,10 @@
 # Efficient Option Pricing & Implied Volatility Calculation under Rough Heston Model
 
+The current weak-convergence research and comparison harness are in
+[`research/weak_volterra/`](research/weak_volterra/README.txt). That directory
+documents the exact-cell tests, Haar/CDQ prototypes, reference-value policy,
+and the validation still required before making end-to-end accuracy or speed claims.
+
 This repository implements simulation and pricing methods for rough volatility models, focusing on the **Rough Heston Model**. Key contributions include:
 
 - Developed a robust Fourier transform inversion approach using the Adams scheme solver for the fractional Riccati equation, providing a stable benchmark for option pricing under rough volatility.

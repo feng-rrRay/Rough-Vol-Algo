@@ -1,0 +1,49 @@
+{
+  "scope": "Migration, recursions, coupling and normalization only.",
+  "python": "3.12.4 (main, Jun  6 2024, 18:26:44) [Clang 15.0.0 (clang-1500.3.9.4)]",
+  "platform": "macOS-27.0-arm64-arm-64bit",
+  "numpy": "2.5.4",
+  "exact_cell": {
+    "cdq_vs_python_max": 1.7763568394002505e-15,
+    "coarse_covariance_max": 8.326672684688674e-17,
+    "source_aggregation": "passed",
+    "additive_grid_equality": "passed"
+  },
+  "haar_direct": "passed independent path and additive-control checks",
+  "haar_cdq": {
+    "shared1": {
+      "cdq_native_direct_max_error": 1.1102230246251565e-15,
+      "cdq_python_direct_max_error": 1.3322676295501878e-15
+    },
+    "shared2": {
+      "cdq_native_direct_max_error": 7.771561172376096e-16,
+      "cdq_python_direct_max_error": 8.881784197001252e-16
+    },
+    "perpath1": {
+      "cdq_native_direct_max_error": 8.881784197001252e-16,
+      "cdq_python_direct_max_error": 8.881784197001252e-16
+    },
+    "perpath4": {
+      "cdq_native_direct_max_error": 8.881784197001252e-16,
+      "cdq_python_direct_max_error": 7.771561172376096e-16
+    }
+  },
+  "sampled_haar": {
+    "mode_energy_max_error": 2.7755575615628914e-17,
+    "cdq_vs_python_max_error": 1.0269562977782698e-15,
+    "fresh_modes_per_path": 4,
+    "note": "Not a distribution, tail or rate certification."
+  },
+  "source_hashes": {
+    "exact_cell/analyze_rate_test.py": "81bc8ece98af30890b098921a2d2602c4a9e6690307c4f7e2d9493e8e4bcfdef",
+    "exact_cell/check_references.py": "2ecc49c3d08dfb137c60056e1e3ea28341a8105b5851436ed3b2b43b7f5bb658",
+    "exact_cell/gaussian_control.py": "d8117ffd1792963ee7c9a56a5f8c454fb99ad69bdd9f5c55e0e5f1128603fdf1",
+    "exact_cell/rate_kernels.c": "f3a37a0934cfafe0c898fa61ea726e8cbda2f9d3841c6866ff1ed2f86357d5ca",
+    "exact_cell/run_rate_test.py": "453d16b2836179d6a60121e8fa9a86412f0feed0d22ef86fd0ca6784c76e0ad7",
+    "haar_prototype/benchmark_fft_residual_cost.py": "19d8863befad91a391af7dba6215d9818d39333ad135c6d71cd9ad356bfb5696",
+    "haar_prototype/benchmark_haar_compression.py": "21481f6701a9d12ec8d010ef16996f017475fbe135565517ab0f30c016196d17",
+    "haar_prototype/fft_cost_generic_kernels.c": "0cf70701087a55d2e6aec80377ccc79bf8bdcd31f9ee3b820f22b08297f4ceba",
+    "haar_prototype/haar_benchmark_kernels.c": "30a4aa9a694123742509e4d87d22d0a40e8c1fcab514a245101dd4ef1f73fcb4",
+    "haar_prototype/verify_randomized_haar_correction.py": "137ebbb36821fb0ef6e446694e97e5774f6cb766044a17c17b8ecbc5a5ae2cef"
+  }
+}

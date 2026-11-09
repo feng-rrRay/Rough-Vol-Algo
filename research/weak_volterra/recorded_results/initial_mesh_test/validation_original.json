@@ -1,0 +1,30 @@
+{
+  "production_cells": 12,
+  "production_payoff_rows": 96,
+  "all_production_estimates_finite": true,
+  "source_hashes_match": true,
+  "source_checks": {
+    "cdq_vs_python_max": 1.7763568394002505e-15,
+    "coarse_covariance_max": 8.326672684688674e-17,
+    "source_aggregation": "passed",
+    "additive_grid_equality": "passed"
+  },
+  "max_covariance_reconstruction_error": 1.8405416080113923e-15,
+  "max_terminal_variance_error": 6.439293542825908e-15,
+  "scope": "Empirical rate diagnostic, not a proof or continuous-error certificate.",
+  "failed_30bit_attempt": "Archived and excluded in full",
+  "latex": "4 pages; no overfull/underfull boxes or unresolved-reference warnings",
+  "visual_review": "All four pages reviewed; final plots have readable labels and no overlaps.",
+  "pdf_sha256": "ecdbbf787d5f10c53fa7b976e1b22a49d6a0124321557e590b7ef50063f3e8d0",
+  "export_matches_source": true,
+  "artifact_hashes": {
+    "run_rate_test.py": "78787bcc5f858e58d6832c003a3feb61ae8813dd40e8c462b2f825025d70e85e",
+    "rate_kernels.c": "f3a37a0934cfafe0c898fa61ea726e8cbda2f9d3841c6866ff1ed2f86357d5ca",
+    "analyze_rate_test.py": "81bc8ece98af30890b098921a2d2602c4a9e6690307c4f7e2d9493e8e4bcfdef",
+    "check_references.py": "448f7ccb74209c7fdadebdc3562b505fbaa611bcd8eb05bf0b382d10e261467f",
+    "gaussian_control.py": "6413c1dbb61d8248c5925278b8e20f4503d1e20c5dc3fa77d29dad48de7b9fd1",
+    "results/production/differences.csv": "8ba835668daee6dfbcb9de9cbad03eeecce5a3e82f44f4b9839e6836277a2aa9",
+    "results/production/effective_orders.csv": "26ed3fc421d767cda3e5f7b7ea38cc34a6f35a877af219d3f0c0a284dd9310ff",
+    "results/low_h_extension/differences.csv": "f65487b4e196b7c1ef014e6dfe479b634ab585e98d88e07c135df6c3c04d12d1"
+  }
+}

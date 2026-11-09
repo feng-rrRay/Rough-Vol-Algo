@@ -1,0 +1,2 @@
+# Preserve original CSV bytes for the recorded provenance hashes.
+*.csv -text whitespace=cr-at-eol

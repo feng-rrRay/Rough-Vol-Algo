@@ -1,0 +1,64 @@
+REFERENCE VALUES FOR THE EXPERIMENTS
+
+The target must specify the model, kernel normalization, initial state,
+maturity, payoff, and measure. A reference for an asset option cannot be
+used as a reference for a smooth function of the volatility state.
+
+ROUGH VOLATILITY EXPANSION
+
+The existing workspace RV_Expansion/ and Comparison/RVJ_Expansion/ code
+implements a finite expansion of implied volatility around zero maturity
+and zero log-moneyness. See Liuyi Zhao, Rough Volatility Expansion
+Implementation, 2025-01-19 (local notes), sections 1.2 and 2, and the older
+manuscript's bivariate expansion propositions. The full Gao thesis and a
+computable finite-maturity remainder bound have not been verified here.
+
+Let mu be the desired continuous expectation and R_J the truncated
+expansion. Then
+  mu_N - R_J = (mu_N - mu) + (mu - R_J).
+At fixed maturity and fixed expansion order, the second term does not
+vanish as the simulation mesh is refined. Increasing coefficient-
+quadrature resolution does not remove expansion truncation error.
+
+If a valid bound |R_J-mu| <= delta is available, then
+  max(0, |mu_N-R_J|-delta) <= |mu_N-mu| <= |mu_N-R_J|+delta.
+Sampling uncertainty must also be included. Require a justified reference
+error budget materially below the smallest bias being resolved (10% is
+a useful design target). Separate a proved bound from empirical sensitivity.
+
+The current expansion may serve as an additional short-maturity/near-ATM
+cross-check or a competing approximation. It is not yet ground truth.
+Keep maturity fixed in a mesh-convergence plot. Shrinking maturity with
+the mesh changes the target experiment. For IV comparisons, an IV error
+must be converted to price error using a bound on Black-Scholes vega over
+the relevant interval, if the reported weak-error observable is a price.
+
+PRIMARY REFERENCE CHOICES
+
+1. Additive Gaussian and affine/additive models: continuous mean/covariance
+   formulas with numerical integration sensitivity checks. These are
+   controls, not tests of nonlinear state-dependent variance cancellation.
+2. General smooth nonlinear state models: independently refined covariance
+   and factor approximations with separate time, representation and sampling
+   uncertainty records. Agreement is evidence, not a certified bias bound.
+3. Rough-Heston European options: fractional Riccati plus Fourier inversion,
+   with independent refinement of the Riccati mesh, Fourier cutoff,
+   quadrature resolution and precision. The characteristic-function identity
+   is exact; the numerical solver/inversion is approximate. This application
+   is outside the present smooth-bounded-diffusion theorem.
+
+Primary source for (3): Omar El Euch and Mathieu Rosenbaum,
+The characteristic function of rough Heston models,
+https://arxiv.org/abs/1609.02108
+
+COMPARISONS TO KEEP DISTINCT
+
+Time: E[F(Y_N)] versus the continuous target.
+Compression: E[F(fast_N)] versus E[F(Y_N)] at the same mesh and model.
+Total error: E[F(fast_N)] versus the continuous target.
+Efficiency: estimator RMSE versus total wall-clock cost, tuning mesh,
+representation and sample count independently for every method.
+
+Mesh differences remain supporting diagnostics. An upper bound alone does
+not justify dividing them by 1-2^(-p) to obtain absolute bias. Do not build
+the reference by Richardson extrapolation assuming the rate under test.

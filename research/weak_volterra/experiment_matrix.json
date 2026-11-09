@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "status": "partially_executed_initial_rate_test",
+  "date": "2026-11-05",
+  "scope": "Smooth scalar nonlinear fractional Volterra terminal-state observables; optional rough-Heston application is separate.",
+  "normalization": {
+    "T": 1,
+    "chi": "sqrt(2*H)",
+    "kernel": "chi*t**(H-0.5)",
+    "diffusion": "sqrt(q(x))"
+  },
+  "models": [
+    {
+      "id": "G0",
+      "b": "0",
+      "q": "1",
+      "x0": 0.3,
+      "role": "analytic Gaussian control"
+    },
+    {
+      "id": "G1",
+      "b": "0.7*(0.2-x)",
+      "q": "1",
+      "x0": 0.3,
+      "role": "analytic Gaussian OU with drift"
+    },
+    {
+      "id": "N1",
+      "b": "0",
+      "q": "1+0.8*sin(x)",
+      "x0": 0.3,
+      "role": "fixed nonlinear diffusion"
+    },
+    {
+      "id": "N2",
+      "b": "0.7*(0.2-x)",
+      "q": "1+0.8*sin(x)",
+      "x0": 0.3,
+      "role": "affine drift and nonlinear diffusion"
+    },
+    {
+      "id": "N3",
+      "b": "-0.4*x+0.2*sin(x)",
+      "q": "1+0.6*tanh(x)+0.2*sin(2*x)",
+      "x0": 0.3,
+      "role": "general smooth nonlinear drift and diffusion"
+    },
+    {
+      "id": "R",
+      "b": "0",
+      "q": "1+epsilon*cos(x)",
+      "x0": 0,
+      "epsilon": [
+        0.25,
+        0.5
+      ],
+      "role": "fixed-nonlinearity tests separate from first response"
+    }
+  ],
+  "payoffs": {
+    "F1": "cos(0.7*x)",
+    "F2": "sin(0.7*x)",
+    "F3": "exp(-0.5*(x-0.4)**2)",
+    "response": "cos(x)"
+  },
+  "hurst": {
+    "core": [
+      0.1,
+      0.2,
+      0.25,
+      0.35,
+      0.45
+    ],
+    "stress": [
+      0.05,
+      0.16666666666666666,
+      0.24,
+      0.26
+    ],
+    "precision_extra": [
+      0.49
+    ]
+  },
+  "grids": {
+    "time": [
+      32,
+      64,
+      128,
+      256,
+      512,
+      1024,
+      2048,
+      4096
+    ],
+    "time_extension": [
+      8192,
+      16384
+    ],
+    "compression": [
+      32,
+      128,
+      512
+    ],
+    "compression_optional": [
+      1024
+    ],
+    "timing": [
+      256,
+      512,
+      1024,
+      2048,
+      4096,
+      8192,
+      16384,
+      32768,
+      65536,
+      131072
+    ],
+    "direct_cdq_checks": [
+      1,
+      2,
+      3,
+      8,
+      16,
+      31,
+      32,
+      33,
+      127
+    ]
+  },
+  "pilot": {
+    "models": [
+      "N1",
+      "N3"
+    ],
+    "H": [
+      0.1,
+      0.25,
+      0.35
+    ],
+    "payoffs": [
+      "F1",
+      "F3"
+    ],
+    "N": [
+      32,
+      64,
+      128,
+      256
+    ],
+    "independent_units": 4096
+  },
+  "parameters": {
+    "M": [
+      1,
+      2,
+      4,
+      8,
+      16,
+      32,
+      64
+    ],
+    "L_tail": [
+      0,
+      1,
+      2,
+      4,
+      8,
+      12,
+      16
+    ],
+    "projection_r": [
+      0,
+      1,
+      2,
+      4,
+      6,
+      8,
+      12
+    ],
+    "R_offsets": [
+      0,
+      2,
+      4,
+      8,
+      16
+    ],
+    "preserving_L": "ceil(log2(N)+log2(M)/(2*H))",
+    "total_M": [
+      1,
+      2,
+      4
+    ],
+    "fixed_cap_ablation": [
+      2,
+      4
+    ],
+    "precision_digits": [
+      16,
+      80,
+      160
+    ],
+    "factor_ranks_initial": [
+      2,
+      4,
+      8,
+      16,
+      32,
+      64
+    ],
+    "factor_tolerances_initial": [
+      0.001,
+      1e-05,
+      1e-07,
+      1e-09
+    ]
+  },
+  "experiments": [
+    {
+      "id": "E0",
+      "quantity": "numerical law and causality",
+      "depends_on": [],
+      "reference": "analytic controls and direct small-grid Gram construction"
+    },
+    {
+      "id": "E1",
+      "quantity": "Haar random-mixture bias",
+      "depends_on": [
+        "E0"
+      ],
+      "reference": "Gaussian with aa^T+(E_h/S_L)B_L",
+      "vary": [
+        "M",
+        "N"
+      ],
+      "hold": [
+        "H",
+        "N_within_sweep",
+        "L"
+      ]
+    },
+    {
+      "id": "E2",
+      "quantity": "Haar-tail and projection bias separately",
+      "depends_on": [
+        "E0"
+      ],
+      "reference": "fixed-mesh full source Gram",
+      "vary": [
+        "L",
+        "r",
+        "R"
+      ]
+    },
+    {
+      "id": "E3",
+      "quantity": "fixed-model time refinement",
+      "depends_on": [
+        "E0",
+        "E2"
+      ],
+      "reference": "valid coupled time levels plus separately qualified continuous reference"
+    },
+    {
+      "id": "E4",
+      "quantity": "actual Haar total/compression/time error decomposition",
+      "depends_on": [
+        "E1",
+        "E2",
+        "E3"
+      ],
+      "schedule": "preserving_L",
+      "M": [
+        1,
+        2,
+        4
+      ]
+    },
+    {
+      "id": "E5",
+      "quantity": "matched comparator validation",
+      "depends_on": [
+        "E0"
+      ],
+      "methods": [
+        "printed_Ma_Wu_Algorithm_2",
+        "variance_matched_SOE_hybrid",
+        "factor_L2_rules_time_stepping",
+        "original_thesis_predictor_FFT",
+        "deterministic_projection",
+        "direct_exact_cell"
+      ]
+    },
+    {
+      "id": "E6",
+      "quantity": "held-out total MSE versus complete work",
+      "depends_on": [
+        "E3",
+        "E4",
+        "E5",
+        "E7"
+      ],
+      "target_RMSE": [
+        0.02,
+        0.01,
+        0.005,
+        0.002
+      ],
+      "timing_repetitions": 7,
+      "concurrent_timing": false
+    },
+    {
+      "id": "E7",
+      "quantity": "precision and Hurst stress",
+      "depends_on": [
+        "E0"
+      ],
+      "stress_r_max": 24,
+      "stress_R_max": 48
+    }
+  ],
+  "statistics": {
+    "pilot_units": 4096,
+    "min_production_units": 32768,
+    "max_production_units": 4194304,
+    "min_batches": 20,
+    "production_size": "max(32768,ceil(2*(z*s_pilot/target_halfwidth)^2))",
+    "production_size_fixed_from_independent_pilot": true,
+    "confidence": 0.95,
+    "multiplicity": "Bonferroni primary family or clearly identified simultaneous bootstrap bands",
+    "unit": "one fresh-mode path or one complete coupled/antithetic path unit",
+    "reference_budget_fraction": 0.1,
+    "representation_budget_fraction": 0.1,
+    "statistical_halfwidth_fraction": 0.2,
+    "minimum_resolved_levels_for_slope": 4,
+    "control_coefficients": "pilot-fit or cross-fit"
+  },
+  "gates": [
+    "Correct marginal and joint source laws",
+    "Small-grid direct/CDQ agreement",
+    "Precision and truncation budgets",
+    "Pilot variance and cost forecast",
+    "Reference class and uncertainty explicit",
+    "Freeze tuning before held-out evaluation"
+  ],
+  "reference_classes": [
+    "analytic_or_certified",
+    "empirical_with_sensitivity_band",
+    "unresolved"
+  ],
+  "required_result_fields": [
+    "experiment_id",
+    "configuration_id",
+    "source_hash",
+    "model",
+    "payoff",
+    "H",
+    "T",
+    "chi",
+    "x0",
+    "N",
+    "M",
+    "L",
+    "r",
+    "R",
+    "factor_rank",
+    "kernel_tolerance",
+    "precision",
+    "seed_manifest",
+    "independent_units",
+    "batch_sums",
+    "paired_variance",
+    "signed_bias",
+    "statistical_interval",
+    "reference_class",
+    "reference_error_ledger",
+    "quadrature_error",
+    "discarded_covariance_trace",
+    "factorization_residual",
+    "sampler_acceptance",
+    "coefficient_seconds",
+    "normal_generation_seconds",
+    "filter_setup_seconds",
+    "solve_seconds",
+    "one_time_setup_seconds",
+    "total_seconds",
+    "peak_memory_bytes",
+    "hardware",
+    "threads",
+    "status"
+  ],
+  "not_established_by_experiments": [
+    "family-uniform sharpness theorem",
+    "necessity of critical logarithm",
+    "fixed-model Richardson expansion",
+    "unregularized rough-Heston rates",
+    "universal speed superiority"
+  ],
+  "execution_updates": [
+    {
+      "date": "2026-11-05",
+      "artifact": "rate_test/report.pdf",
+      "status": "initial_exact_cell_test_complete",
+      "scope": "Two fixed nonlinear models; H=0.10,0.25,0.35; four coupled mesh pairs; additional low-H secondary-payoff follow-up.",
+      "finding": "Primary cosine data support the upper bounds; critical logarithm and one secondary low-H payoff remain unresolved.",
+      "remaining": "Continuous nonlinear reference, full parameter matrix, randomized Haar total error, and equal-accuracy cost campaign."
+    }
+  ]
+}

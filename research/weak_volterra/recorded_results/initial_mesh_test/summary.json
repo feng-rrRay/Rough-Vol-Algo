@@ -1,0 +1,276 @@
+{
+  "primary": [
+    {
+      "H": 0.1,
+      "model": "N1",
+      "payoff": "cos07",
+      "window": "coarse N=16,32,64,128",
+      "effective_order": 0.4507916126332275,
+      "bootstrap95_low": 0.2715649764215582,
+      "bootstrap95_high": 0.6703691312036084,
+      "primary_family_interval_low": 0.20739673054849359,
+      "primary_family_interval_high": 0.7573311586767529,
+      "tail_window_order": 0.4852996657497615,
+      "all_four_increments_resolved": true,
+      "bootstrap_sign_failure_fraction": 0.0
+    },
+    {
+      "H": 0.1,
+      "model": "N3",
+      "payoff": "cos07",
+      "window": "coarse N=16,32,64,128",
+      "effective_order": 0.5232794154477755,
+      "bootstrap95_low": 0.4721946781967316,
+      "bootstrap95_high": 0.5743363724268353,
+      "primary_family_interval_low": 0.45388563159604695,
+      "primary_family_interval_high": 0.5921505936251985,
+      "tail_window_order": 0.5290389673492035,
+      "all_four_increments_resolved": true,
+      "bootstrap_sign_failure_fraction": 0.0
+    },
+    {
+      "H": 0.25,
+      "model": "N1",
+      "payoff": "cos07",
+      "window": "coarse N=16,32,64,128",
+      "effective_order": 1.0091496610496247,
+      "bootstrap95_low": 0.812925745443309,
+      "bootstrap95_high": 1.3455988618559551,
+      "primary_family_interval_low": 0.7599784287434261,
+      "primary_family_interval_high": 1.5508158802988754,
+      "tail_window_order": 1.0173527458673577,
+      "all_four_increments_resolved": true,
+      "bootstrap_sign_failure_fraction": 0.00014999999999998348
+    },
+    {
+      "H": 0.25,
+      "model": "N3",
+      "payoff": "cos07",
+      "window": "coarse N=16,32,64,128",
+      "effective_order": 0.9465326754169385,
+      "bootstrap95_low": 0.8950996606713102,
+      "bootstrap95_high": 1.003848823883702,
+      "primary_family_interval_low": 0.8789723616107036,
+      "primary_family_interval_high": 1.02413146705195,
+      "tail_window_order": 0.9616555773596914,
+      "all_four_increments_resolved": true,
+      "bootstrap_sign_failure_fraction": 0.0
+    },
+    {
+      "H": 0.35,
+      "model": "N1",
+      "payoff": "cos07",
+      "window": "coarse N=16,32,64,128",
+      "effective_order": 0.9948980687545638,
+      "bootstrap95_low": 0.911391945308035,
+      "bootstrap95_high": 1.0853457307427858,
+      "primary_family_interval_low": 0.8807877342694977,
+      "primary_family_interval_high": 1.1184549115199387,
+      "tail_window_order": 0.9620630973323759,
+      "all_four_increments_resolved": true,
+      "bootstrap_sign_failure_fraction": 0.0
+    },
+    {
+      "H": 0.35,
+      "model": "N3",
+      "payoff": "cos07",
+      "window": "coarse N=16,32,64,128",
+      "effective_order": 0.9907388665885755,
+      "bootstrap95_low": 0.9563205069080767,
+      "bootstrap95_high": 1.0251713804694529,
+      "primary_family_interval_low": 0.9433032241362631,
+      "primary_family_interval_high": 1.0379888302794067,
+      "tail_window_order": 0.9718331717179672,
+      "all_four_increments_resolved": true,
+      "bootstrap_sign_failure_fraction": 0.0
+    }
+  ],
+  "mc_crosschecks": [
+    {
+      "H": 0.1,
+      "model": "N1",
+      "payoff": "cos07",
+      "standardized_difference": -0.33794777063679715
+    },
+    {
+      "H": 0.1,
+      "model": "N1",
+      "payoff": "sin07",
+      "standardized_difference": 0.33037045467287823
+    },
+    {
+      "H": 0.1,
+      "model": "N1",
+      "payoff": "gaussian",
+      "standardized_difference": -0.12648934954098234
+    },
+    {
+      "H": 0.1,
+      "model": "N1",
+      "payoff": "cos1",
+      "standardized_difference": -0.44220276802119773
+    },
+    {
+      "H": 0.1,
+      "model": "N3",
+      "payoff": "cos07",
+      "standardized_difference": 0.009507194827922416
+    },
+    {
+      "H": 0.1,
+      "model": "N3",
+      "payoff": "sin07",
+      "standardized_difference": 0.004561551451196056
+    },
+    {
+      "H": 0.1,
+      "model": "N3",
+      "payoff": "gaussian",
+      "standardized_difference": -0.011251567617651472
+    },
+    {
+      "H": 0.1,
+      "model": "N3",
+      "payoff": "cos1",
+      "standardized_difference": -0.15791752145770552
+    },
+    {
+      "H": 0.35,
+      "model": "N1",
+      "payoff": "cos07",
+      "standardized_difference": -0.7497722382702826
+    },
+    {
+      "H": 0.35,
+      "model": "N1",
+      "payoff": "sin07",
+      "standardized_difference": -0.28130480886256626
+    },
+    {
+      "H": 0.35,
+      "model": "N1",
+      "payoff": "gaussian",
+      "standardized_difference": -2.2407276751256617
+    },
+    {
+      "H": 0.35,
+      "model": "N1",
+      "payoff": "cos1",
+      "standardized_difference": -1.1918712476056799
+    },
+    {
+      "H": 0.35,
+      "model": "N3",
+      "payoff": "cos07",
+      "standardized_difference": -1.0591692282695298
+    },
+    {
+      "H": 0.35,
+      "model": "N3",
+      "payoff": "sin07",
+      "standardized_difference": -0.22050004771412782
+    },
+    {
+      "H": 0.35,
+      "model": "N3",
+      "payoff": "gaussian",
+      "standardized_difference": -2.521566200919907
+    },
+    {
+      "H": 0.35,
+      "model": "N3",
+      "payoff": "cos1",
+      "standardized_difference": -1.3996578392785306
+    }
+  ],
+  "secondary_payoff_extension": [
+    {
+      "H": "0.1",
+      "N_coarse": "16",
+      "N_fine": "32",
+      "model": "N3",
+      "payoff": "gaussian",
+      "difference": "-0.00021356918718946238",
+      "standard_error": "5.2449845136883035e-05",
+      "ci95_low": "-0.00032536338577115234",
+      "ci95_high": "-0.0001017749886077724",
+      "independent_replicates": "16",
+      "points_per_replicate": "16384",
+      "antithetic_paths": "524288"
+    },
+    {
+      "H": "0.1",
+      "N_coarse": "32",
+      "N_fine": "64",
+      "model": "N3",
+      "payoff": "gaussian",
+      "difference": "-0.0005156232545494788",
+      "standard_error": "0.00010357358941058693",
+      "ci95_low": "-0.0007363851346306691",
+      "ci95_high": "-0.0002948613744682885",
+      "independent_replicates": "16",
+      "points_per_replicate": "16384",
+      "antithetic_paths": "524288"
+    },
+    {
+      "H": "0.1",
+      "N_coarse": "64",
+      "N_fine": "128",
+      "model": "N3",
+      "payoff": "gaussian",
+      "difference": "-0.0005028895422939109",
+      "standard_error": "5.569232238174308e-05",
+      "ci95_low": "-0.0006215949175256458",
+      "ci95_high": "-0.0003841841670621761",
+      "independent_replicates": "16",
+      "points_per_replicate": "16384",
+      "antithetic_paths": "524288"
+    },
+    {
+      "H": "0.1",
+      "N_coarse": "128",
+      "N_fine": "256",
+      "model": "N3",
+      "payoff": "gaussian",
+      "difference": "-0.0005327300325315796",
+      "standard_error": "4.615686983006713e-05",
+      "ci95_low": "-0.0006311110717553378",
+      "ci95_high": "-0.0004343489933078213",
+      "independent_replicates": "16",
+      "points_per_replicate": "16384",
+      "antithetic_paths": "524288"
+    },
+    {
+      "H": "0.1",
+      "N_coarse": "256",
+      "N_fine": "512",
+      "model": "N3",
+      "payoff": "gaussian",
+      "difference": "-0.0005210683902829596",
+      "standard_error": "0.00017102857513073732",
+      "ci95_low": "-0.0008856071690231057",
+      "ci95_high": "-0.0001565296115428135",
+      "independent_replicates": "16",
+      "points_per_replicate": "4096",
+      "antithetic_paths": "131072"
+    },
+    {
+      "H": "0.1",
+      "N_coarse": "512",
+      "N_fine": "1024",
+      "model": "N3",
+      "payoff": "gaussian",
+      "difference": "-0.00039628342830363343",
+      "standard_error": "0.00013496399980153384",
+      "ci95_low": "-0.0006839523843475424",
+      "ci95_high": "-0.00010861447225972442",
+      "independent_replicates": "16",
+      "points_per_replicate": "4096",
+      "antithetic_paths": "131072"
+    }
+  ],
+  "total_antithetic_path_evaluations": 25165824,
+  "production_wall_seconds": 575.5900272080326,
+  "interpretation": "Finite-window self-convergence diagnostics. Neither a continuous-error certificate nor proof of a fixed-model leading expansion.",
+  "uncertainty": "Pointwise t intervals for increments; replicate-bootstrap percentile intervals for effective orders. No within-net iid assumption."
+}
